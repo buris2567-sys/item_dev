@@ -35,29 +35,47 @@
                         </div>
                     </div>
                     
-                    <!-- ฝั่งขวา: อัปโหลดรูปภาพ -->
+                    <!-- ฝั่งขวา: อัปโหลดรูปภาพ 3 บล็อกแยกตามภาพ -->
                     <div class="col-md-6">
-                        <label class="form-label fw-bold small">รูปภาพประกอบ (สูงสุด 3 รูป)</label>
+                        <label class="form-label fw-bold small mb-3">รูปภาพประกอบ (สูงสุด 3 รูป):</label>
                         
-                        <!-- Input File (ซ่อนไว้ แต่จะถูกเรียกผ่าน JS) -->
-                        <input type="file" name="item_images[]" id="fileInput" accept=".jpg, .jpeg, .png" multiple class="d-none">
-                        
-                        <div class="row g-3 mb-2" id="imagePreviewContainer">
-                            <!-- ปุ่มสำหรับคลิกเพิ่มรูปภาพ (เลียนแบบ UI เดิม) -->
-                            <div class="col-12" id="uploadTrigger" style="cursor: pointer;">
-                                <div class="border border-secondary border-dashed bg-white d-flex flex-column justify-content-center align-items-center text-muted" style="height: 200px;">
-                                    <i class="bi bi-image fs-1 mb-2"></i>
-                                    <span>คลิกเพื่อเลือกรูปภาพ (เลือกได้พร้อมกัน 3 รูป)</span>
+                        <div class="d-flex flex-column gap-3 mb-3">
+                            <?php for ($slot = 0; $slot < 3; $slot++): ?>
+                            <!-- บล็อกอัปโหลดรูปที่ <?= $slot + 1 ?> -->
+                            <div class="d-flex align-items-center gap-3 p-2 bg-white border border-secondary border-opacity-25 rounded shadow-sm">
+                                <!-- ปุ่มสำหรับกดเลือกรูปภาพ -->
+                                <div class="text-center" style="width: 110px;">
+                                    <input type="file" name="item_images[]" id="fileInput_<?= $slot ?>" accept=".jpg, .jpeg, .png" class="d-none slot-file-input" data-slot="<?= $slot ?>">
+                                    <button type="button" class="btn btn-outline-dark border-secondary border-dashed rounded-3 px-3 py-2 w-100 btn-upload-trigger" data-slot="<?= $slot ?>" title="คลิกเพื่อเลือกรูป">
+                                        <i class="bi bi-arrow-up fs-4 d-block"></i>
+                                        <span class="small fw-semibold">เลือกรูปที่ <?= $slot + 1 ?></span>
+                                    </button>
+                                </div>
+
+                                <!-- กล่องแสดงตัวอย่างรูป (เริ่มต้นเป็น No image available) -->
+                                <div class="flex-grow-1 position-relative">
+                                    <div id="previewBox_<?= $slot ?>" class="border border-secondary border-opacity-25 bg-white d-flex flex-column justify-content-center align-items-center text-muted rounded" style="height: 120px; background-size: contain; background-repeat: no-repeat; background-position: center;">
+                                        <div id="placeholderText_<?= $slot ?>" class="text-center text-secondary opacity-75">
+                                            <i class="bi bi-image fs-3 d-block mb-1"></i>
+                                            <span class="fw-bold small">No image available</span>
+                                        </div>
+                                    </div>
+                                    <!-- ปุ่มลบ/ยกเลิกรูปภาพในช่องนี้ -->
+                                    <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1 rounded-circle p-0 d-none btn-clear-image" id="clearBtn_<?= $slot ?>" data-slot="<?= $slot ?>" style="width: 24px; height: 24px; line-height: 1;" title="ลบรูปนี้">
+                                        <i class="bi bi-x"></i>
+                                    </button>
                                 </div>
                             </div>
-                            <!-- พื้นที่แสดงตัวอย่างรูป จะถูกแทรกตรงนี้ด้วย JS -->
+                            <?php endfor; ?>
                         </div>
-                        <small class="text-muted">รองรับไฟล์ JPG, PNG ขนาดไม่เกิน 5MB ต่อไฟล์</small>
+                        
+                        <small class="text-muted d-block"><i class="bi bi-info-circle me-1"></i>รองรับไฟล์ JPG, PNG ขนาดไม่เกิน 5MB ต่อไฟล์</small>
                     </div>
 
                 </div>
             </div>
             <div class="modal-footer bg-light border-0">
+                <button type="button" class="btn btn-secondary border-dark rounded-0 fw-bold px-4" data-bs-dismiss="modal">ยกเลิก</button>
                 <button type="submit" class="btn btn-warning border-dark rounded-0 fw-bold px-5 shadow-sm">บันทึก</button>
             </div>
         </form>
@@ -65,45 +83,54 @@
 </div>
 
 <script>
-// สคริปต์สำหรับคลิกกล่องแล้วเปิด File Browser และแสดงตัวอย่างรูป
-document.getElementById('uploadTrigger').addEventListener('click', function() {
-    document.getElementById('fileInput').click();
+// สคริปต์จัดการการเลือกรูปภาพแยกทีละบล็อก (3 บล็อก)
+document.querySelectorAll('.btn-upload-trigger').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const slot = this.getAttribute('data-slot');
+        document.getElementById('fileInput_' + slot).click();
+    });
 });
 
-document.getElementById('fileInput').addEventListener('change', function(e) {
-    // [ปรับปรุง]: ตรวจสอบหากเลือกเกิน 3 รูป ให้แจ้งเตือนและตัดเหลือ 3 รูปจริงใน input ด้วย DataTransfer
-    if (e.target.files.length > 3) {
-        alert('คุณสามารถเลือกรูปภาพได้สูงสุด 3 รูปเท่านั้น ระบบจะเลือกเฉพาะ 3 รูปแรกให้อัตโนมัติ');
-        
-        // ตัดข้อมูลไฟล์ใน input ให้เหลือ 3 รูปจริง ป้องกันการส่งไฟล์ส่วนเกินไปยัง Backend
-        const dt = new DataTransfer();
-        for (let i = 0; i < 3; i++) {
-            dt.items.add(e.target.files[i]);
-        }
-        e.target.files = dt.files;
-    }
+// ดักจับการเปลี่ยนไฟล์ในแต่ละช่องเพื่อพรีวิว
+document.querySelectorAll('.slot-file-input').forEach(input => {
+    input.addEventListener('change', function(e) {
+        const slot = this.getAttribute('data-slot');
+        const previewBox = document.getElementById('previewBox_' + slot);
+        const placeholder = document.getElementById('placeholderText_' + slot);
+        const clearBtn = document.getElementById('clearBtn_' + slot);
+        const file = e.target.files[0];
 
-    const container = document.getElementById('imagePreviewContainer');
-    // ลบเนื้อหาเดิมออกก่อน (รวมถึงปุ่มคลิก)
-    container.innerHTML = ''; 
-    
-    // ดึงไฟล์ที่ผ่านการจำกัดเหลือไม่เกิน 3 รูปมาแสดงตัวอย่าง
-    let files = Array.from(e.target.files);
-    
-    files.forEach((file, index) => {
-        let reader = new FileReader();
-        reader.onload = function(e) {
-            // ถ้ารูปแรกให้ใหญ่หน่อย (col-12) รูปต่อไปเล็ก (col-6)
-            let colClass = index === 0 ? 'col-12' : 'col-6';
-            let height = index === 0 ? '200px' : '120px';
-            
-            container.innerHTML += `
-                <div class="${colClass}">
-                    <div class="border border-dark bg-white" style="height: ${height}; background-image: url('${e.target.result}'); background-size: cover; background-position: center;"></div>
-                </div>
-            `;
+        if (file) {
+            // ตรวจสอบขนาดไฟล์ (ไม่เกิน 5MB)
+            if (file.size > 5242880) {
+                alert('ไฟล์มีขนาดเกิน 5MB กรุณาเลือกไฟล์ใหม่');
+                this.value = '';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                previewBox.style.backgroundImage = `url('${event.target.result}')`;
+                placeholder.classList.add('d-none');
+                clearBtn.classList.remove('d-none');
+            };
+            reader.readAsDataURL(file);
         }
-        reader.readAsDataURL(file);
+    });
+});
+
+// ฟังก์ชันล้างรูปภาพในช่องนั้นๆ
+document.querySelectorAll('.btn-clear-image').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const slot = this.getAttribute('data-slot');
+        const fileInput = document.getElementById('fileInput_' + slot);
+        const previewBox = document.getElementById('previewBox_' + slot);
+        const placeholder = document.getElementById('placeholderText_' + slot);
+
+        fileInput.value = ''; // ล้างค่าไฟล์
+        previewBox.style.backgroundImage = '';
+        placeholder.classList.remove('d-none');
+        this.classList.add('d-none');
     });
 });
 </script>

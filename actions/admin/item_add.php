@@ -25,21 +25,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         mkdir($upload_dir, 0777, true);
     }
 
-    if (isset($_FILES['item_images']) && !empty($_FILES['item_images']['name'][0])) {
+    if (isset($_FILES['item_images']['name']) && is_array($_FILES['item_images']['name'])) {
         $file_count = count($_FILES['item_images']['name']);
-        $max_files = min($file_count, 3); // บังคับอัปโหลดสูงสุดแค่ 3 รูป
-
-        for ($i = 0; $i < $max_files; $i++) {
-            $tmp_name = $_FILES['item_images']['tmp_name'][$i];
-            $file_size = $_FILES['item_images']['size'][$i];
-            $file_name = $_FILES['item_images']['name'][$i];
+        
+        for ($i = 0; $i < $file_count && count($uploaded_images) < 3; $i++) {
+            $tmp_name  = $_FILES['item_images']['tmp_name'][$i] ?? '';
+            $file_size = $_FILES['item_images']['size'][$i] ?? 0;
+            $file_name = $_FILES['item_images']['name'][$i] ?? '';
+            $error     = $_FILES['item_images']['error'][$i] ?? UPLOAD_ERR_NO_FILE;
             
-            // เช็คขนาดไฟล์ (ไม่เกิน 5MB)
-            if ($file_size > 0 && $file_size <= 5242880) {
+            // ตรวจสอบว่ามีการอัปโหลดไฟล์เข้ามาจริงและไม่มีข้อผิดพลาด
+            if ($error === UPLOAD_ERR_OK && $file_size > 0 && $file_size <= 5242880) {
                 // เปลี่ยนชื่อไฟล์ป้องกันชื่อซ้ำ
                 $ext = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
                 if (in_array($ext, ['jpg', 'jpeg', 'png'])) {
-                    $new_filename = $item_id . '_' . ($i+1) . '_' . uniqid() . '.' . $ext;
+                    $new_filename = $item_id . '_' . (count($uploaded_images) + 1) . '_' . uniqid() . '.' . $ext;
                     $destination = $upload_dir . $new_filename;
                     
                     if (move_uploaded_file($tmp_name, $destination)) {
