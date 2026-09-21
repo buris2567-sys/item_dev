@@ -71,11 +71,24 @@ document.getElementById('uploadTrigger').addEventListener('click', function() {
 });
 
 document.getElementById('fileInput').addEventListener('change', function(e) {
+    // [ปรับปรุง]: ตรวจสอบหากเลือกเกิน 3 รูป ให้แจ้งเตือนและตัดเหลือ 3 รูปจริงใน input ด้วย DataTransfer
+    if (e.target.files.length > 3) {
+        alert('คุณสามารถเลือกรูปภาพได้สูงสุด 3 รูปเท่านั้น ระบบจะเลือกเฉพาะ 3 รูปแรกให้อัตโนมัติ');
+        
+        // ตัดข้อมูลไฟล์ใน input ให้เหลือ 3 รูปจริง ป้องกันการส่งไฟล์ส่วนเกินไปยัง Backend
+        const dt = new DataTransfer();
+        for (let i = 0; i < 3; i++) {
+            dt.items.add(e.target.files[i]);
+        }
+        e.target.files = dt.files;
+    }
+
     const container = document.getElementById('imagePreviewContainer');
     // ลบเนื้อหาเดิมออกก่อน (รวมถึงปุ่มคลิก)
     container.innerHTML = ''; 
     
-    let files = Array.from(e.target.files).slice(0, 3); // จำกัดแค่ 3 รูป
+    // ดึงไฟล์ที่ผ่านการจำกัดเหลือไม่เกิน 3 รูปมาแสดงตัวอย่าง
+    let files = Array.from(e.target.files);
     
     files.forEach((file, index) => {
         let reader = new FileReader();
