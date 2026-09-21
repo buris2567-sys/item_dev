@@ -11,11 +11,21 @@ if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'Admin') {$_SE
 $categories =$pdo->query("SELECT * FROM categories ORDER BY name ASC")->fetchAll();
 
 // ดึงรายการสิ่งของ
-$items =$pdo->query("
+$items = $pdo->query("
     SELECT i.*, c.name as category_name 
     FROM items i 
     LEFT JOIN categories c ON i.category_id = c.category_id 
     ORDER BY i.created_at DESC
+")->fetchAll();
+
+// ดึงประวัติการเปลี่ยนแปลงล่าสุด (Transaction Log)
+$transactions = $pdo->query("
+    SELECT t.*, i.name as item_name, c.name as category_name, u.username
+    FROM inventory_transactions t
+    LEFT JOIN items i ON t.item_id = i.item_id
+    LEFT JOIN categories c ON i.category_id = c.category_id
+    LEFT JOIN users u ON t.created_by = u.user_id
+    ORDER BY t.created_at DESC
 ")->fetchAll();
 
 $pageTitle = "จัดการสิ่งของ";
@@ -132,6 +142,9 @@ include 'includes/header.php';
                     </div>
                 </div>
 
+                <!-- นำเข้าการ์ดตารางประวัติการเปลี่ยนแปลงล่าสุด (Component แยก) -->
+                <?php include 'components/tables/recent_transactions_table.php'; ?>
+
             </div>
         </div>
     </div>
@@ -224,9 +237,4 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 </script>
 
-<?php include 'includes/footer.php'; ?>
-
-<!-- ดึงไฟล์ Modal เข้ามาใช้งาน -->
-<?php include 'components/modals/add_item_modal.php'; ?>
-<?php include 'components/modals/update_stock_modal.php'; ?>
 <?php include 'includes/footer.php'; ?>
