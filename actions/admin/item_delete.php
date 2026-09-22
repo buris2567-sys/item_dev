@@ -49,7 +49,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['item_id'])) {
         $pdo->rollBack();
         $_SESSION['error'] = "เกิดข้อผิดพลาดในการลบ: " . $e->getMessage();
     }
-    
+
+    // } catch (Exception $e) {
+    //     $pdo->rollBack();
+    //     // 🟢 หยุดการทำงานของเว็บ แล้วพ่น Error ออกมาบนหน้าจอสีขาวเลย จะได้รู้ว่า Database ติดปัญหาอะไร
+    //     die("<h3 style='color:red;'>🚨 Database Error: " . $e->getMessage() . "</h3>");
+    // }
+
     header("Location: ../../index.php?page=manage_items");
     exit;
 }

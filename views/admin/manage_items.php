@@ -19,28 +19,6 @@ $items = $pdo->query("
     ORDER BY i.created_at DESC
 ")->fetchAll();
 
-// ดึงประวัติการเปลี่ยนแปลงล่าสุด (Transaction Log)
-// $transactions = $pdo->query("
-//     SELECT t.*, i.name as item_name, c.name as category_name, u.username
-//     FROM inventory_transactions t
-//     LEFT JOIN items i ON t.item_id = i.item_id
-//     LEFT JOIN categories c ON i.category_id = c.category_id
-//     LEFT JOIN users u ON t.created_by = u.user_id
-//     ORDER BY t.created_at DESC
-// ")->fetchAll();
-
-// ดึงประวัติการเปลี่ยนแปลงล่าสุด (ปรับปรุงรองรับเคสไอเทมถูกลบไปแล้ว)
-// $transactions = $pdo->query("
-//     SELECT t.*, 
-//            COALESCE(i.name, 'รายการที่ถูกลบไปแล้ว') as item_name, 
-//            COALESCE(c.name, '-') as category_name, 
-//            u.username
-//     FROM inventory_transactions t
-//     LEFT JOIN items i ON t.item_id = i.item_id
-//     LEFT JOIN categories c ON i.category_id = c.category_id
-//     LEFT JOIN users u ON t.created_by = u.user_id
-//     ORDER BY t.created_at DESC
-// ")->fetchAll();
 
 // ดึงประวัติการเปลี่ยนแปลงล่าสุด (สำคัญ: ต้องใช้ LEFT JOIN และ COALESCE เพื่อให้ดึงประวัติของของที่ถูกลบไปแล้วได้)
 $transactions = $pdo->query("
