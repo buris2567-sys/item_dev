@@ -4,7 +4,7 @@
         ประวัติการเปลี่ยนแปลงล่าสุด
     </div>
     <div class="card-body p-0">
-        
+
         <!-- แถบเครื่องมือ: ค้นหาประวัติ -->
         <div class="d-flex justify-content-end align-items-center p-3 border-bottom">
             <div class="d-flex align-items-center">
@@ -30,12 +30,24 @@
                 <tbody>
                     <?php if (!empty($transactions)): ?>
                         <?php foreach ($transactions as $index => $tx): ?>
-                            <?php 
-                                $isAdd = ($tx['transaction_type'] === 'IN');
+                            <?php
+                            // $isAdd = ($tx['transaction_type'] === 'IN');
+                            // $qtySign = $isAdd ? '+' : '-';
+                            // $qtyClass = $isAdd ? 'text-success' : 'text-danger';
+                            // เช็กว่าเป็นขานำเข้าหรือไม่ (รองรับทั้ง IN และ CREATE)
+                            $isAdd = in_array($tx['transaction_type'], ['IN', 'CREATE']);
+
+                            // ป้องกันการแสดงผล -0
+                            if ($tx['quantity'] == 0) {
+                                $qtySign = '';
+                                $qtyClass = 'text-muted'; // ให้ 0 เป็นสีเทาเพื่อความสะอาดตา
+                            } else {
                                 $qtySign = $isAdd ? '+' : '-';
                                 $qtyClass = $isAdd ? 'text-success' : 'text-danger';
-                                $txDate = !empty($tx['created_at']) ? date('d/m/Y', strtotime($tx['created_at'])) : '-';
-                                $txTime = !empty($tx['created_at']) ? date('H:i:s', strtotime($tx['created_at'])) : '-';
+                            }
+
+                            $txDate = !empty($tx['created_at']) ? date('d/m/Y', strtotime($tx['created_at'])) : '-';
+                            $txTime = !empty($tx['created_at']) ? date('H:i:s', strtotime($tx['created_at'])) : '-';
                             ?>
                             <tr class="tx-row" data-search-text="<?= htmlspecialchars(strtolower(($tx['category_name'] ?? '') . ' ' . ($tx['item_name'] ?? '') . ' ' . ($tx['remark'] ?? '') . ' ' . ($tx['username'] ?? ''))) ?>">
                                 <td class="text-muted"><?= $index + 1 ?></td>
@@ -67,7 +79,7 @@
                 </tbody>
             </table>
         </div>
-        
+
         <!-- แถบแบ่งหน้า Transaction (Pagination) -->
         <div class="d-flex justify-content-between align-items-center p-3 border-top">
             <div class="d-flex align-items-center">
@@ -91,95 +103,95 @@
 
 <!-- Script จัดการการค้นหาและแบ่งหน้าสำหรับ Transaction Table -->
 <script>
-document.addEventListener("DOMContentLoaded", function() {
-    const txRows = Array.from(document.querySelectorAll('.tx-row'));
-    const searchTxInput = document.getElementById('searchTxInput');
-    const txPerPageSelect = document.getElementById('txPerPage');
-    const txPrevPageBtn = document.getElementById('txPrevPage');
-    const txNextPageBtn = document.getElementById('txNextPage');
-    const txPageInfo = document.getElementById('txPageInfo');
-    const noTxFilterRow = document.getElementById('noTxFilterRow');
+    document.addEventListener("DOMContentLoaded", function() {
+        const txRows = Array.from(document.querySelectorAll('.tx-row'));
+        const searchTxInput = document.getElementById('searchTxInput');
+        const txPerPageSelect = document.getElementById('txPerPage');
+        const txPrevPageBtn = document.getElementById('txPrevPage');
+        const txNextPageBtn = document.getElementById('txNextPage');
+        const txPageInfo = document.getElementById('txPageInfo');
+        const noTxFilterRow = document.getElementById('noTxFilterRow');
 
-    let currentTxPage = 1;
-    let txPerPage = parseInt(txPerPageSelect.value);
-    let filteredTxRows = [...txRows];
+        let currentTxPage = 1;
+        let txPerPage = parseInt(txPerPageSelect.value);
+        let filteredTxRows = [...txRows];
 
-    function updateTxTable() {
-        const query = searchTxInput.value.trim().toLowerCase();
+        function updateTxTable() {
+            const query = searchTxInput.value.trim().toLowerCase();
 
-        // กรองแถวตามคำค้นหา
-        filteredTxRows = txRows.filter(row => {
-            const text = row.getAttribute('data-search-text') || '';
-            return text.includes(query);
-        });
+            // กรองแถวตามคำค้นหา
+            filteredTxRows = txRows.filter(row => {
+                const text = row.getAttribute('data-search-text') || '';
+                return text.includes(query);
+            });
 
-        // ซ่อนทุกแถว
-        txRows.forEach(row => row.style.display = 'none');
+            // ซ่อนทุกแถว
+            txRows.forEach(row => row.style.display = 'none');
 
-        // คำนวณแบ่งหน้า
-        const totalItems = filteredTxRows.length;
-        const totalPages = Math.ceil(totalItems / txPerPage) || 1;
-        if (currentTxPage > totalPages) currentTxPage = totalPages;
-        if (currentTxPage < 1) currentTxPage = 1;
+            // คำนวณแบ่งหน้า
+            const totalItems = filteredTxRows.length;
+            const totalPages = Math.ceil(totalItems / txPerPage) || 1;
+            if (currentTxPage > totalPages) currentTxPage = totalPages;
+            if (currentTxPage < 1) currentTxPage = 1;
 
-        const startIndex = (currentTxPage - 1) * txPerPage;
-        const endIndex = Math.min(startIndex + txPerPage, totalItems);
+            const startIndex = (currentTxPage - 1) * txPerPage;
+            const endIndex = Math.min(startIndex + txPerPage, totalItems);
 
-        // แสดงเฉพาะแถวในหน้าที่เลือก
-        for (let i = startIndex; i < endIndex; i++) {
-            filteredTxRows[i].style.display = '';
+            // แสดงเฉพาะแถวในหน้าที่เลือก
+            for (let i = startIndex; i < endIndex; i++) {
+                filteredTxRows[i].style.display = '';
+            }
+
+            // อัปเดตตัวเลขและปุ่ม Pagination
+            if (totalItems === 0) {
+                if (noTxFilterRow) noTxFilterRow.style.display = '';
+                txPageInfo.textContent = '0 - 0 of 0';
+            } else {
+                if (noTxFilterRow) noTxFilterRow.style.display = 'none';
+                txPageInfo.textContent = `${startIndex + 1} - ${endIndex} of ${totalItems}`;
+            }
+
+            txPrevPageBtn.disabled = (currentTxPage === 1 || totalItems === 0);
+            txNextPageBtn.disabled = (currentTxPage === totalPages || totalItems === 0);
         }
 
-        // อัปเดตตัวเลขและปุ่ม Pagination
-        if (totalItems === 0) {
-            if (noTxFilterRow) noTxFilterRow.style.display = '';
-            txPageInfo.textContent = '0 - 0 of 0';
-        } else {
-            if (noTxFilterRow) noTxFilterRow.style.display = 'none';
-            txPageInfo.textContent = `${startIndex + 1} - ${endIndex} of ${totalItems}`;
+        if (searchTxInput) {
+            searchTxInput.addEventListener('input', () => {
+                currentTxPage = 1;
+                updateTxTable();
+            });
         }
 
-        txPrevPageBtn.disabled = (currentTxPage === 1 || totalItems === 0);
-        txNextPageBtn.disabled = (currentTxPage === totalPages || totalItems === 0);
-    }
-
-    if (searchTxInput) {
-        searchTxInput.addEventListener('input', () => {
-            currentTxPage = 1;
-            updateTxTable();
-        });
-    }
-
-    if (txPerPageSelect) {
-        txPerPageSelect.addEventListener('change', (e) => {
-            txPerPage = parseInt(e.target.value);
-            currentTxPage = 1;
-            updateTxTable();
-        });
-    }
-
-    if (txPrevPageBtn) {
-        txPrevPageBtn.addEventListener('click', () => {
-            if (currentTxPage > 1) {
-                currentTxPage--;
+        if (txPerPageSelect) {
+            txPerPageSelect.addEventListener('change', (e) => {
+                txPerPage = parseInt(e.target.value);
+                currentTxPage = 1;
                 updateTxTable();
-            }
-        });
-    }
+            });
+        }
 
-    if (txNextPageBtn) {
-        txNextPageBtn.addEventListener('click', () => {
-            const totalPages = Math.ceil(filteredTxRows.length / txPerPage);
-            if (currentTxPage < totalPages) {
-                currentTxPage++;
-                updateTxTable();
-            }
-        });
-    }
+        if (txPrevPageBtn) {
+            txPrevPageBtn.addEventListener('click', () => {
+                if (currentTxPage > 1) {
+                    currentTxPage--;
+                    updateTxTable();
+                }
+            });
+        }
 
-    // เรียกทำงานครั้งแรก
-    if (txRows.length > 0) {
-        updateTxTable();
-    }
-});
+        if (txNextPageBtn) {
+            txNextPageBtn.addEventListener('click', () => {
+                const totalPages = Math.ceil(filteredTxRows.length / txPerPage);
+                if (currentTxPage < totalPages) {
+                    currentTxPage++;
+                    updateTxTable();
+                }
+            });
+        }
+
+        // เรียกทำงานครั้งแรก
+        if (txRows.length > 0) {
+            updateTxTable();
+        }
+    });
 </script>
