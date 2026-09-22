@@ -93,7 +93,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // 3.2 ถ้าระบุจำนวนสต็อกเริ่มต้น > 0 ให้ลงประวัติในตาราง inventory_transactions เพื่อบันทึกเป็นยอดยกมาเข้าคลัง
         if ($initial_stock > 0) {
-            $logStmt = $pdo->prepare("INSERT INTO inventory_transactions (item_id, transaction_type, quantity, remark, created_by) VALUES (?, 'IN', ?, 'รับยอดยกมาเริ่มต้น', ?)");
+            $logStmt = $pdo->prepare("INSERT INTO inventory_transactions (item_id, transaction_type, quantity, remark, created_by) 
+            VALUES (?, 'IN', ?, 'ปรับแก้โดย', ?)");
             $logStmt->execute([$item_id, $initial_stock, $created_by]);
         }
 
