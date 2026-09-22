@@ -30,6 +30,19 @@ $items = $pdo->query("
 // ")->fetchAll();
 
 // ดึงประวัติการเปลี่ยนแปลงล่าสุด (ปรับปรุงรองรับเคสไอเทมถูกลบไปแล้ว)
+// $transactions = $pdo->query("
+//     SELECT t.*, 
+//            COALESCE(i.name, 'รายการที่ถูกลบไปแล้ว') as item_name, 
+//            COALESCE(c.name, '-') as category_name, 
+//            u.username
+//     FROM inventory_transactions t
+//     LEFT JOIN items i ON t.item_id = i.item_id
+//     LEFT JOIN categories c ON i.category_id = c.category_id
+//     LEFT JOIN users u ON t.created_by = u.user_id
+//     ORDER BY t.created_at DESC
+// ")->fetchAll();
+
+// ดึงประวัติการเปลี่ยนแปลงล่าสุด (สำคัญ: ต้องใช้ LEFT JOIN และ COALESCE เพื่อให้ดึงประวัติของของที่ถูกลบไปแล้วได้)
 $transactions = $pdo->query("
     SELECT t.*, 
            COALESCE(i.name, 'รายการที่ถูกลบไปแล้ว') as item_name, 
@@ -41,7 +54,6 @@ $transactions = $pdo->query("
     LEFT JOIN users u ON t.created_by = u.user_id
     ORDER BY t.created_at DESC
 ")->fetchAll();
-
 
 $pageTitle = "จัดการสิ่งของ";
 include 'includes/header.php';
@@ -126,27 +138,27 @@ include 'includes/header.php';
                                                 </div>
                                             </td>
                                             <td>
-    <?php $imgJson = htmlspecialchars($item['images'] ?? '[]', ENT_QUOTES, 'UTF-8'); ?>
-    
-    <!-- ปุ่มแว่นขยาย (ดูรายละเอียด) -->
-    <button type="button" class="btn btn-sm btn-outline-info rounded-0 me-1" 
-            data-id="<?= $item['item_id'] ?>"
-            data-name="<?= htmlspecialchars($item['name']) ?>"
-            data-stock="<?= $item['current_stock'] ?>"
-            data-images="<?= $imgJson ?>"
-            onclick="openViewModal(this)">
-        <i class="bi bi-search"></i>
-    </button>
-    
-    <!-- ปุ่มแก้ไข -->
-    <button type="button" class="btn btn-sm btn-outline-dark rounded-0 me-1"><i class="bi bi-pencil"></i></button>
-    
-    <!-- ปุ่มถังขยะ (ลบ) -->
-    <button type="button" class="btn btn-sm btn-outline-danger rounded-0"
-            onclick="openDeleteModal('<?= $item['item_id'] ?>', '<?= htmlspecialchars($item['name']) ?>')">
-        <i class="bi bi-trash"></i>
-    </button>
-</td>
+                                                <?php $imgJson = htmlspecialchars($item['images'] ?? '[]', ENT_QUOTES, 'UTF-8'); ?>
+
+                                                <!-- ปุ่มแว่นขยาย (ดูรายละเอียด) -->
+                                                <button type="button" class="btn btn-sm btn-outline-info rounded-0 me-1"
+                                                    data-id="<?= $item['item_id'] ?>"
+                                                    data-name="<?= htmlspecialchars($item['name']) ?>"
+                                                    data-stock="<?= $item['current_stock'] ?>"
+                                                    data-images="<?= $imgJson ?>"
+                                                    onclick="openViewModal(this)">
+                                                    <i class="bi bi-search"></i>
+                                                </button>
+
+                                                <!-- ปุ่มแก้ไข -->
+                                                <button type="button" class="btn btn-sm btn-outline-dark rounded-0 me-1"><i class="bi bi-pencil"></i></button>
+
+                                                <!-- ปุ่มถังขยะ (ลบ) -->
+                                                <button type="button" class="btn btn-sm btn-outline-danger rounded-0"
+                                                    onclick="openDeleteModal('<?= $item['item_id'] ?>', '<?= htmlspecialchars($item['name']) ?>')">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </td>
                                         </tr>
                                     <?php endforeach; ?>
                                     <tr id="noDataRow" style="display: none;">
