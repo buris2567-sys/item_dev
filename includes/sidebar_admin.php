@@ -3,8 +3,10 @@ if (!defined('APP_RUNNING')) exit('Forbidden');
 $currentPage = $_GET['page'] ?? 'home';
 ?>
 <!-- เพิ่ม position-sticky top-0 vh-100 เพื่อล็อกเมนูด้านข้างไว้อยู่กับที่ -->
+
 <div class="col-auto col-md-3 col-xl-2 px-0 text-white position-sticky top-0 vh-100 d-flex flex-column" style="width: 250px; background-color: #1e1e24; z-index: 1000;">
-    
+   <!-- <div class="text-white position-sticky top-0 vh-100 d-flex flex-column" style="width: 250px; background-color: #1e1e24;"> -->
+       
     <!-- โลโก้และชื่อระบบ -->
     <div class="d-flex align-items-center p-3 border-bottom border-secondary mb-3">
         <div class="rounded-circle bg-secondary me-3" style="width: 40px; height: 40px;"></div>
@@ -39,3 +41,5 @@ $currentPage = $_GET['page'] ?? 'home';
         </a>
     </div>
 </div>
+
+

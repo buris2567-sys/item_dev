@@ -13,17 +13,20 @@
             </div>
         </div>
 
-        <!-- ตารางข้อมูล Transaction -->
         <div class="table-responsive">
             <table class="table table-bordered border-dark align-middle text-center mb-0" id="txTable">
                 <thead class="table-light">
                     <tr>
-                        <th class="text-muted small fw-bold" style="width: 80px;">ลำดับ</th>
-                        <th class="text-muted small fw-bold" style="width: 130px;">ประเภท</th>
-                        <th class="text-start ps-4 text-muted small fw-bold">ชื่อรายการ</th>
-                        <th class="text-muted small fw-bold" style="width: 100px;">จำนวน</th>
-                        <th class="text-muted small fw-bold" style="width: 120px;">วันที่</th>
-                        <th class="text-muted small fw-bold" style="width: 100px;">เวลา</th>
+                        <th class="text-muted small fw-bold" style="width: 60px;">ลำดับ</th>
+                        <th class="text-muted small fw-bold" style="width: 120px;">ประเภท</th>
+                        <th class="text-start ps-3 text-muted small fw-bold">ชื่อรายการ</th>
+
+                        <!-- 🟢 คอลัมน์สต็อกที่เพิ่มมาใหม่ -->
+                        <th class="text-muted small fw-bold bg-light" style="width: 80px;">เดิม</th>
+                        <th class="text-muted small fw-bold" style="width: 100px;">เปลี่ยนแปลง</th>
+                        <th class="text-muted small fw-bold bg-light" style="width: 80px;">คงเหลือ</th>
+
+                        <th class="text-muted small fw-bold" style="width: 100px;">วันที่</th>
                         <th class="text-start ps-3 text-muted small fw-bold">รายละเอียด</th>
                     </tr>
                 </thead>
@@ -31,50 +34,68 @@
                     <?php if (!empty($transactions)): ?>
                         <?php foreach ($transactions as $index => $tx): ?>
                             <?php
-                            // $isAdd = ($tx['transaction_type'] === 'IN');
-                            // $qtySign = $isAdd ? '+' : '-';
-                            // $qtyClass = $isAdd ? 'text-success' : 'text-danger';
-                            // เช็กว่าเป็นขานำเข้าหรือไม่ (รองรับทั้ง IN และ CREATE)
-                            $isAdd = in_array($tx['transaction_type'], ['IN', 'CREATE']);
+                            $txType = $tx['transaction_type'];
+                            $qty = (int)$tx['quantity'];
 
-                            // ป้องกันการแสดงผล -0
-                            if ($tx['quantity'] == 0) {
+                            // จัดการสีและเครื่องหมาย + / - ให้ครอบคลุมทุกคอลัมน์
+                            if ($txType === 'IN' || $txType === 'CREATE') {
+                                $qtySign = '+';
+                                $qtyClass = 'text-success';
+                                $prevClass = 'text-muted';
+                                $currClass = 'text-dark';
+                            } elseif ($txType === 'DELETE') {
                                 $qtySign = '';
-                                $qtyClass = 'text-muted'; // ให้ 0 เป็นสีเทาเพื่อความสะอาดตา
+                                $qtyClass = 'text-danger';
+                                $prevClass = 'text-danger'; // 🔴 เดิมเป็นสีแดง
+                                $currClass = 'text-danger'; // 🔴 คงเหลือเป็นสีแดง
                             } else {
-                                $qtySign = $isAdd ? '+' : '-';
-                                $qtyClass = $isAdd ? 'text-success' : 'text-danger';
+                                $qtySign = ($qty > 0) ? '-' : '';
+                                $qtyClass = 'text-danger';
+                                $prevClass = 'text-muted';
+                                $currClass = 'text-dark';
                             }
-
-                            $txDate = !empty($tx['created_at']) ? date('d/m/Y', strtotime($tx['created_at'])) : '-';
-                            $txTime = !empty($tx['created_at']) ? date('H:i:s', strtotime($tx['created_at'])) : '-';
                             ?>
                             <tr class="tx-row" data-search-text="<?= htmlspecialchars(strtolower(($tx['category_name'] ?? '') . ' ' . ($tx['item_name'] ?? '') . ' ' . ($tx['remark'] ?? '') . ' ' . ($tx['username'] ?? ''))) ?>">
                                 <td class="text-muted"><?= $index + 1 ?></td>
                                 <td><?= htmlspecialchars($tx['category_name'] ?? '-') ?></td>
-                                <td class="text-start ps-4 fw-bold text-dark">
-                                    <?= htmlspecialchars($tx['item_name'] ?? '-') ?>
-                                </td>
+                                <td class="text-start ps-3 fw-bold text-dark"><?= htmlspecialchars($tx['item_name'] ?? '-') ?></td>
+
+                                <!-- 🟢 จำนวนเดิม -->
+                                <td class="<?= $prevClass ?> fw-bold bg-light"><?= number_format($tx['previous_stock'] ?? 0) ?></td>
+
+                                <!-- 🟢 จำนวนเปลี่ยนแปลง -->
                                 <td class="fw-bold <?= $qtyClass ?>">
-                                    <?= $qtySign . number_format($tx['quantity']) ?>
+                                    <?= $qtySign . number_format(abs($qty)) ?>
                                 </td>
-                                <td><?= $txDate ?></td>
-                                <td><?= $txTime ?></td>
+
+                                <!-- 🟢 จำนวนคงเหลือ (ถ้าโดนลบให้ขึ้นป้ายบอกว่า ลบแล้ว) -->
+                                <td class="<?= $currClass ?> fw-bold bg-light">
+                                    <?php if ($txType === 'DELETE'): ?>
+                                        <span class="badge bg-danger rounded-0">ลบแล้ว</span>
+                                    <?php else: ?>
+                                        <?= number_format($tx['current_stock'] ?? 0) ?>
+                                    <?php endif; ?>
+                                </td>
+
+                                <td>
+                                    <div class="small fw-bold"><?= !empty($tx['created_at']) ? date('d/m/Y', strtotime($tx['created_at'])) : '-' ?></div>
+                                    <div class="small text-muted"><?= !empty($tx['created_at']) ? date('H:i', strtotime($tx['created_at'])) : '-' ?></div>
+                                </td>
+
+                                <!-- 🟢 รายละเอียด (เอา remark มาต่อกับ username อัตโนมัติ) -->
                                 <td class="text-start ps-3 text-muted small">
                                     <?= htmlspecialchars($tx['remark'] ?? '-') ?>
-                                    <?php if (!empty($tx['username'])): ?>
-                                        <span class="text-secondary">(โดย <?= htmlspecialchars($tx['username']) ?>)</span>
-                                    <?php endif; ?>
+                                    <span class="text-secondary">(โดย <?= htmlspecialchars($tx['username'] ?? 'System') ?>)</span>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
                     <?php else: ?>
                         <tr id="noTxDataRow">
-                            <td colspan="7" class="text-center py-4 text-muted">ไม่พบประวัติการเปลี่ยนแปลง</td>
+                            <td colspan="8" class="text-center py-4 text-muted">ไม่พบประวัติการเปลี่ยนแปลง</td>
                         </tr>
                     <?php endif; ?>
                     <tr id="noTxFilterRow" style="display: none;">
-                        <td colspan="7" class="text-center py-4 text-muted">ไม่พบข้อมูลที่ค้นหา</td>
+                        <td colspan="8" class="text-center py-4 text-muted">ไม่พบข้อมูลที่ค้นหา</td>
                     </tr>
                 </tbody>
             </table>
@@ -101,7 +122,6 @@
     </div>
 </div>
 
-<!-- Script จัดการการค้นหาและแบ่งหน้าสำหรับ Transaction Table -->
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         const txRows = Array.from(document.querySelectorAll('.tx-row'));
@@ -119,16 +139,13 @@
         function updateTxTable() {
             const query = searchTxInput.value.trim().toLowerCase();
 
-            // กรองแถวตามคำค้นหา
             filteredTxRows = txRows.filter(row => {
                 const text = row.getAttribute('data-search-text') || '';
                 return text.includes(query);
             });
 
-            // ซ่อนทุกแถว
             txRows.forEach(row => row.style.display = 'none');
 
-            // คำนวณแบ่งหน้า
             const totalItems = filteredTxRows.length;
             const totalPages = Math.ceil(totalItems / txPerPage) || 1;
             if (currentTxPage > totalPages) currentTxPage = totalPages;
@@ -137,12 +154,10 @@
             const startIndex = (currentTxPage - 1) * txPerPage;
             const endIndex = Math.min(startIndex + txPerPage, totalItems);
 
-            // แสดงเฉพาะแถวในหน้าที่เลือก
             for (let i = startIndex; i < endIndex; i++) {
                 filteredTxRows[i].style.display = '';
             }
 
-            // อัปเดตตัวเลขและปุ่ม Pagination
             if (totalItems === 0) {
                 if (noTxFilterRow) noTxFilterRow.style.display = '';
                 txPageInfo.textContent = '0 - 0 of 0';
@@ -161,7 +176,6 @@
                 updateTxTable();
             });
         }
-
         if (txPerPageSelect) {
             txPerPageSelect.addEventListener('change', (e) => {
                 txPerPage = parseInt(e.target.value);
@@ -169,7 +183,6 @@
                 updateTxTable();
             });
         }
-
         if (txPrevPageBtn) {
             txPrevPageBtn.addEventListener('click', () => {
                 if (currentTxPage > 1) {
@@ -178,7 +191,6 @@
                 }
             });
         }
-
         if (txNextPageBtn) {
             txNextPageBtn.addEventListener('click', () => {
                 const totalPages = Math.ceil(filteredTxRows.length / txPerPage);
@@ -189,7 +201,6 @@
             });
         }
 
-        // เรียกทำงานครั้งแรก
         if (txRows.length > 0) {
             updateTxTable();
         }

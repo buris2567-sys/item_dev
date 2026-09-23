@@ -37,3 +37,4 @@ if (array_key_exists($page, $routes)) {
     echo "<h1>404 Not Found</h1>";
 }
 ?>
+
