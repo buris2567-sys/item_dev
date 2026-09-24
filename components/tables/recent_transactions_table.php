@@ -43,13 +43,13 @@
                                 $qtyClass = 'text-success';
                                 $prevClass = 'text-muted';
                                 $currClass = 'text-dark';
-                            } elseif ($txType === 'DELETE') {
-                                $qtySign = '-';
-                                $qtyClass = 'text-danger';
-                                $prevClass = 'text-danger'; // 🔴 เดิมเป็นสีแดง
-                                $currClass = 'text-danger'; // 🔴 คงเหลือเป็นสีแดง
-                            } else {
-                                $qtySign = ($qty > 0) ? '-' : '';
+                                } elseif ($txType === 'DELETE' ) {
+                                    $qtySign = '-';
+                                    $qtyClass = 'text-danger';
+                                    $prevClass = 'text-danger'; // 🔴 เดิมเป็นสีแดง
+                                    $currClass = 'text-danger'; // 🔴 คงเหลือเป็นสีแดง
+                                } else {
+                                $qtySign = '-' ;
                                 $qtyClass = 'text-danger';
                                 $prevClass = 'text-muted';
                                 $currClass = 'text-dark';
