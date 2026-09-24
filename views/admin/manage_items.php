@@ -132,17 +132,18 @@ include 'includes/header.php';
                                             <td>
                                                 <?php $imgJson = htmlspecialchars($item['images'] ?? '[]', ENT_QUOTES, 'UTF-8'); ?>
 
-                                                <!-- ปุ่มแว่นขยาย (ดูรายละเอียด) -->
+                                                                                            <!-- ปุ่มแว่นขยาย (ดูรายละเอียด) -->
                                                 <button type="button" class="btn btn-sm btn-outline-info rounded-0 me-1"
                                                     style="cursor: pointer;" title="ดูรายละเอียด"
                                                     data-id="<?= $item['item_id'] ?>"
                                                     data-name="<?= htmlspecialchars($item['name']) ?>"
+                                                    data-desc="<?= htmlspecialchars($item['description']) ?>"
                                                     data-stock="<?= $item['current_stock'] ?>"
                                                     data-images="<?= $imgJson ?>"
                                                     onclick="openViewModal(this)">
                                                     <i class="bi bi-search"></i>
                                                 </button>
-
+                                                
                                                 <!-- ปุ่มแก้ไข -->
                                                 <button type="button" class="btn btn-sm btn-outline-dark rounded-0 me-1"
                                                     style="cursor: pointer;" title="แก้ไขข้อมูลสิ่งของ"
