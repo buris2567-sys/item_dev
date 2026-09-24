@@ -35,6 +35,7 @@
     </div>
 </div>
 
+<!-- popup modal for view item details, including a carousel for images and stock information. The modal is triggered by a button click, which passes data attributes to populate the modal content dynamically. -->
 <script>
 function openViewModal(button) {
     // ดึงค่าจาก Data Attributes ของปุ่ม

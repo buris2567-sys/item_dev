@@ -120,7 +120,7 @@ include 'includes/header.php';
                                                     <span class="me-3 fw-bold" id="stock-val-<?= $item['item_id'] ?>">
                                                         <?= number_format($item['current_stock']) ?>
                                                     </span>
-                                                    <!-- <i class="bi bi-pencil cursor-pointer" onclick="openUpdateStockModal('<?= $item['item_id'] ?>', '<?= htmlspecialchars($item['name']) ?>', <?= $item['current_stock'] ?>)"></i> -->
+
                                                     <!-- 🟢 เพิ่ม style="cursor: pointer;" เพื่อให้เมาส์เปลี่ยนเป็นรูปมือ และเพิ่ม title แจ้งเตือนเมื่อเอาเมาส์ชี้ -->
                                                     <i class="bi bi-pencil text-warning"
                                                         style="cursor: pointer;"
@@ -134,6 +134,7 @@ include 'includes/header.php';
 
                                                 <!-- ปุ่มแว่นขยาย (ดูรายละเอียด) -->
                                                 <button type="button" class="btn btn-sm btn-outline-info rounded-0 me-1"
+                                                    style="cursor: pointer;" title="ดูรายละเอียด"
                                                     data-id="<?= $item['item_id'] ?>"
                                                     data-name="<?= htmlspecialchars($item['name']) ?>"
                                                     data-stock="<?= $item['current_stock'] ?>"
@@ -143,7 +144,18 @@ include 'includes/header.php';
                                                 </button>
 
                                                 <!-- ปุ่มแก้ไข -->
-                                                <button type="button" class="btn btn-sm btn-outline-dark rounded-0 me-1"><i class="bi bi-pencil"></i></button>
+                                                <button type="button" class="btn btn-sm btn-outline-dark rounded-0 me-1"
+                                                    style="cursor: pointer;" title="แก้ไขข้อมูลสิ่งของ"
+                                                    data-id="<?= $item['item_id'] ?>"
+                                                    data-category="<?= $item['category_id'] ?>"
+                                                    data-name="<?= htmlspecialchars($item['name']) ?>"
+                                                    data-stock="<?= $item['current_stock'] ?>"
+                                                    data-desc="<?= htmlspecialchars($item['description']) ?>"
+                                                    data-images="<?= $imgJson ?>"
+                                                    onclick="openEditModal(this)"><i class="bi bi-pencil"></i></button>
+
+
+
 
                                                 <!-- ปุ่มถังขยะ (ลบ) -->
                                                 <button type="button" class="btn btn-sm btn-outline-danger rounded-0"
@@ -161,7 +173,7 @@ include 'includes/header.php';
                         </div>
 
                         <!--  แถบแบ่งหน้า (Pagination) -->
-                        
+
                         <?php include 'includes/pagination.php'; ?>
 
                     </div>
@@ -180,7 +192,7 @@ include 'includes/header.php';
 <?php include 'components/modals/update_stock_modal.php'; ?>
 <?php include 'components/modals/view_item_modal.php'; ?>
 <?php include 'components/modals/delete_item_modal.php'; ?>
-
+<?php include 'components/modals/edit_item_modal.php'; ?>
 <!-- 🟢 ดึงไฟล์ JavaScript แยกส่วน (Components) เข้ามาทำงาน -->
 <!-- เนื่องจากโปรเจกต์รันผ่าน index.php เป็นหลัก (Front Controller) จึงอ้างอิง path เริ่มจาก root -->
 <script src="assets/js/manage_items.js"></script>
