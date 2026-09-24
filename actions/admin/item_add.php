@@ -9,6 +9,8 @@ if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'Admin') {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
+// เพื่อสร้าง รหัสสิ่งของที่ไม่ซ้ำกันอัตโนมัติ (Unique ID) โดยที่ผู้ใช้ไม่ต้องนั่งคิดรหัสเอง
+// $item_id       = 'ITM' . time();  แทน Auto Increment ID ของฐานข้อมูล
     $item_id       = 'ITM' . time(); 
     $category_id   = $_POST['category_id']; 
     $name          = trim($_POST['name']); 
@@ -70,7 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $current_stock = $initial_stock;
         
         // 🟢 3. สร้างข้อความ Remark ให้มี "ชื่อคนทำ + ชื่อสิ่งของ + ประเภท" อย่างครบถ้วน
-        $logRemark = "เพิ่มสิ่งของใหม่โดย {$username} (รายการ: {$name} - ประเภท: {$category_name})";
+        $logRemark = "เพิ่มสิ่งของใหม่โดย {$username}";
 
         // บันทึก Snapshot ลงตารางประวัติ
         $logStmt = $pdo->prepare("

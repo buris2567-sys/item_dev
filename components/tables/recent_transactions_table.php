@@ -44,7 +44,7 @@
                                 $prevClass = 'text-muted';
                                 $currClass = 'text-dark';
                             } elseif ($txType === 'DELETE') {
-                                $qtySign = '';
+                                $qtySign = '-';
                                 $qtyClass = 'text-danger';
                                 $prevClass = 'text-danger'; // 🔴 เดิมเป็นสีแดง
                                 $currClass = 'text-danger'; // 🔴 คงเหลือเป็นสีแดง
@@ -85,7 +85,7 @@
                                 <!-- 🟢 รายละเอียด (เอา remark มาต่อกับ username อัตโนมัติ) -->
                                 <td class="text-start ps-3 text-muted small">
                                     <?= htmlspecialchars($tx['remark'] ?? '-') ?>
-                                    <span class="text-secondary">(โดย <?= htmlspecialchars($tx['username'] ?? 'System') ?>)</span>
+                            
                                 </td>
                             </tr>
                         <?php endforeach; ?>

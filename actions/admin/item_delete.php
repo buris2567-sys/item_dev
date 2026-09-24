@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['item_id'])) {
         $stmt->execute([$item_id]);
         $itemData = $stmt->fetch();
 
-        // เตรียมข้อมูล Snapshot
+        // เตรียมข้อมูล Snapshot จาก item
         $item_name      = $itemData['name'] ?? ($_POST['item_name'] ?? 'ไม่ทราบชื่อ');
         $category_name  = $itemData['category_name'] ?? '-';
         $previous_stock = $itemData ? (int)$itemData['current_stock'] : 0;
@@ -47,8 +47,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['item_id'])) {
             }
         }
 
-        // 4. บันทึก Transaction ฝังรายละเอียด + ชื่อ + ประเภท + คนลบ ครบจบในช่องเดียว
-        $remark = "ลบสิ่งของ: {$item_name} (ประเภท: {$category_name}) โดย {$username}";
+        // 4. บันทึก Transaction ฝังรายละเอียด + ชื่อ + ประเภท + คนลบ 
+        $remark = "ลบสิ่งของ: โดย {$username}";
         
         $logStmt = $pdo->prepare("
             INSERT INTO inventory_transactions 
@@ -73,3 +73,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['item_id'])) {
     exit;
 }
 ?>
+
+<!-- 
+try {
+    // 1. สั่งเปิดโหมด Transaction (เริ่มจุดเซฟ)
+    $pdo->beginTransaction(); 
+
+    // คำสั่ง SQL ที่ 1: บันทึก Log ลงตารางประวัติ
+    $logStmt->execute(...); 
+
+    // คำสั่ง SQL ที่ 2: ลบสินค้าออกจากตาราง items
+    $delStmt->execute(...); 
+
+    // 2. ถ้าทำงานผ่านหมดไม่มี Error สั่งยื่นเรื่องเซฟลงฐานข้อมูลจริง
+    $pdo->commit(); 
+
+} catch (Exception $e) {
+    // 3. ถ้าบรรทัดไหนพังก็ตาม โค้ดจะเด้งมาที่นี่ทันที
+    // สั่งย้อนเวลากลับไปสภาพก่อนเริ่มทำธุรกรรม (ยกเลิกทุกลำดับที่ทำไปก่อนหน้า)
+    $pdo->rollBack(); 
+} -->
