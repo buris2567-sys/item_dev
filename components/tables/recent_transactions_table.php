@@ -43,13 +43,20 @@
                                 $qtyClass = 'text-success';
                                 $prevClass = 'text-muted';
                                 $currClass = 'text-dark';
-                                } elseif ($txType === 'DELETE' ) {
-                                    $qtySign = '-';
-                                    $qtyClass = 'text-danger';
-                                    $prevClass = 'text-danger'; // 🔴 เดิมเป็นสีแดง
-                                    $currClass = 'text-danger'; // 🔴 คงเหลือเป็นสีแดง
-                                } else {
-                                $qtySign = '-' ;
+                            } elseif ($txType === 'DELETE') {
+                                $qtySign = '-';
+                                $qtyClass = 'text-danger';
+                                $prevClass = 'text-danger'; // 🔴 เดิมเป็นสีแดง
+                                $currClass = 'text-danger'; // 🔴 คงเหลือเป็นสีแดง
+                            } elseif ($txType === 'EDIT') {
+                                // 🟢 กรณีแก้ไขข้อมูล: ไม่มีการเปลี่ยนแปลงสต็อก ให้แสดงเป็นสีดำปกติและไม่มีเครื่องหมาย
+                                $qtySign = '';
+                                $qtyClass = 'text-dark fw-bold';
+                                $prevClass = 'text-muted';
+                                $currClass = 'text-dark';
+                            } else {
+                                // 🟢 กรณี OUT (ลดสต็อก): ใส่เครื่องหมายลบและตัวเลขสีแดง
+                                $qtySign = '-';
                                 $qtyClass = 'text-danger';
                                 $prevClass = 'text-muted';
                                 $currClass = 'text-dark';
@@ -85,7 +92,7 @@
                                 <!-- 🟢 รายละเอียด (เอา remark มาต่อกับ username อัตโนมัติ) -->
                                 <td class="text-start ps-3 text-muted small">
                                     <?= htmlspecialchars($tx['remark'] ?? '-') ?>
-                            
+
                                 </td>
                             </tr>
                         <?php endforeach; ?>

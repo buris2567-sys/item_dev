@@ -64,7 +64,7 @@
                                         <div id="editPreviewBox_<?= $slot ?>" class="border border-secondary border-opacity-25 bg-white d-flex flex-column justify-content-center align-items-center text-muted rounded" style="height: 120px; background-size: contain; background-repeat: no-repeat; background-position: center;">
                                             <div id="editPlaceholderText_<?= $slot ?>" class="text-center text-secondary opacity-75">
                                                 <i class="bi bi-image fs-3 d-block mb-1"></i>
-                                                <span class="fw-bold small">No image available</span>
+                                                <span class="fw-bold small">ยังไม่มีรูปภาพ</span>
                                             </div>
                                         </div>
 
@@ -179,3 +179,5 @@ document.querySelectorAll('.edit-btn-clear-image').forEach(btn => {
     });
 });
 </script>
+
+<!-- เพิ่ม id ใน  input เพื่อเรียกใช้ส่งต่อไป -->

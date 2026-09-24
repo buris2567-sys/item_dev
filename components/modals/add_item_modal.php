@@ -93,7 +93,7 @@
                                             <!-- ข้อความ/ไอคอนเริ่มต้นเมื่อยังไม่ได้เลือกรูป -->
                                             <div id="placeholderText_<?= $slot ?>" class="text-center text-secondary opacity-75">
                                                 <i class="bi bi-image fs-3 d-block mb-1"></i>
-                                                <span class="fw-bold small">No image available</span>
+                                                <span class="fw-bold small">ยังไม่มีรูปภาพ</span>
                                             </div>
                                         </div>
 
