@@ -180,6 +180,7 @@ include 'includes/header.php';
     </div>
 </div>
 
-<?php include 'assets/js/cart_system.js'; ?>
+<script src="assets/js/cart_system.js"></script>
+
 
 <?php include 'includes/footer.php'; ?>
