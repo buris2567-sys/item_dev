@@ -11,7 +11,7 @@ $stmtUser =$pdo->prepare("
 $stmtUser->execute([$_SESSION['user_id']]);
 $user =$stmtUser->fetch();
 
-// ดึงรายการสิ่งของทั้งหมดที่พร้อมให้เบิก (สต็อก > 0)[cite: 32]
+// ดึงรายการสิ่งของทั้งหมดที่พร้อมให้เบิก (สต็อก > 0)[]
 $items =$pdo->query("
     SELECT i.*, c.name as category_name 
     FROM items i 
@@ -30,11 +30,11 @@ include 'includes/header.php';
 
         <div class="col p-4 flex-grow-1">
             <h3 class="fw-bolder mb-1 text-dark">แบบฟอร์มขอเบิกพัสดุและสื่อสิ่งพิมพ์</h3>
-            <span class="text-muted small">กรอกข้อมูลวัตถุประสงค์และรายละเอียดการนำไปใช้ก่อนเลือกรายการพัสดุ[cite: 33]</span>
+            <span class="text-muted small">กรอกข้อมูลวัตถุประสงค์และรายละเอียดการนำไปใช้ก่อนเลือกรายการพัสดุ[]</span>
 
             <form action="actions/user/submit_request.php" method="POST" id="requestForm" class="mt-4">
                 
-                <!-- 🟢 ส่วนที่ 1: ข้อมูลทั่วไป (General Info)[cite: 33] -->
+                <!-- 🟢 ส่วนที่ 1: ข้อมูลทั่วไป (General Info)[] -->
                 <div class="card border-0 rounded-4 shadow-sm mb-4">
                     <div class="card-header bg-primary text-white py-3 rounded-top-4">
                         <h5 class="fw-bold mb-0"><i class="bi bi-file-earmark-text me-2"></i>ข้อมูลทั่วไป</h5>
@@ -97,7 +97,7 @@ include 'includes/header.php';
                     </div>
                 </div>
 
-                <!-- 🟢 ส่วนที่ 2: รายการสิ่งของให้เลือก[cite: 34] -->
+                <!-- 🟢 ส่วนที่ 2: รายการสิ่งของให้เลือก[] -->
                 <div class="card border-0 rounded-4 shadow-sm mb-4">
                     <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
                         <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-search me-2"></i>ค้นหาสิ่งของ</h5>
@@ -141,7 +141,7 @@ include 'includes/header.php';
                     </div>
                 </div>
 
-                <!-- 🟢 ส่วนที่ 3: ตะกร้ารายการที่ขอเบิก[cite: 34] -->
+                <!-- 🟢 ส่วนที่ 3: ตะกร้ารายการที่ขอเบิก[] -->
                 <div class="card border-0 rounded-4 shadow-sm mb-5 border-warning border-top border-4">
                     <div class="card-header bg-warning bg-opacity-10 py-3 d-flex justify-content-between align-items-center">
                         <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-cart-check me-2"></i>รายการที่ขอเบิกทั้งหมด</h5>
@@ -165,7 +165,7 @@ include 'includes/header.php';
                 <!-- คอนเทนเนอร์สำหรับใส่ Input Hidden ก่อน Submit -->
                 <div id="hiddenCartInputs"></div>
 
-                <!-- 🟢 ปุ่มดำเนินการ[cite: 33] -->
+                <!-- 🟢 ปุ่มดำเนินการ[] -->
                 <div class="d-flex justify-content-between mb-5">
                     <a href="index.php?page=home" class="btn btn-outline-dark fw-bold px-4 py-2 rounded-3 shadow-sm bg-white">
                         <i class="bi bi-arrow-left me-2"></i>ยกเลิก
