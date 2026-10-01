@@ -78,7 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $logStmt = $pdo->prepare("
             INSERT INTO inventory_transactions 
             (item_id, item_name, category_name, transaction_type, quantity, previous_stock, current_stock, remark, created_by) 
-            VALUES (?, ?, ?, 'CREATE', ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, 'สร้างสิ่งของ', ?, ?, ?, ?, ?)
         ");
         $logStmt->execute([$item_id, $name, $category_name, $initial_stock, $previous_stock, $current_stock, $logRemark, $created_by]);
 

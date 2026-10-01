@@ -21,6 +21,8 @@
                         <th class="text-muted small fw-bold" style="width: 120px;">ประเภท</th>
                         <th class="text-start ps-3 text-muted small fw-bold">ชื่อรายการ</th>
 
+                        <th class="text-start ps-3 text-muted small fw-bold">action</th>
+
                         <!-- 🟢 คอลัมน์สต็อกที่เพิ่มมาใหม่ -->
                         <th class="text-muted small fw-bold bg-light" style="width: 80px;">เดิม</th>
                         <th class="text-muted small fw-bold" style="width: 100px;">เปลี่ยนแปลง</th>
@@ -38,17 +40,17 @@
                             $qty = (int)$tx['quantity'];
 
                             // จัดการสีและเครื่องหมาย + / - ให้ครอบคลุมทุกคอลัมน์
-                            if ($txType === 'IN' || $txType === 'CREATE') {
+                            if ($txType === 'นำเข้าสิ่งของ' || $txType === 'สร้างสิ่งของ') {
                                 $qtySign = '+';
                                 $qtyClass = 'text-success';
                                 $prevClass = 'text-muted';
                                 $currClass = 'text-dark';
-                            } elseif ($txType === 'DELETE') {
+                            } elseif ($txType === 'ลบสิ่งของ') {
                                 $qtySign = '-';
                                 $qtyClass = 'text-danger';
                                 $prevClass = 'text-danger'; // 🔴 เดิมเป็นสีแดง
                                 $currClass = 'text-danger'; // 🔴 คงเหลือเป็นสีแดง
-                            } elseif ($txType === 'EDIT') {
+                            } elseif ($txType === 'แก้ไขสิ่งของ') {
                                 // 🟢 กรณีแก้ไขข้อมูล: ไม่มีการเปลี่ยนแปลงสต็อก ให้แสดงเป็นสีดำปกติและไม่มีเครื่องหมาย
                                 $qtySign = '';
                                 $qtyClass = 'text-dark fw-bold';
@@ -66,6 +68,9 @@
                                 <td class="text-muted"><?= $index + 1 ?></td>
                                 <td><?= htmlspecialchars($tx['category_name'] ?? '-') ?></td>
                                 <td class="text-start ps-3 fw-bold text-dark"><?= htmlspecialchars($tx['item_name'] ?? '-') ?></td>
+
+                                <!-- เพิ่มคอลัมน์ action เพื่อแสดงประเภทการทำรายการ -->
+                                <td class="text-start ps-3 fw-bold text-dark"><?= htmlspecialchars($tx['transaction_type'] ?? '-') ?></td>
 
                                 <!-- 🟢 จำนวนเดิม -->
                                 <td class="<?= $prevClass ?> fw-bold bg-light"><?= number_format($tx['previous_stock'] ?? 0) ?></td>

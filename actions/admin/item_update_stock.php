@@ -45,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['item_id'])) {
         // 2. คำนวณสต็อกใหม่ และกำหนดประเภท Transaction
         if ($action_type === 'add') {
             $current_stock = $previous_stock + $quantity;
-            $transaction_type = 'IN';
+            $transaction_type = 'นำเข้าสิ่งของ';
             $quantity_change = $quantity; // เก็บเป็นค่าบวก
         } elseif ($action_type === 'reduce') {
             // ป้องกันสต็อกติดลบ
@@ -53,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['item_id'])) {
                 throw new Exception("ไม่สามารถลดสต็อกเกินจำนวนที่มีอยู่ได้ (มีอยู่ {$previous_stock} ชิ้น)");
             }
             $current_stock = $previous_stock - $quantity;
-            $transaction_type = 'OUT';
+            $transaction_type = 'ถอนออกสิ่งของ';
             $quantity_change = -$quantity; // เก็บเป็นค่าติดลบ
         } else {
             throw new Exception("ประเภทการดำเนินการไม่ถูกต้อง");

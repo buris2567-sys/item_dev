@@ -37,14 +37,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt = $pdo->prepare("
             INSERT INTO requests 
             (request_id, user_id, use_date, event_type, event_name, location, purpose, user_note, status) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'Pending')
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'รออนุมัติ')
         ");
         $stmt->execute([$request_id, $user_id, $use_date, $event_type, $event_name, $location, $purpose, $user_note]);
 
-        // 3. บันทึกรายการสิ่งของลงตาราง request_items[cite: 35]
+        // 3. บันทึกรายการสิ่งของลงตาราง request_items
         $itemStmt = $pdo->prepare("
             INSERT INTO request_items (request_id, item_id, requested_qty, item_status) 
-            VALUES (?, ?, ?, 'Pending')
+            VALUES (?, ?, ?, 'รออนุมัติ')
         ");
 
         foreach ($request_items as $item_id => $qty) {
