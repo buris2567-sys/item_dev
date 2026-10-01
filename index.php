@@ -37,7 +37,8 @@ if ($role === 'Admin') {
         // 🟢 เพิ่มบรรทัดด้านล่างนี้ เพื่อให้ระบบอนุญาตและรู้จักหน้าสร้างคำขอ
         'create_request' => ['file' => 'views/user/create_request.php', 'title' => 'สร้างคำขอเบิกสิ่งของ'],
         'my_requests'    => ['file' => 'views/user/my_requests.php', 'title' => 'ติดตามสถานะคำขอ']
-    ];
+          
+        ];
 }
 // โหลดหน้าจอ
 if (array_key_exists($page, $routes)) {

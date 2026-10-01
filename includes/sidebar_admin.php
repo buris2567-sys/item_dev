@@ -16,7 +16,7 @@ $currentPage = $_GET['page'] ?? 'home';
     </div>
 
     <!-- รายการเมนู (ใส่ overflow-y-auto เพื่อให้สกรอลล์ได้เฉพาะในเมนู หากรายการเมนูยาวเกินจอ) -->
-    <ul class="nav nav-pills flex-column mb-auto px-2 overflow-y-auto">
+    <ul class="nav nav-pills flex-colu mn mb-auto px-2 overflow-y-auto">
         <li class="nav-item mb-1">
             <a href="index.php?page=home" class="nav-link <?= $currentPage === 'home' ? 'text-warning fw-bold' : 'text-light' ?>">
                 <i class="bi bi-house-door me-3"></i> หน้าหลัก
