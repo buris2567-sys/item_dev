@@ -29,15 +29,20 @@ $routes = [];
 if ($role === 'Admin') {
     $routes = [
         'home'         => ['file' => 'views/admin/home.php', 'title' => 'หน้าหลักผู้ดูแลระบบ'],
-        'manage_items' => ['file' => 'views/admin/manage_items.php', 'title' => 'จัดการสิ่งของ']
-    ];
+        'manage_items' => ['file' => 'views/admin/manage_items.php', 'title' => 'จัดการสิ่งของ'],
+        'request_list'   => ['file' => 'views/admin/request_list.php', 'title' => 'รายการคำขอเบิกสิ่งของ'],
+        'request_view'   => ['file' => 'views/admin/request_view.php', 'title' => 'รายละเอียดคำขอเบิกสิ่งของ']
+        
+        ];
 } else {
     $routes = [
         'home'           => ['file' => 'views/user/home.php', 'title' => 'หน้าหลัก'],
         // 🟢 เพิ่มบรรทัดด้านล่างนี้ เพื่อให้ระบบอนุญาตและรู้จักหน้าสร้างคำขอ
         'create_request' => ['file' => 'views/user/create_request.php', 'title' => 'สร้างคำขอเบิกสิ่งของ'],
-        'my_requests'    => ['file' => 'views/user/my_requests.php', 'title' => 'ติดตามสถานะคำขอ']
-    ];
+        'my_requests'    => ['file' => 'views/user/my_requests.php', 'title' => 'ติดตามสถานะคำขอ'],
+        'request_view'   => ['file' => 'views/user/request_view.php', 'title' => 'รายละเอียดคำขอเบิกสิ่งของ']
+
+        ];
 }
 // โหลดหน้าจอ
 if (array_key_exists($page, $routes)) {

@@ -1,17 +1,27 @@
 <?php
 if (!defined('APP_RUNNING')) exit('Forbidden');
 
+$request_id = $_GET['id'] ?? '';
 $user_id = $_SESSION['user_id'] ?? 0;
 
-// ดึงข้อมูลคำร้องเฉพาะของ User คนนี้
-$stmt = $pdo->prepare("
-    SELECT request_id, request_date, approved_at, status 
-    FROM requests 
-    WHERE user_id = ? 
-    ORDER BY request_date DESC
+// 1. ดึงข้อมูลทั่วไปของคำร้อง (ดึงเฉพาะของ User ตัวเองเพื่อความปลอดภัย)
+$stmt = $pdo->prepare("SELECT r.*, u.full_name, u.phone_number FROM requests r JOIN users u ON r.user_id = u.user_id WHERE r.request_id = ? AND r.user_id = ?");
+$stmt->execute([$request_id, $user_id]);
+$request = $stmt->fetch();
+
+if (!$request) {
+    exit('ไม่พบข้อมูลคำขอ หรือคุณไม่มีสิทธิ์เข้าถึง');
+}
+
+// 2. ดึงรายการสิ่งของในตะกร้า (ตัวแปร $items ที่ระบบแจ้ง Error)
+$itemStmt = $pdo->prepare("
+    SELECT ri.*, COALESCE(i.name, ri.item_name_snapshot) as name, i.current_stock, i.images 
+    FROM request_items ri 
+    LEFT JOIN items i ON ri.item_id = i.item_id 
+    WHERE ri.request_id = ?
 ");
-$stmt->execute([$user_id]);
-$requests = $stmt->fetchAll();
+$itemStmt->execute([$request_id]);
+$items = $itemStmt->fetchAll();
 ?>
 <div class="p-4 flex-grow-1" style="font-family: 'Prompt', sans-serif;">
     <!-- ... (แสดงข้อมูลทั่วไปของผู้เบิก) ... -->

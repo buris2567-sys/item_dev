@@ -82,7 +82,7 @@
 
                                 <!-- 🟢 จำนวนคงเหลือ (ถ้าโดนลบให้ขึ้นป้ายบอกว่า ลบแล้ว) -->
                                 <td class="<?= $currClass ?> fw-bold bg-light">
-                                    <?php if ($txType === 'DELETE'): ?>
+                                    <?php if ($txType === 'ลบสิ่งของ'): ?>
                                         <span class="badge bg-danger rounded-0">ลบแล้ว</span>
                                     <?php else: ?>
                                         <?= number_format($tx['current_stock'] ?? 0) ?>
