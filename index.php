@@ -58,3 +58,29 @@ if (array_key_exists($page, $routes)) {
 }
 ?>
 
+<!-- route แบบ  php -->
+<!-- $page = $_GET['page'] ?? 'home';
+$role = $_SESSION['role'] ?? 'User';
+
+// 🟢 ระบบ Routing แยกหน้าตาม Role
+if ($page === 'request_view') {
+    if ($role === 'Admin') {
+        include 'views/admin/request_view.php';
+    } else {
+        include 'views/user/request_view.php';
+    }
+} 
+elseif ($role === 'Admin') {
+    switch ($page) {
+        case 'request_list': include 'views/admin/request_list.php'; break;
+        case 'manage_items': include 'views/admin/manage_items.php'; break;
+        default: include 'views/admin/home.php'; break;
+    }
+} 
+else {
+    switch ($page) {
+        case 'my_requests': include 'views/user/my_requests.php'; break;
+        case 'create_request': include 'views/user/create_request.php'; break;
+        default: include 'views/user/home.php'; break;
+    }
+} -->

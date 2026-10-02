@@ -2,25 +2,28 @@
 session_start();
 require_once '../../config/db.php';
 
-// ตรวจสอบสิทธิ์
-if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'User') {
-    exit('Unauthorized access');
+// ตรวจสอบว่าล็อกอินเป็น User หรือไม่
+if (!isset($_SESSION['user_id'])) {
+    $_SESSION['error'] = 'กรุณาเข้าสู่ระบบก่อนทำรายการ';
+    header("Location: ../../login.php");
+    exit;
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $user_id    = $_SESSION['user_id'];
-    $use_date   = $_POST['use_date'];
-    $event_type = $_POST['event_type'];
-    $event_name = trim($_POST['event_name']);
-    $location   = trim($_POST['location']);
-    $purpose    = trim($_POST['purpose']);
-    $user_note  = trim($_POST['user_note']);
     
-    // รับค่าตะกร้าสินค้า รูปแบบ array: $_POST['items']['ITM123'] = 5;
-    $request_items = $_POST['items'] ?? [];
+    $user_id    = $_SESSION['user_id'];
+    $use_date   = trim($_POST['use_date'] ?? '');
+    $event_type = trim($_POST['event_type'] ?? '');
+    $event_name = trim($_POST['event_name'] ?? '');
+    $location   = trim($_POST['location'] ?? '');
+    $purpose    = trim($_POST['purpose'] ?? '');
+    $user_note  = trim($_POST['user_note'] ?? '');
+    
+    $items      = $_POST['items'] ?? []; // Array ตะกร้า [ 'ITM001' => '5', 'ITM002' => '10' ]
 
-    if (empty($request_items)) {
-        $_SESSION['error'] = "กรุณาเลือกสิ่งของอย่างน้อย 1 รายการ";
+    // ตรวจสอบข้อมูลเบื้องต้น
+    if (empty($use_date) || empty($event_name) || empty($items)) {
+        $_SESSION['error'] = 'กรุณากรอกข้อมูลและเลือกรายการพัสดุให้ครบถ้วน';
         header("Location: ../../index.php?page=create_request");
         exit;
     }
@@ -28,42 +31,68 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         $pdo->beginTransaction();
 
-        // 1. สร้างรหัสคำขอ (Request ID) 
-        // ตัวอย่าง: REQ-2609-XXXX
-        $req_prefix = 'REQ-' . date('ym') . '-';
-        $request_id = $req_prefix . strtoupper(substr(uniqid(), -4));
+        // 1. สร้าง Request ID แบบรันอัตโนมัติ (เช่น REQ-2609-XXXX)
+        $yearMonth = date('ym'); // เช่น ปี 2026 เดือน 09 -> 2609
+        $prefix = "REQ-{$yearMonth}-";
+        
+        // หาเลขล่าสุดในเดือนนี้
+        $stmtId = $pdo->prepare("SELECT request_id FROM requests WHERE request_id LIKE ? ORDER BY request_id DESC LIMIT 1");
+        $stmtId->execute([$prefix . '%']);
+        $lastId = $stmtId->fetchColumn();
+
+        if ($lastId) {
+            $lastNumber = (int)substr($lastId, -4);
+            $newNumber = str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
+        } else {
+            $newNumber = '0001';
+        }
+        $request_id = $prefix . $newNumber; // ได้เป็น REQ-2609-0001
 
         // 2. บันทึกข้อมูลลงตาราง requests
-        $stmt = $pdo->prepare("
-            INSERT INTO requests 
-            (request_id, user_id, use_date, event_type, event_name, location, purpose, user_note, status) 
+        $stmtReq = $pdo->prepare("
+            INSERT INTO requests (request_id, user_id, use_date, event_type, event_name, location, purpose, user_note, status) 
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'รออนุมัติ')
         ");
-        $stmt->execute([$request_id, $user_id, $use_date, $event_type, $event_name, $location, $purpose, $user_note]);
+        $stmtReq->execute([$request_id, $user_id, $use_date, $event_type, $event_name, $location, $purpose, $user_note]);
 
-        // 3. บันทึกรายการสิ่งของลงตาราง request_items
-        $itemStmt = $pdo->prepare("
-            INSERT INTO request_items (request_id, item_id, requested_qty, item_status) 
-            VALUES (?, ?, ?, 'รออนุมัติ')
+        // 3. บันทึกข้อมูลตะกร้าลงตาราง request_items
+        $stmtItem = $pdo->prepare("
+            INSERT INTO request_items (request_id, item_id, item_name, category, images, requested_qty) 
+            VALUES (?, ?, ?, ?, ?, ?)
         ");
 
-        foreach ($request_items as $item_id => $qty) {
+        foreach ($items as $item_id => $qty) {
             $qty = (int)$qty;
             if ($qty > 0) {
-                $itemStmt->execute([$request_id, $item_id, $qty]);
+                // ดึงข้อมูลแบบเต็ม (ชื่อ, หมวดหมู่, รูปภาพ) จากตาราง items
+                $getItem = $pdo->prepare("
+                    SELECT i.name, i.images, c.name as cat_name 
+                    FROM items i 
+                    LEFT JOIN categories c ON i.category_id = c.category_id 
+                    WHERE i.item_id = ?
+                ");
+                $getItem->execute([$item_id]);
+                $itemData = $getItem->fetch();
+
+                // กำหนดค่า Snapshot
+                $item_name = $itemData['name'] ?? 'ไม่ทราบชื่อ';
+                $category  = $itemData['cat_name'] ?? 'ไม่ระบุ';
+                $images    = $itemData['images'] ?? null;
+
+                // บันทึกลงตาราง request_items
+                $stmtItem->execute([$request_id, $item_id, $item_name, $category, $images, $qty]);
             }
         }
-
         $pdo->commit();
-        $_SESSION['success'] = "ส่งคำขอเบิกพัสดุรหัส $request_id เรียบร้อยแล้ว ระบบกำลังรอการอนุมัติ";
+        $_SESSION['success'] = "สร้างคำขอเบิกพัสดุเรียบร้อยแล้ว (เลขที่ $request_id)";
+        header("Location: ../../index.php?page=my_requests");
+        exit;
 
     } catch (Exception $e) {
         $pdo->rollBack();
-        $_SESSION['error'] = "เกิดข้อผิดพลาดในการส่งคำขอ: " . $e->getMessage();
+        $_SESSION['error'] = "เกิดข้อผิดพลาดในการบันทึกข้อมูล: " . $e->getMessage();
+        header("Location: ../../index.php?page=create_request");
+        exit;
     }
-    
-    // ส่งกลับไปหน้าประวัติคำขอ (หรือหน้าที่ต้องการ)
-    header("Location: ../../index.php?page=my_requests");
-    exit;
 }
 ?>

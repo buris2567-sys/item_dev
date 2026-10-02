@@ -91,7 +91,13 @@ include 'includes/header.php';
                         <div class="row mb-3">
                             <div class="col-md-3 text-end fw-bold"><span class="text-danger">*</span> วัตถุประสงค์เพื่อใช้งาน:</div>
                             <div class="col-md-9">
-                                <textarea name="purpose" class="form-control rounded-3" rows="3" placeholder="เช่น เพื่อ..." required></textarea>
+                                <textarea name="purpose" class="form-control rounded-3" rows="3" placeholder="เพื่อ..." required></textarea>
+                            </div>
+                        </div>
+                          <div class="row mb-3">
+                            <div class="col-md-3 text-end fw-bold">หมายเหตุ:</div>
+                            <div class="col-md-9">
+                                <textarea name="user_note" class="form-control rounded-3" rows="3" placeholder="เพิ่มหมายเหตุ..." ></textarea>
                             </div>
                         </div>
                     </div>

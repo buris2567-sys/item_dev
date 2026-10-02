@@ -61,6 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     $images_json = !empty($uploaded_images) ? json_encode($uploaded_images) : null;
 
+  
     try {
         $pdo->beginTransaction();
 
@@ -74,7 +75,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // 🟢 3. สร้างข้อความ Remark ให้มี "ชื่อคนทำ + ชื่อสิ่งของ + ประเภท" อย่างครบถ้วน
         $logRemark = "เพิ่มสิ่งของใหม่โดย {$username}";
 
-        // บันทึก Snapshot ลงตารางประวัติ
+
+    
+        // บันทึก Snapshot ลงตารางประวัติ*******************************************
         $logStmt = $pdo->prepare("
             INSERT INTO inventory_transactions 
             (item_id, item_name, category_name, transaction_type, quantity, previous_stock, current_stock, remark, created_by) 
