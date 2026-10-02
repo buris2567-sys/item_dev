@@ -36,7 +36,7 @@ include 'includes/header.php';
                 
                 <!-- 🟢 ส่วนที่ 1: ข้อมูลทั่วไป (General Info)[] -->
                 <div class="card border-0 rounded-4 shadow-sm mb-4">
-                    <div class="card-header bg-primary text-white py-3 rounded-top-4">
+                    <div class="card-header bg- text-white py-3 rounded-top-4">
                         <h5 class="fw-bold mb-0"><i class="bi bi-file-earmark-text me-2"></i>ข้อมูลทั่วไป</h5>
                     </div>
                     <div class="card-body p-4 bg-white">
@@ -177,7 +177,7 @@ include 'includes/header.php';
                         <i class="bi bi-arrow-left me-2"></i>ยกเลิก
                     </a>
                     <button type="button" class="btn btn-warning fw-bold px-5 py-2 rounded-3 shadow" onclick="submitRequest()">
-                        บันทึกและดำเนินการเลือกสิ่งของ <i class="bi bi-arrow-right ms-2"></i>
+                        บันทึก <i class="bi bi-arrow-right ms-2"></i>
                     </button>
                 </div>
 

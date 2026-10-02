@@ -217,7 +217,7 @@ if ($statusText === 'รออนุมัติ' || $statusText === 'Pending') 
                     <?php else: ?>
                         <button type="button" class="btn btn-info bg-opacity-25 border-dark fw-bolder px-4 py-2 rounded-0 shadow-sm"><i class="bi bi-file-earmark-pdf me-2"></i>Export PDF</button>
                         <button type="submit" name="action" value="cancel" class="btn btn-danger border-dark fw-bolder px-5 py-2 shadow-sm rounded-0" onclick="return confirm('ต้องการยกเลิกคำร้องนี้และคืนสต็อกใช่หรือไม่?');">
-                            <i class="bi bi-x-circle me-2"></i>ยกเลิกใบเบิกนี้
+                            <i class="bi bi-x-circle me-2"></i>ยกเลิกคำร้องนี้
                         </button>
                     <?php endif; ?>
                 </div>
@@ -282,35 +282,24 @@ if ($statusText === 'รออนุมัติ' || $statusText === 'Pending') 
             }
         });
 
+        // ควบคุมเฉพาะป้ายสรุปผลในกล่องด้านล่างสุดเท่านั้น
         let overallBadge = document.getElementById('summaryOverallBadge');
-        let headerBadge = document.getElementById('headerStatusBadge');
         let finalStatus = '';
         let finalClass = '';
-        let headerStyle = 'border-width: 2px !important; min-width: 110px; ';
 
         if (counts.full === inputs.length) {
             finalClass = 'bg-success text-white';
             finalStatus = 'อนุมัติ';
-            headerStyle += 'background-color: #28a745; color: #fff;';
         } else if (counts.reject === inputs.length) {
             finalClass = 'bg-danger text-white';
             finalStatus = 'ไม่อนุมัติ';
-            headerStyle += 'background-color: #dc3545; color: #fff;';
         } else {
             finalClass = 'bg-warning text-dark';
             finalStatus = 'อนุมัติบางส่วน';
-            headerStyle += 'background-color: #fd7e14; color: #fff;';
         }
 
         overallBadge.className = `badge border border-dark px-3 py-2 fs-6 rounded-0 me-3 ${finalClass}`;
         overallBadge.innerText = finalStatus;
-
-        let firstInput = document.getElementById('approve_input_0');
-        if (firstInput && !firstInput.hasAttribute('readonly')) {
-            headerBadge.className = `badge border border-dark px-3 py-2 fs-6 rounded-0 shadow-sm d-inline-flex align-items-center justify-content-center`;
-            headerBadge.style.cssText = headerStyle;
-            headerBadge.innerHTML = `<i class="bi bi-circle-fill small me-1" style="font-size: 0.55rem;"></i> ${finalStatus}`;
-        }
 
         document.getElementById('summaryTextInfo').innerText = `(อนุมัติเต็ม ${counts.full} รายการ, บางส่วน ${counts.partial} รายการ, ไม่อนุมัติ ${counts.reject} รายการ)`;
     }

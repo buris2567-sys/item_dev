@@ -22,19 +22,11 @@ $requests = $pdo->query("
             
             <!-- หัวข้อ และ ส่วนค้นหา/กรองข้อมูล -->
             <div class="d-flex justify-content-between align-items-end mb-4 pb-3" style="border-bottom: 2px solid #e9ecef;">
-                <div>
-                    <h3 class="fw-bolder mb-1 text-dark">พิจารณาสถานะคำขอ</h3>
-                    <span class="text-muted small">ตรวจสอบสถานะและประวัติการเบิกอุปกรณ์</span>
+                <div >
+                   <h3 class="fw-bolder bg-warning border border-dark px-3 py-2  mb-0">พิจารณาสถานะคำขอ</h3>
+     
                 </div>
-                <div class="d-flex gap-2">
-                    <div class="input-group border border-dark rounded-0" style="width: 250px; border-width: 2px !important;">
-                        <span class="input-group-text bg-white border-0"><i class="bi bi-search"></i></span>
-                        <input type="text" class="form-control border-0 shadow-none" placeholder="ค้นหาเลขที่ใบเบิก...">
-                    </div>
-                    <button class="btn btn-white border-dark rounded-0 fw-bold px-3" style="border-width: 2px !important;">
-                        <i class="bi bi-filter-right fs-5 me-1"></i> กรองข้อมูล
-                    </button>
-                </div>
+                
             </div>
 
             <!-- Card ตารางรายการคำขอ -->
@@ -42,6 +34,7 @@ $requests = $pdo->query("
                 <div class="card-header bg-white border-dark py-3 px-4 d-flex align-items-center" style="border-bottom-width: 2px !important;">
                     <i class="bi bi-list-task fs-5 me-2"></i>
                     <h6 class="fw-bold mb-0 text-dark">คำขอทั้งหมด</h6>
+                    
                 </div>
                 
                 <div class="card-body p-0 table-responsive">

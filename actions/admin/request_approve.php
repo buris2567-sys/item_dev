@@ -63,7 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             $pdo->prepare("UPDATE items SET current_stock = ? WHERE item_id = ?")->execute([$new_stock, $item_id]);
 
                             // บันทึก Log ลง inventory_transactions
-                            $logStmt = $pdo->prepare("INSERT INTO inventory_transactions (item_id, item_name, category_name, transaction_type, quantity, previous_stock, current_stock, reference_id, remark, created_by) VALUES (?, ?, ?, 'OUT', ?, ?, ?, ?, ?, ?)");
+                            $logStmt = $pdo->prepare("INSERT INTO inventory_transactions (item_id, item_name, category_name, transaction_type, quantity, previous_stock, current_stock, reference_id, remark, created_by) VALUES (?, ?, ?, 'ถอนจากคำร้อง', ?, ?, ?, ?, ?, ?)");
                             $logStmt->execute([$item_id, $item_name, $category, -$app_qty, $current_stock, $new_stock, $request_id, "จ่ายออกตามคำขอเบิก $request_id", $admin_id]);
                         }
                     }
@@ -102,7 +102,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                         $pdo->prepare("UPDATE items SET current_stock = ? WHERE item_id = ?")->execute([$new_stock, $item_id]);
 
-                        $logStmt = $pdo->prepare("INSERT INTO inventory_transactions (item_id, item_name, category_name, transaction_type, quantity, previous_stock, current_stock, reference_id, remark, created_by) VALUES (?, ?, ?, 'IN', ?, ?, ?, ?, ?, ?)");
+                        $logStmt = $pdo->prepare("INSERT INTO inventory_transactions (item_id, item_name, category_name, transaction_type, quantity, previous_stock, current_stock, reference_id, remark, created_by) VALUES (?, ?, ?, 'ยกเลิกคำร้อง', ?, ?, ?, ?, ?, ?)");
                         $logStmt->execute([$item_id, $ri['item_name'], $ri['category'], $app_qty, $current_stock, $new_stock, $request_id, "คืนสต็อกจากการยกเลิกคำขอ $request_id", $admin_id]);
                     }
                 }

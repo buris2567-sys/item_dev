@@ -9,8 +9,7 @@ $requests = $stmt->fetchAll();
 
 <div class="p-4 flex-grow-1" style="font-family: 'Prompt', sans-serif;">
     <div class="d-flex justify-content-between align-items-end mb-4 pb-3" style="border-bottom: 2px solid #e9ecef;">
-  <?php include 'includes/sidebar_user.php'; ?>
-
+ 
         <div>
             <h3 class="fw-bolder mb-1 text-dark">รายการคำขอของฉัน</h3>
             <span class="text-muted small">ติดตามสถานะและประวัติการเบิกอุปกรณ์ของคุณ</span>

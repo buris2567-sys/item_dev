@@ -40,12 +40,12 @@
                             $qty = (int)$tx['quantity'];
 
                             // จัดการสีและเครื่องหมาย + / - ให้ครอบคลุมทุกคอลัมน์
-                            if ($txType === 'นำเข้าสิ่งของ' || $txType === 'สร้างสิ่งของ') {
+                            if ($txType === 'นำเข้าสิ่งของ' || $txType === 'สร้างสิ่งของ'|| $txType === 'ยกเลิกคำร้อง') {
                                 $qtySign = '+';
                                 $qtyClass = 'text-success';
                                 $prevClass = 'text-muted';
                                 $currClass = 'text-dark';
-                            } elseif ($txType === 'ลบสิ่งของ') {
+                            } elseif ($txType === 'ลบสิ่งของ'|| $txType === 'ถอนจากคำร้อง') {
                                 $qtySign = '-';
                                 $qtyClass = 'text-danger';
                                 $prevClass = 'text-danger'; // 🔴 เดิมเป็นสีแดง
