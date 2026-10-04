@@ -90,38 +90,47 @@ include 'includes/header.php';
 
                         <!-- ตารางข้อมูล -->
                         <div class="table-responsive px-4 pb-3 pt-2">
+                            <!-- 🟢 เพิ่ม Style สำหรับ CSS Counter ตรงตาราง -->
+                            <style>
+                                table#itemsTable {
+                                    counter-reset: rowNumber;
+                                }
+
+                                table#itemsTable tbody tr.item-row:not([style*="display: none"]) {
+                                    counter-increment: rowNumber;
+                                }
+
+                                table#itemsTable tbody tr.item-row:not([style*="display: none"]) .row-number::before {
+                                    content: counter(rowNumber);
+                                }
+                            </style>
+
                             <table class="table table-hover align-middle text-center mb-0 border-0 custom-striped" id="itemsTable">
-                                <!-- 🟢 ปรับปรุง: เปลี่ยนสีหัวตารางเป็น text-dark และเปลี่ยนเส้นคั่นใต้หัวตารางให้เข้มขึ้น (#dee2e6) -->
-                                <!-- 🟢 ปรับปรุง: ใช้ style บังคับสีดำสนิท (#000) และตัวหนา (700) ด้วย !important เพื่อทับ CSS เดิมของตาราง -->
-        <thead style="border-bottom: 2px solid #adb5bd;">
-            <tr>
-                <!-- คอลัมน์แรก คง text-start ไว้เพื่อให้ชิดซ้าย ไม่ให้เบี้ยว -->
-                <th class="text-start ps-4 py-3 border-0 fs-6" style="width: 40%; color: #000 !important; font-weight: 700 !important;">ชื่อรายการ</th>
-                
-                <!-- คอลัมน์อื่นๆ จะอยู่ตรงกลางตามตารางหลัก -->
-                <th class="py-3 border-0 fs-6" style="width: 15%; color: #000 !important; font-weight: 700 !important;">รูปภาพ</th>
-                <th class="py-3 border-0 fs-6" style="width: 25%; color: #000 !important; font-weight: 700 !important;">จำนวนปัจจุบัน</th>
-                <th class="py-3 border-0 fs-6" style="width: 20%; color: #000 !important; font-weight: 700 !important;">คำสั่ง</th>
-            </tr>
-        </thead>
-                                <tbody class="border-top-0"> <?php foreach ($items as $index => $item): ?>
-                                        <!-- 🟢 ปรับปรุง: ลบเส้นขอบล่างออก ปล่อยให้สีสลับ (Zebra) ทำหน้าที่แบ่งแถวแทน -->
+                                <thead style="border-bottom: 2px solid #adb5bd;">
+                                    <tr>
+                                        <th class="text-start ps-4 py-3 border-0 fs-6" style="width: 40%; color: #000 !important; font-weight: 700 !important;">ชื่อรายการ</th>
+                                        <th class="py-3 border-0 fs-6" style="width: 15%; color: #000 !important; font-weight: 700 !important;">รูปภาพ</th>
+                                        <th class="py-3 border-0 fs-6" style="width: 25%; color: #000 !important; font-weight: 700 !important;">จำนวนปัจจุบัน</th>
+                                        <th class="py-3 border-0 fs-6" style="width: 20%; color: #000 !important; font-weight: 700 !important;">คำสั่ง</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="border-top-0">
+                                    <?php foreach ($items as $item): // เอา $index ออก เพราะเราไม่ใช้แล้ว 
+                                    ?>
                                         <tr class="item-row" data-category="<?= htmlspecialchars($item['category_name']) ?>">
                                             <td class="text-start ps-3 fw-bold text-dark border-0 py-3">
-                                                <!-- 🟢 ปรับปรุง: ลำดับตัวเลขปรับเป็นป้ายวงกลม (rounded-circle) ให้อยู่กึ่งกลาง -->
-                                                <span class="badge bg-light text-secondary rounded-circle me-3 d-inline-flex justify-content-center align-items-center shadow-sm" style="width: 28px; height: 28px;"><?= $index + 1 ?></span>
+                                                <!-- 🟢 คำสั่ง ใน span เป็นคลาส row-number เพื่อให้ CSS รันเลขอัตโนมัติ -->
+                                                <span class="badge bg-light text-secondary rounded-circle me-3 d-inline-flex justify-content-center align-items-center shadow-sm row-number" style="width: 28px; height: 28px;"></span>
                                                 <?= htmlspecialchars($item['name']) ?>
                                             </td>
                                             <td class="border-0 py-3">
                                                 <?php
-                                                                    $images = json_decode($item['images'], true);
-                                                                    $imgSrc = !empty($images) ? 'assets/uploads/items/' . $images[0] : 'assets/images/placeholder.jpg';
+                                                $images = json_decode($item['images'], true);
+                                                $imgSrc = !empty($images) ? 'assets/uploads/items/' . $images[0] : 'assets/images/placeholder.jpg';
                                                 ?>
-                                                <!-- 🟢 ปรับปรุง: รูปภาพลบกรอบดำออก ปรับขอบมน (rounded-4) และใส่เงาบางๆ -->
                                                 <img src="<?= $imgSrc ?>" class="rounded-4 shadow-sm object-fit-cover" style="width: 55px; height: 55px;">
                                             </td>
                                             <td class="border-0 py-3">
-                                                <!-- 🟢 ปรับปรุง: กล่องจำนวนเปลี่ยนเป็นทรงแคปซูลไร้ขอบดำ รวมไอคอนบวกลบไว้ด้วยกันให้ดูคลิกง่าย -->
                                                 <div class="d-inline-flex align-items-center bg-light rounded-pill px-4 py-2 shadow-sm">
                                                     <span class="me-3 fw-bold text-dark fs-6" id="stock-val-<?= $item['item_id'] ?>">
                                                         <?= number_format($item['current_stock']) ?>
@@ -137,8 +146,6 @@ include 'includes/header.php';
                                             </td>
                                             <td class="border-0 py-3">
                                                 <?php $imgJson = htmlspecialchars($item['images'] ?? '[]', ENT_QUOTES, 'UTF-8'); ?>
-
-                                                <!-- 🟢 ปรับปรุง: ปุ่มคำสั่ง (ดู/แก้/ลบ) เลิกใช้แบบสี่เหลี่ยมติดกัน เปลี่ยนเป็นปุ่มวงกลม (rounded-circle) แยกกันอิสระ -->
                                                 <div class="d-flex justify-content-center gap-2">
                                                     <button type="button" class="btn btn-sm btn-light rounded-circle shadow-sm text-info d-flex justify-content-center align-items-center border-0"
                                                         style="width: 36px; height: 36px; cursor: pointer;" title="ดูรายละเอียด"
@@ -174,7 +181,6 @@ include 'includes/header.php';
                                     <?php endforeach; ?>
                                     <tr id="noDataRow" style="display: none;">
                                         <td colspan="4" class="text-center py-5 text-muted border-0">
-                                            <!-- 🟢 ปรับปรุง: หน้าว่าง (Empty State) ให้ดูดีขึ้นด้วยไอคอนกลมๆ ตอนค้นหาไม่เจอ -->
                                             <div class="bg-light rounded-circle d-inline-flex justify-content-center align-items-center mb-3 shadow-sm" style="width: 70px; height: 70px;">
                                                 <i class="bi bi-box-seam fs-2 text-secondary opacity-50"></i>
                                             </div>

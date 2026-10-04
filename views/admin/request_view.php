@@ -221,7 +221,7 @@ if ($statusText === 'รออนุมัติ' || $statusText === 'Pending') 
                         <button type="button" class="btn btn-info bg-opacity-25 border-dark fw-bolder px-4 py-2 rounded-0 shadow-sm"><i class="bi bi-file-earmark-pdf me-2"></i>Export PDF</button>
                         
                         <!-- 🟢 เพิ่มเงื่อนไข: จะแสดงปุ่ม "ยกเลิก" ก็ต่อเมื่อสถานะปัจจุบัน "ไม่ใช่การยกเลิก" เท่านั้น -->
-                        <?php if ($request['status'] !== 'ยกเลิก'): ?>
+                        <?php if ($request['status'] !== 'ยกเลิก' && $request['status'] !== 'ไม่อนุมัติ'): ?>
                         <button type="submit" name="action" value="cancel" class="btn btn-danger border-dark fw-bolder px-5 py-2 shadow-sm rounded-0" onclick="return confirm('ต้องการยกเลิกคำร้องนี้และคืนสต็อกใช่หรือไม่?');">
                             <i class="bi bi-x-circle me-2"></i>ยกเลิกคำร้องนี้
                         </button>
