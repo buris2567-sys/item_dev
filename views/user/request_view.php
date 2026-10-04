@@ -34,7 +34,7 @@ $statusText = $request['status'];
 $badgeStyle = 'border-width: 2px !important; min-width: 110px; ';
 
 if ($statusText === 'รออนุมัติ' || $statusText === 'Pending') {
-    $badgeStyle .= 'background-color: #ffc107; color: #000;';
+    $badgeStyle .= 'background-color: #f1ead4; color: #000;';
     $statusText = 'รออนุมัติ';
 } elseif (strpos($statusText, 'อนุมัติบางส่วน') !== false) {
     $badgeStyle .= 'background-color: #fd7e14; color: #fff;';
@@ -138,7 +138,7 @@ if ($statusText === 'รออนุมัติ' || $statusText === 'Pending') 
             
             <div class="mb-4">
                 <?php foreach ($items as $index => $item): 
-                    // 🟢 ดึงรูปภาพจาก Snapshot โดยตรง (ri.images)
+                    // 🟢 ดึงรูปภาพ (ri.images)
                     $images = json_decode($item['images'] ?? '[]', true);
                     $imgSrc = !empty($images) ? 'assets/uploads/items/' . $images[0] : 'assets/images/placeholder.jpg';
                     
@@ -146,7 +146,7 @@ if ($statusText === 'รออนุมัติ' || $statusText === 'Pending') 
                     $appQty = (int)$item['approved_qty'];
                     
                     // ประเมินสถานะของแต่ละรายการ
-                    $itemStatusText = 'รออนุมัติ'; $itemBadgeClass = 'bg-warning text-dark'; $iconClass = 'text-warning';
+                    $itemStatusText = 'รออนุมัติ'; $itemBadgeClass = 'bg-warning bg-opacity-50 text-dark'; $iconClass = 'text-warning';
                     if ($request['status'] !== 'รออนุมัติ' && $request['status'] !== 'Pending') {
                         if ($appQty === $reqQty) { $itemStatusText = 'อนุมัติเต็ม'; $itemBadgeClass = 'bg-success text-white'; $iconClass = 'text-white'; }
                         elseif ($appQty === 0) { $itemStatusText = 'ไม่อนุมัติ'; $itemBadgeClass = 'bg-danger text-white'; $iconClass = 'text-white'; }

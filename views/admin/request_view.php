@@ -34,7 +34,7 @@ $statusText = $request['status'];
 $badgeStyle = 'border-width: 2px !important; min-width: 110px; ';
 
 if ($statusText === 'รออนุมัติ' || $statusText === 'Pending') {
-    $badgeStyle .= 'background-color: #ffc107; color: #000;';
+    $badgeStyle .= 'background-color: #f1ead4; color: #000;';
     $statusText = 'รออนุมัติ';
 } elseif (strpos($statusText, 'อนุมัติบางส่วน') !== false) {
     $badgeStyle .= 'background-color: #fd7e14; color: #fff;';
@@ -206,19 +206,27 @@ if ($statusText === 'รออนุมัติ' || $statusText === 'Pending') 
                     </div>
                 </div>
 
+            
                 <!-- ปุ่มการจัดการ -->
                 <div class="d-flex justify-content-end gap-3 mb-5">
                     <a href="index.php?page=request_list" class="btn btn-outline-dark fw-bold px-4 py-2 bg-white rounded-0 shadow-sm">[ กลับ ]</a>
 
                     <?php if ($isPending): ?>
+                        <!-- สถานะรออนุมัติ: แสดงปุ่มบันทึก -->
                         <button type="submit" name="action" value="approve" class="btn btn-warning border-dark fw-bolder px-5 py-2 shadow-sm rounded-0">
                             <i class="bi bi-save me-2"></i>บันทึก
                         </button>
                     <?php else: ?>
+                        <!-- อนุมัติไปแล้ว หรือ ยกเลิกไปแล้ว: แสดงปุ่ม Export PDF -->
                         <button type="button" class="btn btn-info bg-opacity-25 border-dark fw-bolder px-4 py-2 rounded-0 shadow-sm"><i class="bi bi-file-earmark-pdf me-2"></i>Export PDF</button>
+                        
+                        <!-- 🟢 เพิ่มเงื่อนไข: จะแสดงปุ่ม "ยกเลิก" ก็ต่อเมื่อสถานะปัจจุบัน "ไม่ใช่การยกเลิก" เท่านั้น -->
+                        <?php if ($request['status'] !== 'ยกเลิก'): ?>
                         <button type="submit" name="action" value="cancel" class="btn btn-danger border-dark fw-bolder px-5 py-2 shadow-sm rounded-0" onclick="return confirm('ต้องการยกเลิกคำร้องนี้และคืนสต็อกใช่หรือไม่?');">
                             <i class="bi bi-x-circle me-2"></i>ยกเลิกคำร้องนี้
                         </button>
+                        <?php endif; ?>
+
                     <?php endif; ?>
                 </div>
             </form>
