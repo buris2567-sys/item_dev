@@ -2,44 +2,83 @@
 if (!defined('APP_RUNNING')) exit('Forbidden');
 $currentPage = $_GET['page'] ?? 'home';
 ?>
-<!-- เพิ่ม position-sticky top-0 vh-100 เพื่อล็อกเมนูด้านข้างไว้อยู่กับที่ -->
 
-<div class="col-auto col-md-3 col-xl-2 px-0 text-white position-sticky top-0 vh-100 d-flex flex-column" style="width: 250px; background-color: #1e1e24; z-index: 1000;">
-   <!-- <div class="text-white position-sticky top-0 vh-100 d-flex flex-column" style="width: 250px; background-color: #1e1e24;"> -->
-       
+<style>
+    /* 🟢 ตกแต่ง Sidebar ให้ดูทันสมัยขึ้น */
+    .sidebar-wrapper {
+        background-color: #1e1e24; /* สีพื้นหลังเดิม */
+        border-right: 1px solid rgba(255,255,255,0.05);
+    }
+    .sidebar-link {
+        transition: all 0.2s ease-in-out;
+        border-radius: 0.75rem; /* ขอบมน */
+        padding: 0.8rem 1.2rem;
+        color: #a1a1aa; /* สีเทาอ่อนสำหรับเมนูที่ไม่ได้เลือก */
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        text-decoration: none;
+    }
+    .sidebar-link i {
+        font-size: 1.2rem;
+    }
+    /* เอฟเฟกต์ตอนเอาเมาส์ชี้ */
+    .sidebar-link:hover {
+        color: #ffffff;
+        background-color: rgba(255,255,255,0.05);
+        transform: translateX(4px); /* เลื่อนขวานิดๆ */
+    }
+    /* เอฟเฟกต์เมนูที่กำลังเปิดอยู่ */
+    .sidebar-link.active {
+        color: #ffc107 !important; /* สีเหลือง */
+        background-color: rgba(255, 193, 7, 0.1); /* พื้นหลังเหลืองโปร่งใส */
+        font-weight: 700;
+    }
+    .sidebar-divider {
+        border-top: 1px solid rgba(255,255,255,0.1);
+        margin: 1rem 0;
+    }
+    .sidebar-logout {
+        color: #ef4444; /* สีแดง */
+    }
+    .sidebar-logout:hover {
+        background-color: rgba(239, 68, 68, 0.1);
+        color: #f87171;
+    }
+</style>
+
+<div class="col-auto px-0 position-sticky top-0 vh-100 d-flex flex-column sidebar-wrapper shadow" style="width: 260px; z-index: 1000;">
+    
     <!-- โลโก้และชื่อระบบ -->
-    <div class="d-flex align-items-center p-3 border-bottom border-secondary mb-3">
-        <div class="rounded-circle bg-secondary me-3" style="width: 40px; height: 40px;"></div>
-        <div class="fw-bold lh-sm text-white">
-            ระบบสิ่งพิมพ์<br><span class="fs-6">และของที่ระลึก</span>
+    <div class="d-flex align-items-center p-4 mb-2">
+        <div class="rounded-circle bg-secondary shadow-sm me-3 flex-shrink-0" style="width: 45px; height: 45px;"></div>
+        <div class="fw-bold lh-sm text-white fs-6">
+            ระบบสิ่งพิมพ์<br>
+            <span class="fw-normal text-white-50" style="font-size: 0.8rem;">และของที่ระลึก</span>
         </div>
     </div>
 
-    <!-- รายการเมนู (ใส่ overflow-y-auto เพื่อให้สกรอลล์ได้เฉพาะในเมนู หากรายการเมนูยาวเกินจอ) -->
-    <ul class="nav nav-pills flex-column mb-auto px-2 overflow-y-auto">
-        <li class="nav-item mb-1">
-            <a href="index.php?page=home" class="nav-link <?= $currentPage === 'home' ? 'text-warning fw-bold' : 'text-light' ?>">
-                <i class="bi bi-house-door me-3"></i> หน้าหลัก
-            </a>
-        </li>
-        <li class="nav-item mb-1">
-            <a href="index.php?page=create_request" class="nav-link <?= $currentPage === 'create_request' ? 'text-warning fw-bold' : 'text-light' ?>">
-                <i class="bi bi-list-ul me-3"></i> สร้างคำขอ
-            </a>
-        </li>
-        <li class="nav-item mb-1">
-            <a href="index.php?page=my_requests" class="nav-link <?= $currentPage === 'my_requests' ? 'text-warning fw-bold' : 'text-light' ?>">
-                <i class="bi bi-box me-3"></i> ติดตามคำขอ
-            </a>
-        </li>
-    </ul>
+    <!-- รายการเมนู -->
+    <div class="px-3 overflow-y-auto mb-auto">
+        <a href="index.php?page=home" class="sidebar-link mb-2 <?= $currentPage === 'home' ? 'active' : '' ?>">
+            <i class="bi bi-house-door me-3"></i> หน้าหลัก
+        </a>
+        
+        <a href="index.php?page=create_request" class="sidebar-link mb-2 <?= $currentPage === 'create_request' ? 'active' : '' ?>">
+            <i class="bi bi-list-ul me-3"></i> สร้างคำขอ
+        </a>
+        
+        <!-- 🟢 ผูก request_view เข้ากับเมนูติดตามคำขอด้วย เพื่อให้แถบเหลืองยังทำงานตอนกดดูรายละเอียด -->
+        <a href="index.php?page=my_requests" class="sidebar-link mb-2 <?= ($currentPage === 'my_requests' || $currentPage === 'request_view') ? 'active' : '' ?>">
+            <i class="bi bi-box me-3"></i> ติดตามคำขอ
+        </a>
+    </div>
 
-    <!-- ปุ่ม Logout ด้านล่างสุด -->
-    <div class="p-3 border-top border-secondary mt-auto">
-        <a href="actions/auth_logout.php" class="nav-link text-light small text-decoration-none d-flex align-items-center">
+    <!-- ปุ่ม Logout -->
+    <div class="p-3">
+        <div class="sidebar-divider mt-0 mb-3"></div>
+        <a href="actions/auth_logout.php" class="sidebar-link sidebar-logout">
             <i class="bi bi-box-arrow-right me-3"></i> Logout
         </a>
     </div>
 </div>
-
-
