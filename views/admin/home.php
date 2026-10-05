@@ -10,7 +10,8 @@ $currentUser = $stmt->fetch();
 <!-- 🟢 [ปรับปรุง] หัวข้อหน้า (Theme ใหม่ ตัดแถบเหลืองเต็มจอออก) -->
 <div class="d-flex justify-content-between align-items-center mb-4 pb-2" style="border-bottom: 2px solid #e9ecef;">
     <div>
-        <h3 class="fw-bolder mb-1 text-dark">หน้าหลักผู้ดูแลระบบ</h3>
+        <h3 class="fw-bolder mb-1 text-dark "><i class="bi bi-house text-warning me-2"></i>หน้าหลักผู้ดูแลระบบ</h3> 
+          <!-- <h3 class="fw-bolder mb-1 text-dark"><i class="bi bi-boxes text-warning me-2"></i>จัดการสิ่งของ</h3> -->
         <span class="text-muted small">ระบบสิ่งพิมพ์และของที่ระลึก</span>
     </div>
 </div>

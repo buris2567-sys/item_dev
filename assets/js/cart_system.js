@@ -7,7 +7,7 @@ function adjustInputQty(itemId, change, maxStock) {
     let input = document.getElementById('input_qty_' + itemId);
     let currentVal = parseInt(input.value) || 1;
     let newVal = currentVal + change;
-    
+
     if (newVal < 1) newVal = 1;
     if (maxStock !== undefined && newVal > maxStock) newVal = maxStock;
     input.value = newVal;
@@ -17,21 +17,21 @@ function adjustInputQty(itemId, change, maxStock) {
 function addToCart(id, name, category, img, maxStock) {
     let qtyToAdd = parseInt(document.getElementById('input_qty_' + id).value) || 1;
 
-    if (cart[id]) {
-        if (cart[id].qty + qtyToAdd > maxStock) {
-            alert('คุณเลือกเกินจำนวนคงเหลือในคลัง!');
-            return;
-        }
-        cart[id].qty += qtyToAdd;
-    } else {
-        cart[id] = { id: id, name: name, category: category, img: img, qty: qtyToAdd, maxStock: maxStock };
-    }
-    
+    // if (cart[id]) {
+    //     if (cart[id].qty + qtyToAdd > maxStock) {
+    //         alert('คุณเลือกเกินจำนวนคงเหลือในคลัง!');
+    //         return;
+    //     }
+    //     cart[id].qty += qtyToAdd;
+    // } else {
+    //     cart[id] = { id: id, name: name, category: category, img: img, qty: qtyToAdd, maxStock: maxStock };
+    // }
+
     document.getElementById('input_qty_' + id).value = 1; // Reset ค่าช่อง input
     renderCart();
 }
 
-// 3. ฟังก์ชันปรับจำนวนในตะกร้า[cite: 34]
+// 3. ฟังก์ชันปรับจำนวนในตะกร้า
 function updateCartQty(id, change) {
     if (cart[id]) {
         let newVal = cart[id].qty + change;
@@ -45,7 +45,7 @@ function updateCartQty(id, change) {
     }
 }
 
-// 4. ฟังก์ชันลบออกจากตะกร้า[cite: 34]
+// 4. ฟังก์ชันลบออกจากตะกร้า
 function removeFromCart(id) {
     delete cart[id];
     renderCart();
@@ -56,10 +56,10 @@ function renderCart() {
     let tbody = document.getElementById('cartBody');
     let hiddenContainer = document.getElementById('hiddenCartInputs');
     let countBadge = document.getElementById('cartTotalCount');
-    
+
     tbody.innerHTML = '';
     hiddenContainer.innerHTML = '';
-    
+
     let totalItems = Object.keys(cart).length;
     countBadge.innerText = totalItems + ' รายการ';
 
@@ -113,14 +113,14 @@ function submitRequest() {
         alert('กรุณาเลือกสิ่งของอย่างน้อย 1 รายการ');
         return;
     }
-    
+
     // ตรวจสอบว่ากรอกข้อมูลครบไหม
     const form = document.getElementById('requestForm');
     if (!form.checkValidity()) {
         form.reportValidity();
         return;
     }
-    
+
     // ส่งข้อมูลไปที่ backend
     form.submit();
 }

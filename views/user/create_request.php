@@ -27,7 +27,7 @@ $items =$pdo->query("
 <!-- 🟢 Header Section (เนื้อหาเริ่มตรงนี้เลย ไม่ต้องกาง Layout แล้ว) -->
 <div class="mb-4 pb-2" style="border-bottom: 2px solid #e9ecef;">
     <h3 class="fw-bolder mb-1 text-dark">แบบฟอร์มสร้างคำขอ</h3>
-    <span class="text-muted small"></span>
+    <span class="text-muted small">ระบบสิ่งพิมพ์และของที่ระลึก</span>
 </div>
 
 <form action="actions/user/submit_request.php" method="POST" id="requestForm">
@@ -126,7 +126,7 @@ $items =$pdo->query("
         </div>
 
         <div class="card-body p-4 bg-light bg-opacity-50">
-            <!-- กริดสินค้า -->
+            กริดสินค้า
             <div class="row g-3" id="itemsGrid">
                 <?php foreach ($items as $item):$imgData = json_decode($item['images'] ?? '[]', true);$imgSrc = (is_array($imgData) && !empty($imgData)) ? 'assets/uploads/items/' . $imgData[0] : 'assets/images/placeholder.jpg';$imgJson = htmlspecialchars(json_encode(is_array($imgData) ?$imgData : []), ENT_QUOTES, 'UTF-8');
                 ?>
@@ -150,7 +150,7 @@ $items =$pdo->query("
                                             <?= htmlspecialchars($item['name']) ?>
                                         </div>
                                         <div class="small text-muted text-truncate"><?= htmlspecialchars($item['category_name']) ?></div>
-                                        <div class="small mt-1 text-success fw-bolder">คงเหลือ: <?= $item['current_stock'] ?> ชิ้น</div>
+                                        <!-- <div class="small mt-1 text-success fw-bolder">คงเหลือ: <?= $item['current_stock'] ?> ชิ้น</div> -->
                                     </div>
 
                                     <div class="mt-2">
@@ -243,7 +243,7 @@ $items =$pdo->query("
 
 <!-- Script สำหรับ Filter & Pagination หน้าสินค้า -->
 <script>
-    const itemsPerPage = 8;
+    const itemsPerPage = 10;
     let currentPage = 1;
     let allItemElements = [];
     let filteredItems = [];

@@ -54,7 +54,7 @@ if ($statusText === 'รออนุมัติ' || $statusText === 'Pending') 
     <!-- 🟢 [ปรับปรุง] ถอดกล่องสีเหลือง (bg-warning) ออก เปลี่ยนเป็นตัวหนังสือสีเข้มธรรมดาแบบ Theme ใหม่ -->
     <div>
         <h3 class="fw-bolder mb-1 text-dark">รายละเอียดคำขอเบิกสิ่งของ</h3>
-        <span class="text-muted small"></span>
+        <span class="text-muted small">ระบบสิ่งพิมพ์และของที่ระลึก</span>
     </div>
 </div>
 
