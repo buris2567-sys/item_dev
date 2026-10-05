@@ -5,8 +5,8 @@ $currentPage = $_GET['page'] ?? 'home';
 <!-- เพิ่ม position-sticky top-0 vh-100 เพื่อล็อกเมนูด้านข้างไว้อยู่กับที่ -->
 
 <div class="col-auto col-md-3 col-xl-2 px-0 text-white position-sticky top-0 vh-100 d-flex flex-column" style="width: 250px; background-color: #1e1e24; z-index: 1000;">
-   <!-- <div class="text-white position-sticky top-0 vh-100 d-flex flex-column" style="width: 250px; background-color: #1e1e24;"> -->
-       
+    <!-- <div class="text-white position-sticky top-0 vh-100 d-flex flex-column" style="width: 250px; background-color: #1e1e24;"> -->
+
     <!-- โลโก้และชื่อระบบ -->
     <div class="d-flex align-items-center p-3 border-bottom border-secondary mb-3">
         <div class="rounded-circle bg-secondary me-3" style="width: 40px; height: 40px;"></div>
@@ -15,8 +15,11 @@ $currentPage = $_GET['page'] ?? 'home';
         </div>
     </div>
 
-    <!-- รายการเมนู (ใส่ overflow-y-auto เพื่อให้สกรอลล์ได้เฉพาะในเมนู หากรายการเมนูยาวเกินจอ) -->
-    <ul class="nav nav-pills flex-colu mn mb-auto px-2 overflow-y-auto">
+    <!-- ของเดิมที่พิมพ์ผิด -->
+    <!-- <ul class="nav nav-pills flex-colu mn mb-auto px-2 overflow-y-auto"> -->
+
+    <!-- 🟢 ของใหม่ที่ถูกต้อง -->
+    <ul class="nav nav-pills flex-column mb-auto px-2 overflow-y-auto">
         <li class="nav-item mb-1">
             <a href="index.php?page=home" class="nav-link <?= $currentPage === 'home' ? 'text-warning fw-bold' : 'text-light' ?>">
                 <i class="bi bi-house-door me-3"></i> หน้าหลัก
@@ -41,5 +44,3 @@ $currentPage = $_GET['page'] ?? 'home';
         </a>
     </div>
 </div>
-
-
