@@ -35,7 +35,7 @@ $statusText = $request['status'];
 $badgeStyle = 'min-width: 110px; ';
 
 if ($statusText === 'รออนุมัติ' || $statusText === 'Pending') {
-    $badgeStyle .= 'background-color: #ffc107; color: #000;'; // เหลืองสด
+    $badgeStyle .= 'background-color: #fbff00; color: #000;'; // เหลืองสด
     $statusText = 'รออนุมัติ';
 } elseif (strpos($statusText, 'อนุมัติบางส่วน') !== false) {
     $badgeStyle .= 'background-color: #fd7e14; color: #fff;'; // ส้ม
@@ -87,7 +87,7 @@ if ($statusText === 'รออนุมัติ' || $statusText === 'Pending') 
             <div class="col-12 col-sm-6 col-md-3">
                 <div class="text-muted small mb-1">สถานะคำขอ</div>
                 <!-- 🟢 [ปรับปรุง] ป้ายสถานะเปลี่ยนเป็นขอบมน (rounded-pill) ไร้ขอบดำ -->
-                <span class="badge px-3 py-2 fs-6 rounded-pill shadow-sm d-inline-flex align-items-center justify-content-center" style="<?= $badgeStyle ?>">
+                <span class="badge  px-3 py-2 fs-6 rounded-pill shadow-sm d-inline-flex align-items-center justify-content-center" style="<?= $badgeStyle ?>">
                     <i class="bi bi-circle-fill small me-1" style="font-size: 0.55rem;"></i>
                     <?= htmlspecialchars($statusText) ?>
                 </span>
@@ -172,7 +172,7 @@ if ($statusText === 'รออนุมัติ' || $statusText === 'Pending') 
             </div>
 
             <div style="min-width: 140px;" class="text-end ps-3">
-                <span class="badge rounded-pill py-2 w-100 <?= $itemBadgeClass ?> d-inline-flex align-items-center justify-content-center shadow-sm">
+                <span class="badge rounded-pill py-2 w-100 fs-6 fw-bold px-4 py-2 <?= $itemBadgeClass ?> d-inline-flex align-items-center justify-content-center shadow-sm">
                     <i class="bi bi-circle-fill small me-1 <?= $iconClass ?>" style="font-size: 0.55rem;"></i> <?= $itemStatusText ?>
                 </span>
             </div>

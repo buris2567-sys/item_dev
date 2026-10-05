@@ -95,7 +95,7 @@ $requests = $stmt->fetchAll();
                             <td class="fw-bold border-light"><span class="px-3 py-2 bg-light rounded-3 border text-dark"><?= htmlspecialchars($req['request_id']) ?></span></td>
                             <td class="border-light text-muted"><?= date('d/m/Y', strtotime($req['request_date'])) ?></td>
                             <td class="border-light text-muted"><?= $req['approved_at'] ? date('d/m/Y', strtotime($req['approved_at'])) : '-' ?></td>
-                            <td class="border-light"><span class="badge <?= $badgeClass ?>"><?= htmlspecialchars($status) ?></span></td>
+                            <td class="border-light"><span class="badge fs-6 fw-bold px-4 py-2 <?= $badgeClass ?>"><?= htmlspecialchars($status) ?></span></td>
                             <td class="border-light">
                                 <a href="index.php?page=request_view&id=<?= $req['request_id'] ?>" class="btn btn-sm btn-light rounded-circle shadow-sm text-info d-inline-flex align-items-center justify-content-center" style="width: 36px; height: 36px;" title="ดูรายละเอียด">
                                     <i class="bi bi-search"></i>
