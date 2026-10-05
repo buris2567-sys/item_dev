@@ -9,55 +9,55 @@
         <div class="d-flex justify-content-end align-items-center p-3 border-bottom">
             <div class="d-flex align-items-center">
                 <i class="bi bi-search me-2 text-muted"></i>
-                <input type="text" id="searchTxInput" class="form-control form-control-sm border-dark rounded-0" style="width: 250px;" placeholder="ค้นหา...">
+                <input type="text" id="searchTxInput" class="form-control form-control-sm border-dark rounded-0" style="width: 250px;" placeholder="ค้นหาประวัติ...">
             </div>
         </div>
 
         <div class="table-responsive">
+            <!-- 🟢 เพิ่ม CSS Counter ให้ลำดับแถวไม่กระโดด -->
+            <style>
+                table#txTable { counter-reset: txRowNumber; }
+                table#txTable tbody tr.tx-row:not([style*="display: none"]) { counter-increment: txRowNumber; }
+                table#txTable tbody tr.tx-row:not([style*="display: none"]) .tx-row-number::before { content: counter(txRowNumber); }
+            </style>
+
             <table class="table table-bordered border-dark align-middle text-center mb-0" id="txTable">
                 <thead class="table-light">
                     <tr>
                         <th class="text-muted small fw-bold" style="width: 60px;">ลำดับ</th>
                         <th class="text-muted small fw-bold" style="width: 120px;">ประเภท</th>
                         <th class="text-start ps-3 text-muted small fw-bold">ชื่อรายการ</th>
-
                         <th class="text-start ps-3 text-muted small fw-bold">action</th>
-
-                        <!-- 🟢 คอลัมน์สต็อกที่เพิ่มมาใหม่ -->
                         <th class="text-muted small fw-bold bg-light" style="width: 80px;">เดิม</th>
                         <th class="text-muted small fw-bold" style="width: 100px;">เปลี่ยนแปลง</th>
                         <th class="text-muted small fw-bold bg-light" style="width: 80px;">คงเหลือ</th>
-
                         <th class="text-muted small fw-bold" style="width: 100px;">วันที่</th>
                         <th class="text-start ps-3 text-muted small fw-bold">รายละเอียด</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php if (!empty($transactions)): ?>
-                        <?php foreach ($transactions as $index => $tx): ?>
+                        <?php foreach ($transactions as $tx): ?>
                             <?php
                             $txType = $tx['transaction_type'];
                             $qty = (int)$tx['quantity'];
 
-                            // จัดการสีและเครื่องหมาย + / - ให้ครอบคลุมทุกคอลัมน์
-                            if ($txType === 'นำเข้าสิ่งของ' || $txType === 'สร้างสิ่งของ'|| $txType === 'ยกเลิกคำร้อง') {
+                            if ($txType === 'นำเข้าสิ่งของ' || $txType === 'สร้างสิ่งของ' || $txType === 'ยกเลิกคำร้อง' || $txType === 'IN') {
                                 $qtySign = '+';
                                 $qtyClass = 'text-success';
                                 $prevClass = 'text-muted';
                                 $currClass = 'text-dark';
-                            } elseif ($txType === 'ลบสิ่งของ'|| $txType === 'ถอนจากคำร้อง') {
+                            } elseif ($txType === 'ลบสิ่งของ' || $txType === 'ถอนจากคำร้อง') {
                                 $qtySign = '-';
                                 $qtyClass = 'text-danger';
-                                $prevClass = 'text-danger'; // 🔴 เดิมเป็นสีแดง
-                                $currClass = 'text-danger'; // 🔴 คงเหลือเป็นสีแดง
+                                $prevClass = 'text-danger'; 
+                                $currClass = 'text-danger'; 
                             } elseif ($txType === 'แก้ไขสิ่งของ') {
-                                // 🟢 กรณีแก้ไขข้อมูล: ไม่มีการเปลี่ยนแปลงสต็อก ให้แสดงเป็นสีดำปกติและไม่มีเครื่องหมาย
                                 $qtySign = '';
                                 $qtyClass = 'text-dark fw-bold';
                                 $prevClass = 'text-muted';
                                 $currClass = 'text-dark';
                             } else {
-                                // 🟢 กรณี OUT (ลดสต็อก): ใส่เครื่องหมายลบและตัวเลขสีแดง
                                 $qtySign = '-';
                                 $qtyClass = 'text-danger';
                                 $prevClass = 'text-muted';
@@ -65,22 +65,12 @@
                             }
                             ?>
                             <tr class="tx-row" data-search-text="<?= htmlspecialchars(strtolower(($tx['category_name'] ?? '') . ' ' . ($tx['item_name'] ?? '') . ' ' . ($tx['remark'] ?? '') . ' ' . ($tx['username'] ?? ''))) ?>">
-                                <td class="text-muted"><?= $index + 1 ?></td>
+                                <td class="text-muted fw-bold"><span class="tx-row-number"></span></td>
                                 <td><?= htmlspecialchars($tx['category_name'] ?? '-') ?></td>
                                 <td class="text-start ps-3 fw-bold text-dark"><?= htmlspecialchars($tx['item_name'] ?? '-') ?></td>
-
-                                <!-- เพิ่มคอลัมน์ action เพื่อแสดงประเภทการทำรายการ -->
                                 <td class="text-start ps-3 fw-bold text-dark"><?= htmlspecialchars($tx['transaction_type'] ?? '-') ?></td>
-
-                                <!-- 🟢 จำนวนเดิม -->
                                 <td class="<?= $prevClass ?> fw-bold bg-light"><?= number_format($tx['previous_stock'] ?? 0) ?></td>
-
-                                <!-- 🟢 จำนวนเปลี่ยนแปลง -->
-                                <td class="fw-bold <?= $qtyClass ?>">
-                                    <?= $qtySign . number_format(abs($qty)) ?>
-                                </td>
-
-                                <!-- 🟢 จำนวนคงเหลือ (ถ้าโดนลบให้ขึ้นป้ายบอกว่า ลบแล้ว) -->
+                                <td class="fw-bold <?= $qtyClass ?>"><?= $qtySign . number_format(abs($qty)) ?></td>
                                 <td class="<?= $currClass ?> fw-bold bg-light">
                                     <?php if ($txType === 'ลบสิ่งของ'): ?>
                                         <span class="badge bg-danger rounded-0">ลบแล้ว</span>
@@ -88,55 +78,52 @@
                                         <?= number_format($tx['current_stock'] ?? 0) ?>
                                     <?php endif; ?>
                                 </td>
-
                                 <td>
                                     <div class="small fw-bold"><?= !empty($tx['created_at']) ? date('d/m/Y', strtotime($tx['created_at'])) : '-' ?></div>
                                     <div class="small text-muted"><?= !empty($tx['created_at']) ? date('H:i', strtotime($tx['created_at'])) : '-' ?></div>
                                 </td>
-
-                                <!-- 🟢 รายละเอียด (เอา remark มาต่อกับ username อัตโนมัติ) -->
-                                <td class="text-start ps-3 text-muted small">
-                                    <?= htmlspecialchars($tx['remark'] ?? '-') ?>
-
-                                </td>
+                                <td class="text-start ps-3 text-muted small"><?= htmlspecialchars($tx['remark'] ?? '-') ?></td>
                             </tr>
                         <?php endforeach; ?>
-                    <?php else: ?>
-                        <tr id="noTxDataRow">
-                            <td colspan="8" class="text-center py-4 text-muted">ไม่พบประวัติการเปลี่ยนแปลง</td>
-                        </tr>
                     <?php endif; ?>
+                    <!-- แถวกรณีไม่พบข้อมูล -->
                     <tr id="noTxFilterRow" style="display: none;">
-                        <td colspan="8" class="text-center py-4 text-muted">ไม่พบข้อมูลที่ค้นหา</td>
+                        <td colspan="9" class="text-center py-5 text-muted border-0">
+                            <i class="bi bi-inbox fs-2 d-block mb-2 opacity-50"></i>
+                            <h6 class="fw-bold mb-0">ไม่พบประวัติการเปลี่ยนแปลงที่ค้นหา</h6>
+                        </td>
                     </tr>
                 </tbody>
             </table>
         </div>
 
-        <!-- แถบแบ่งหน้า Transaction (Pagination) -->
-        <div class="d-flex justify-content-between align-items-center p-3 border-top">
-            <div class="d-flex align-items-center">
-                <span class="small text-muted me-2">Items per page:</span>
-                <select id="txPerPage" class="form-select form-select-sm border-dark rounded-0" style="width: 70px;">
-                    <option value="5" selected>5</option>
-                    <option value="10">10</option>
-                    <option value="50">50</option>
-                    <option value="100">100</option>
-                </select>
-            </div>
-            <div class="d-flex align-items-center">
-                <span class="small text-muted me-3" id="txPageInfo">1 - 5 of 0</span>
-                <button class="btn btn-sm btn-light border-dark rounded-0 me-1" id="txPrevPage"><i class="bi bi-chevron-left"></i></button>
-                <button class="btn btn-sm btn-light border-dark rounded-0" id="txNextPage"><i class="bi bi-chevron-right"></i></button>
-            </div>
+        <!-- 🟢 เรียกใช้ไฟล์ UI Pagination แบบส่วนกลาง โดยครอบ ID ไว้ -->
+        <div id="txTablePaginationWrapper">
+            <?php include 'includes/pagination.php'; ?>
         </div>
 
     </div>
 </div>
 
+<!-- 🟢 ส่งค่าคอนฟิกไปให้ฟังก์ชันกลางใน table_pagination.js ทำงาน -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const searchTxBox = document.getElementById('searchTxInput');
 
- <!-- สคริปต์สำหรับจัดการการค้นหาและแบ่งหน้า Transaction -->
-  <script src="assets/js/transaction_pagination.js"></script>
-
-
-  
+        // ถ้ามีการเรียกไฟล์ assets/js/table_pagination.js ไว้ที่หน้าหลักแล้ว (เช่น manage_items.php) ฟังก์ชันนี้จะทำงานได้ทันที
+        if (typeof initTablePagination === 'function') {
+            initTablePagination({
+                rowSelector: '.tx-row',                        // Class ของแถว
+                wrapperSelector: '#txTablePaginationWrapper',  // ID ของตัวหุ้ม
+                noDataSelector: '#noTxFilterRow',              // ID ของแถวเวลาค้นหาไม่เจอ
+                triggerInputs: [searchTxBox],                  // กล่องค้นหา
+                
+                filterLogic: function(row) {
+                    const search = searchTxBox.value.toLowerCase().trim();
+                    const rowText = row.getAttribute('data-search-text') || '';
+                    return rowText.includes(search);
+                }
+            });
+        }
+    });
+</script>

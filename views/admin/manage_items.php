@@ -193,7 +193,10 @@ include 'includes/header.php';
 
                         <!-- แถบแบ่งหน้า (Pagination) -->
                         <div class="px-4 pb-4 pt-2">
-                            <?php include 'includes/pagination.php'; ?>
+                            <!-- แทรก Pagination เข้าไปใต้ตาราง และตั้ง ID ให้ Wrapper เช่น #mainItemsPagination -->
+                            <div id="mainItemsPagination">
+                                <?php include 'includes/pagination.php'; ?>
+                            </div>
                         </div>
 
                     </div>
@@ -215,7 +218,38 @@ include 'includes/header.php';
 <?php include 'components/modals/edit_item_modal.php'; ?>
 
 <!-- 🟢 ดึงไฟล์ JavaScript แยกส่วน (Components) เข้ามาทำงาน -->
-<script src="assets/js/manage_items.js"></script>
+<!-- <script src="assets/js/manage_items.js"></script> -->
 <script src="assets/js/transactions.js"></script>
 
 <?php include 'includes/footer.php'; ?>
+
+
+
+
+<!-- ดึงสคริปต์กลางมาใช้ -->
+<script src="assets/js/table_pagination.js"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const catFilter = document.getElementById('categoryFilter');
+        const searchBox = document.getElementById('searchInput');
+
+        // เรียกใช้งานฟังก์ชัน Pagination
+        initTablePagination({
+            rowSelector: '.item-row', // Class ของแถวในตารางที่จะทำแบ่งหน้า
+            wrapperSelector: '#mainItemsPagination', // ID ของตัวหุ้ม Pagination ชุดนี้
+            noDataSelector: '#noDataRow', // ID ของแถวที่โชว์ตอนค้นหาไม่เจอ
+            triggerInputs: [catFilter, searchBox], // ช่อง Input ที่พิมพ์ปุ๊บตารางต้องอัปเดตปั๊บ
+
+            // โลจิกการกรอง (ใส่หรือไม่ใส่ก็ได้)
+            filterLogic: function(row) {
+                const search = searchBox.value.toLowerCase();
+                const cat = catFilter.value;
+                const rowCat = row.getAttribute('data-category');
+                const rowName = row.querySelector('td:first-child').textContent.toLowerCase();
+
+                return (cat === 'all' || rowCat === cat) && rowName.includes(search);
+            }
+        });
+    });
+</script>

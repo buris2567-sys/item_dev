@@ -31,7 +31,7 @@ include 'includes/header.php';
     <div class="row g-0 flex-nowrap">
         <?php include 'includes/sidebar_user.php'; ?>
 
-        <div class="col p-4 flex-grow-1">
+        <div class="col p-4 flex-grow-1" style="font-family: 'Prompt', sans-serif;">
             <h3 class="fw-bolder mb-1 text-dark">แบบฟอร์มขอเบิกพัสดุและสื่อสิ่งพิมพ์</h3>
 
             <form action="actions/user/submit_request.php" method="POST" id="requestForm" class="mt-4">
@@ -136,13 +136,14 @@ include 'includes/header.php';
                                 <?php
                                 // [เปลี่ยน] แปลง array ภาพเป็น JSON ทันทีเพื่อส่งไปให้ฟังก์ชัน JavaScript ได้อย่างปลอดภัย
                                 $imgData = json_decode($item['images'] ?? '[]', true);
-                                $imgSrc = (is_array($imgData) && !empty($imgData)) ? 'assets/uploads/items/' . $imgData[0] : 'assets/images/placeholder.jpg';$imgJson = htmlspecialchars(json_encode(is_array($imgData) ?$imgData : []), ENT_QUOTES, 'UTF-8');
+                                $imgSrc = (is_array($imgData) && !empty($imgData)) ? 'assets/uploads/items/' . $imgData[0] : 'assets/images/placeholder.jpg';
+                                $imgJson = htmlspecialchars(json_encode(is_array($imgData) ? $imgData : []), ENT_QUOTES, 'UTF-8');
                                 ?>
                                 <div class="col-md-3 item-card-wrapper" data-name="<?= htmlspecialchars(strtolower($item['name'])) ?>" data-category="<?= htmlspecialchars($item['category_name'] ?? '') ?>">
                                     <div class="card h-100 border-secondary border-opacity-25 rounded-4 shadow-sm bg-white">
-                                        
+
                                         <div class="d-flex p-3 gap-3 h-100 align-items-center">
-                                            
+
                                             <div style="width: 42%; flex-shrink: 0;">
                                                 <!-- 🟢 [เปลี่ยน] อัปเดตฟังก์ชัน onclick ให้ส่งอาร์เรย์รูปภาพทั้งหมด (imgJson) ไปให้ Modal -->
                                                 <img src="<?= $imgSrc ?>" class="rounded-3 object-fit-cover border w-100 shadow-sm"
@@ -152,7 +153,7 @@ include 'includes/header.php';
                                                     onclick="openGalleryModal('<?= $imgJson ?>', '<?= htmlspecialchars($item['name'], ENT_QUOTES) ?>')"
                                                     title="คลิกเพื่อขยายรูปภาพ">
                                             </div>
-                                            
+
                                             <div class="d-flex flex-column justify-content-between h-100 flex-grow-1" style="min-width: 0;">
                                                 <div>
                                                     <div class="fw-bold text-dark text-truncate w-100" title="<?= htmlspecialchars($item['name']) ?>">
@@ -163,7 +164,7 @@ include 'includes/header.php';
                                                 </div>
 
                                                 <div class="mt-2">
-                                                    <div class="input-group input-group-sm mb-2">
+                                                    <div class="input-group input-group-sm  mb-2">
                                                         <button class="btn btn-outline-secondary px-1" type="button" onclick="adjustInputQty('<?= $item['item_id'] ?>', -1)">-</button>
                                                         <input type="number" id="input_qty_<?= $item['item_id'] ?>" class="form-control text-center fw-bold px-0" value="1">
                                                         <button class="btn btn-outline-secondary px-1" type="button" onclick="adjustInputQty('<?= $item['item_id'] ?>', 1)">+</button>
@@ -190,16 +191,16 @@ include 'includes/header.php';
                     <div class="modal-dialog modal-dialog-centered modal-lg">
                         <div class="modal-content border-dark rounded-4 shadow" style="border-width: 2px !important; background-color: #f8f9fa;">
                             <div class="modal-header border-bottom border-dark px-4 py-3">
-                                <h5 class="modal-title fw-bold text-dark" id="galleryTitle">รายละเอียดภาพ</h5>
+                                <h5 class="modal-title fw-bold text-dark" id="galleryTitle">ชื่อภาพ</h5>
                                 <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body p-0 text-center bg-dark rounded-bottom-4 position-relative overflow-hidden">
-                                
+
                                 <div id="itemCarousel" class="carousel slide" data-bs-ride="false">
                                     <div class="carousel-inner" id="carouselImagesContainer">
                                         <!-- รูปภาพจะถูกแทรกที่นี่ผ่าน JS -->
                                     </div>
-                                    
+
                                     <!-- ปุ่มเลื่อนซ้าย/ขวา -->
                                     <button class="carousel-control-prev" type="button" data-bs-target="#itemCarousel" data-bs-slide="prev">
                                         <span class="carousel-control-prev-icon" aria-hidden="true"></span>
@@ -210,7 +211,7 @@ include 'includes/header.php';
                                         <span class="visually-hidden">Next</span>
                                     </button>
                                 </div>
-                                
+
                             </div>
                         </div>
                     </div>
@@ -285,7 +286,7 @@ include 'includes/header.php';
             return matchSearch && matchCat;
         });
 
-        currentPage = 1; 
+        currentPage = 1;
         renderPagination();
     }
 
@@ -346,7 +347,7 @@ include 'includes/header.php';
     }
 
     function changePage(event, newPage) {
-        event.preventDefault(); 
+        event.preventDefault();
         currentPage = newPage;
         renderPagination();
 
@@ -359,14 +360,14 @@ include 'includes/header.php';
     // 🟢 [เปลี่ยน] ฟังก์ชันเปิดรูปภาพอัปเกรดเป็น Gallery รองรับภาพสูงสุด 3 ภาพ
     function openGalleryModal(imgJsonStr, itemName) {
         document.getElementById('galleryTitle').innerText = itemName;
-        
+
         let images = [];
         try {
             images = JSON.parse(imgJsonStr);
-        } catch(e) {
+        } catch (e) {
             console.error("Invalid image JSON");
         }
-        
+
         const container = document.getElementById('carouselImagesContainer');
         container.innerHTML = ''; // เคลียร์ภาพเก่าทิ้ง
 
@@ -386,7 +387,7 @@ include 'includes/header.php';
                     </div>`;
             });
         }
-        
+
         // สั่งเปิด Modal
         var myModal = new bootstrap.Modal(document.getElementById('imageGalleryModal'));
         myModal.show();
