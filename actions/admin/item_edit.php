@@ -76,7 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['item_id'])) {
 
         // 4. บันทึก Transaction (Snapshot)
         $quantity_change = 0;
-        $remark = "แก้ไขข้อมูลสิ่งของ: {$name} โดย {$username}";
+        $remark = "แก้ไขข้อมูลสิ่งของ โดย {$username}";
 
         $logStmt = $pdo->prepare("
             INSERT INTO inventory_transactions 

@@ -39,6 +39,8 @@
                     <?php if (!empty($transactions)): ?>
                         <?php foreach ($transactions as $tx): ?>
                             <?php
+
+                            // transaction_type ไปได้มาจากไหน 
                             $txType = $tx['transaction_type'];
                             $qty = (int)$tx['quantity'];
 

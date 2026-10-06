@@ -71,7 +71,7 @@ if ($statusText === 'รออนุมัติ' || $statusText === 'Pending') 
             <!-- สรุปข้อมูลผู้เบิก & สถานะ แบบ Grid -->
             <div class="row g-3 align-items-center mb-4 pb-3 border-bottom">
                 <div class="col-12 col-sm-6 col-md-3">
-                    <div class="text-muted small mb-1">ผู้เบิก</div>
+                    <div class="text-muted small mb-1">ชื่อ-นามสกุล</div>
                     <div class="fw-bold text-dark fs-6"><?= htmlspecialchars($request['full_name'] ?? 'ไม่ทราบชื่อ') ?></div>
                 </div>
                 <div class="col-12 col-sm-6 col-md-3">
