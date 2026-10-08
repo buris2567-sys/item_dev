@@ -1,4 +1,6 @@
 <?php
+// [Refactored] Load central config.php before db.php so all constants are defined
+require_once 'config.php';
 require_once 'config/db.php';
 
 // ถ้าล็อกอินอยู่แล้ว ให้เด้งไปหน้าหลัก
@@ -7,7 +9,8 @@ if (isset($_SESSION['user_id'])) {
     exit;
 }
 
-$pageTitle = "เข้าสู่ระบบ - ระบบสิ่งพิมพ์และของที่ระลึก";
+// [Refactored] Replaced hardcoded 'ระบบสิ่งพิมพ์และของที่ระลึก' with APP_NAME constant
+$pageTitle = "เข้าสู่ระบบ - " . APP_NAME;
 include 'includes/header.php';
 
 $error = $_SESSION['error'] ?? '';

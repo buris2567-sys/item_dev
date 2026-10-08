@@ -29,25 +29,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $category_name = $catStmt->fetchColumn() ?: '-';
 
     $uploaded_images = []; 
-    $upload_dir = '../../assets/uploads/items/'; 
+    // [Refactored] Replaced hardcoded '../../assets/uploads/items/' with UPLOAD_PATH constant
+    $upload_dir = UPLOAD_PATH; 
     
     if (!is_dir($upload_dir)) {
-        mkdir($upload_dir, 0777, true);
+        // [Refactored] Replaced hardcoded 0777 permission with UPLOAD_DIR_PERMISSION constant
+        mkdir($upload_dir, UPLOAD_DIR_PERMISSION, true);
     }
 
     if (isset($_FILES['item_images']['name']) && is_array($_FILES['item_images']['name'])) {
         $file_count = count($_FILES['item_images']['name']); 
         
-        for ($i = 0; $i < $file_count && count($uploaded_images) < 3; $i++) {
+        // [Refactored] Replaced hardcoded max images limit '3' with MAX_ITEM_IMAGES constant
+        for ($i = 0; $i < $file_count && count($uploaded_images) < MAX_ITEM_IMAGES; $i++) {
             $tmp_name  = $_FILES['item_images']['tmp_name'][$i] ?? ''; 
             $file_size = $_FILES['item_images']['size'][$i] ?? 0;        
             $file_name = $_FILES['item_images']['name'][$i] ?? '';        
             $error     = $_FILES['item_images']['error'][$i] ?? UPLOAD_ERR_NO_FILE; 
             
-            if ($error === UPLOAD_ERR_OK && $file_size > 0 && $file_size <= 5242880) {
+            // [Refactored] Replaced hardcoded 5242880 (5MB) with MAX_UPLOAD_SIZE constant
+            if ($error === UPLOAD_ERR_OK && $file_size > 0 && $file_size <= MAX_UPLOAD_SIZE) {
                 $ext = strtolower(pathinfo($file_name, PATHINFO_EXTENSION)); 
                 
-                if (in_array($ext, ['jpg', 'jpeg', 'png'])) {
+                // [Refactored] Replaced hardcoded ['jpg', 'jpeg', 'png'] with ALLOWED_IMAGE_TYPES constant
+                if (in_array($ext, ALLOWED_IMAGE_TYPES)) {
                     $new_filename = $item_id . '_' . (count($uploaded_images) + 1) . '_' . uniqid() . '.' . $ext; 
                     $destination = $upload_dir . $new_filename; 
                     

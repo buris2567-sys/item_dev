@@ -86,7 +86,8 @@ function openViewModal(button) {
     if (images && images.length > 0) {
         images.forEach((img, index) => {
             const activeClass = index === 0 ? 'active' : '';
-            const imgUrl = `assets/uploads/items/${img}`;
+            // [Refactored] Replaced hardcoded 'assets/uploads/items/' with AppConfig.uploadUrl
+            const imgUrl = `${AppConfig.uploadUrl}${img}`;
             
             // 🟢 เปลี่ยนจาก CSS Background เป็นแท็ก <img> เพื่อรักษาสัดส่วน และใส่ฟังก์ชันขยายรูปเมื่อคลิก
             container.innerHTML += `

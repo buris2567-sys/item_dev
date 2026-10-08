@@ -123,7 +123,8 @@ function openEditModal(btn) {
                         const previewBox = document.getElementById('editPreviewBox_' + index);
                         const placeholder = document.getElementById('editPlaceholderText_' + index);
                         
-                        previewBox.style.backgroundImage = `url('assets/uploads/items/${img}')`;
+                        // [Refactored] Replaced hardcoded 'assets/uploads/items/' with AppConfig.uploadUrl
+                        previewBox.style.backgroundImage = `url('${AppConfig.uploadUrl}${img}')`;
                         placeholder.classList.add('d-none');
                     }
                 });
@@ -153,7 +154,8 @@ document.querySelectorAll('.edit-slot-file-input').forEach(input => {
         const file = e.target.files[0];
 
         if (file) {
-            if (file.size > 5242880) {
+            // [Refactored] Replaced hardcoded 5242880 (5MB) with AppConfig.maxUploadSize
+            if (file.size > AppConfig.maxUploadSize) {
                 alert('ไฟล์มีขนาดเกิน 5MB กรุณาเลือกไฟล์ใหม่');
                 this.value = '';
                 return;

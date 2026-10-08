@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= isset($pageTitle) ? $pageTitle : 'ระบบเบิกจ่ายพัสดุ' ?></title>
+    <!-- [Refactored] Replaced hardcoded fallback title 'ระบบเบิกจ่ายพัสดุ' with APP_DEFAULT_TITLE constant -->
+    <title><?= isset($pageTitle) ? $pageTitle : APP_DEFAULT_TITLE ?></title>
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
@@ -32,6 +33,23 @@
             background-color: #e9ecef !important;
         }
     </style>
+
+    <!-- [Refactored] PHP-generated JS config block: exposes PHP constants (UPLOAD_URL, PLACEHOLDER_URL,
+         APP_BASE_URL) to all JavaScript files so they don't need hardcoded paths. -->
+    <script>
+        window.AppConfig = {
+            // [Refactored] Replaced hardcoded 'assets/uploads/items/' with UPLOAD_URL constant (via PHP)
+            uploadUrl:      '<?= UPLOAD_URL ?>',
+            // [Refactored] Replaced hardcoded 'assets/images/placeholder.jpg' with PLACEHOLDER_URL constant (via PHP)
+            placeholderUrl: '<?= PLACEHOLDER_URL ?>',
+            // [Refactored] Replaced hardcoded 'http://localhost/item_dev' with APP_BASE_URL constant (via PHP)
+            baseUrl:        '<?= APP_BASE_URL ?>',
+            // [Refactored] Replaced hardcoded 5242880 (5MB) with MAX_UPLOAD_SIZE constant (via PHP)
+            maxUploadSize:  <?= MAX_UPLOAD_SIZE ?>,
+            // [Refactored] Replaced hardcoded max images '3' with MAX_ITEM_IMAGES constant (via PHP)
+            maxItemImages:  <?= MAX_ITEM_IMAGES ?>
+        };
+    </script>
 
     <!-- (ส่วนจัดการสิ่งของด้านบน ยังเหมือนเดิม) -->
 </head>

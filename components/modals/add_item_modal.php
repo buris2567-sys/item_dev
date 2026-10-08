@@ -146,8 +146,8 @@
             const file = e.target.files[0];
 
             if (file) {
-                // ตรวจสอบขนาดไฟล์ ป้องกันไฟล์ขนาดเกิน 5MB (5,242,880 Bytes)
-                if (file.size > 5242880) {
+                // [Refactored] Replaced hardcoded 5242880 (5MB) with AppConfig.maxUploadSize
+                if (file.size > AppConfig.maxUploadSize) {
                     alert('ไฟล์มีขนาดเกิน 5MB กรุณาเลือกไฟล์ใหม่');
                     this.value = ''; // ล้างค่าที่เลือกไว้
                     return;

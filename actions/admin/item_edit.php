@@ -29,18 +29,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['item_id'])) {
             $existing_images = json_decode($itemData['images'], true) ?: [];
         }
 
-        $upload_dir = '../../assets/uploads/items/';
-        if (!is_dir($upload_dir)) mkdir($upload_dir, 0777, true);
+        // [Refactored] Replaced hardcoded '../../assets/uploads/items/' with UPLOAD_PATH constant
+        // [Refactored] Replaced hardcoded 0777 permission with UPLOAD_DIR_PERMISSION constant
+        $upload_dir = UPLOAD_PATH;
+        if (!is_dir($upload_dir)) mkdir($upload_dir, UPLOAD_DIR_PERMISSION, true);
 
         // วนลูปตรวจสอบว่ามีการอัปโหลดไฟล์ใหม่ในแต่ละช่อง (0, 1, 2) หรือไม่
         if (isset($_FILES['item_images'])) {
-            for ($i = 0; $i < 3; $i++) {
+            // [Refactored] Replaced hardcoded loop limit '3' with MAX_ITEM_IMAGES constant
+            for ($i = 0; $i < MAX_ITEM_IMAGES; $i++) {
                 if (!empty($_FILES['item_images']['name'][$i]) && $_FILES['item_images']['error'][$i] === UPLOAD_ERR_OK) {
                     $tmp_name  = $_FILES['item_images']['tmp_name'][$i];
                     $file_name = $_FILES['item_images']['name'][$i];
                     $ext = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
                     
-                    if (in_array($ext, ['jpg', 'jpeg', 'png'])) {
+                    // [Refactored] Replaced hardcoded ['jpg', 'jpeg', 'png'] with ALLOWED_IMAGE_TYPES constant
+                    if (in_array($ext, ALLOWED_IMAGE_TYPES)) {
                         // ลบรูปภาพเก่าในช่องนี้ (ถ้ามี) ออกจากโฟลเดอร์
                         if (isset($existing_images[$i])) {
                             $old_file = $upload_dir . $existing_images[$i];

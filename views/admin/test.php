@@ -70,7 +70,9 @@
                                             <td class="border-0 py-3">
                                                 <?php
                                                 $images = json_decode($item['images'], true);
-                                                $imgSrc = !empty($images) ? 'assets/uploads/items/' . $images[0] : 'assets/images/placeholder.jpg';
+                                                // [Refactored] Replaced hardcoded 'assets/uploads/items/' with UPLOAD_URL constant
+                                                // [Refactored] Replaced hardcoded 'assets/images/placeholder.jpg' with PLACEHOLDER_URL constant
+                                                $imgSrc = !empty($images) ? UPLOAD_URL . $images[0] : PLACEHOLDER_URL;
                                                 ?>
                                                 <img src="<?= $imgSrc ?>" class="rounded-4 shadow-sm object-fit-cover bg-white p-1" style="width: 55px; height: 55px;">
                                             </td>

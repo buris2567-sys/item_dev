@@ -1,6 +1,9 @@
 <?php
 session_start();
 define('APP_RUNNING', true); // สร้างตัวแปรป้องกันการเข้าไฟล์ตรงๆ
+
+// [Refactored] Load central config.php before db.php so all constants are available app-wide
+require_once 'config.php';
 require_once 'config/db.php';
 
 if (!isset($_SESSION['user_id'])) {

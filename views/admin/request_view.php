@@ -143,7 +143,9 @@ if ($statusText === 'รออนุมัติ' || $statusText === 'Pending') 
 
                 <div class="mb-4">
                     <?php foreach ($items as $index => $item): $images = json_decode($item['images'] ?? '[]', true);
-                        $imgSrc = !empty($images) ? 'assets/uploads/items/' . $images[0] : 'assets/images/placeholder.jpg';
+                        // [Refactored] Replaced hardcoded 'assets/uploads/items/' with UPLOAD_URL constant
+                        // [Refactored] Replaced hardcoded 'assets/images/placeholder.jpg' with PLACEHOLDER_URL constant
+                        $imgSrc = !empty($images) ? UPLOAD_URL . $images[0] : PLACEHOLDER_URL;
 
                         $reqQty = (int)$item['requested_qty'];
                         $curStock = (int)($item['current_stock'] ?? 0);

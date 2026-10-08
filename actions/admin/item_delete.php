@@ -41,7 +41,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['item_id'])) {
             $images = json_decode($itemData['images'], true);
             if (is_array($images)) {
                 foreach ($images as $img) {
-                    $file_path = '../../assets/uploads/items/' . $img;
+                    // [Refactored] Replaced hardcoded '../../assets/uploads/items/' with UPLOAD_PATH constant
+                    $file_path = UPLOAD_PATH . $img;
                     if (file_exists($file_path)) unlink($file_path);
                 }
             }

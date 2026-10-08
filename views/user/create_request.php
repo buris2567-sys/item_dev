@@ -136,7 +136,9 @@ include 'includes/header.php';
                                 <?php
                                 // [เปลี่ยน] แปลง array ภาพเป็น JSON ทันทีเพื่อส่งไปให้ฟังก์ชัน JavaScript ได้อย่างปลอดภัย
                                 $imgData = json_decode($item['images'] ?? '[]', true);
-                                $imgSrc = (is_array($imgData) && !empty($imgData)) ? 'assets/uploads/items/' . $imgData[0] : 'assets/images/placeholder.jpg';
+                                // [Refactored] Replaced hardcoded 'assets/uploads/items/' with UPLOAD_URL constant
+                                // [Refactored] Replaced hardcoded 'assets/images/placeholder.jpg' with PLACEHOLDER_URL constant
+                                $imgSrc = (is_array($imgData) && !empty($imgData)) ? UPLOAD_URL . $imgData[0] : PLACEHOLDER_URL;
                                 $imgJson = htmlspecialchars(json_encode(is_array($imgData) ? $imgData : []), ENT_QUOTES, 'UTF-8');
                                 ?>
                                 <div class="col-md-3 item-card-wrapper" data-name="<?= htmlspecialchars(strtolower($item['name'])) ?>" data-category="<?= htmlspecialchars($item['category_name'] ?? '') ?>">
@@ -373,17 +375,19 @@ include 'includes/header.php';
 
         if (images.length === 0) {
             // กรณีไม่มีภาพ ให้แสดงรูป Placeholder
+            // [Refactored] Replaced hardcoded 'assets/images/placeholder.jpg' with AppConfig.placeholderUrl
             container.innerHTML = `
                 <div class="carousel-item active">
-                    <img src="assets/images/placeholder.jpg" class="d-block mx-auto img-fluid p-2" style="max-height: 70vh; object-fit: contain;">
+                    <img src="${AppConfig.placeholderUrl}" class="d-block mx-auto img-fluid p-2" style="max-height: 70vh; object-fit: contain;">
                 </div>`;
         } else {
             // กรณีมีภาพ วนลูปเพื่อสร้าง Slide ตามจำนวนรูปภาพ
             images.forEach((img, idx) => {
                 const activeClass = idx === 0 ? 'active' : '';
+                // [Refactored] Replaced hardcoded 'assets/uploads/items/' with AppConfig.uploadUrl
                 container.innerHTML += `
                     <div class="carousel-item ${activeClass}">
-                        <img src="assets/uploads/items/${img}" class="d-block mx-auto img-fluid p-2" style="max-height: 70vh; object-fit: contain;">
+                        <img src="${AppConfig.uploadUrl}${img}" class="d-block mx-auto img-fluid p-2" style="max-height: 70vh; object-fit: contain;">
                     </div>`;
             });
         }
