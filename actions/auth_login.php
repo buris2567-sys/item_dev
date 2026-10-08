@@ -9,9 +9,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // ค้นหาผู้ใช้ตาม username[cite: 8, 12]
         $stmt = $pdo->prepare("SELECT * FROM users WHERE username = :username LIMIT 1");
         $stmt->execute([':username' => $username]);
+        // fetch คือ การดึงข้อมูลจาก statement
+    //    statement คือ object ที่ใช้ในการเตรียมและดำเนินการคำสั่ง SQL ใน PDO (PHP Data Objects) โดย statement จะถูกสร้างขึ้นเมื่อคุณเรียกใช้ prepare() บนวัตถุ PDO และสามารถใช้ execute() เพื่อรันคำสั่ง SQL ที่เตรียมไว้ได้
         $user = $stmt->fetch();
 
-        // ตรวจสอบ Hashing Password[cite: 8]
+        // ตรวจสอบ Hashing Password
+        
         if ($user && password_verify($password, $user['password'])) {
             $_SESSION['user_id']       = $user['user_id'];
             $_SESSION['full_name']     = $user['full_name'];

@@ -31,7 +31,7 @@ $transactions = $pdo->query("
 <!-- 🟢 [ปรับปรุง] เริ่มต้นที่เนื้อหาเลย ไม่ต้องมี container-fluid และ sidebar เพราะ index.php คลุมให้แล้ว -->
 
 <!-- Header Section -->
-<div class="d-flex justify-content-between align-items-center mb-4 pb-2" style="border-bottom: 2px solid #e9ecef;">
+<div class="d-flex justify-content-between   align-items-center mb-4 pb-2" style="border-bottom: 2px solid #e9ecef;">
     <div>
         <h3 class="fw-bolder mb-1 text-dark"><i class="bi bi-boxes text-warning me-2"></i>จัดการสิ่งของ</h3>
           <span class="text-muted small">ระบบสิ่งพิมพ์และของที่ระลึก</span>

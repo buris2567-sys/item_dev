@@ -1,3 +1,23 @@
+// ดึงประวัติการเปลี่ยนแปลงล่าสุด
+<?php
+$transactions = $pdo->query("
+    SELECT t.*, u.username
+    FROM inventory_transactions t
+    LEFT JOIN users u 
+    ON t.created_by = u.user_id
+    ORDER BY t.created_at DESC
+")->fetchAll();
+
+$transactions = $pdo->query("
+SELECT i.name
+from  items  as i
+LEFT JOIN inventory_transactions as t 
+ON t.item_id = i.item_id;
+")->fetchAll();
+
+?>
+
+
 <!-- การ์ดตารางประวัติการเปลี่ยนแปลงล่าสุด -->
 <div class="card border-dark rounded-0 mb-4 shadow-sm" style="border-width: 1px !important;">
     <div class="card-header bg-warning border-dark rounded-0 fw-bold py-3" style="border-bottom-width: 1px !important;">
@@ -41,6 +61,8 @@
                             <?php
 
                             // transaction_type ไปได้มาจากไหน 
+
+                            
                             $txType = $tx['transaction_type'];
                             $qty = (int)$tx['quantity'];
 
@@ -71,6 +93,7 @@
                                 <td><?= htmlspecialchars($tx['category_name'] ?? '-') ?></td>
                                 <td class="text-start ps-3 fw-bold text-dark"><?= htmlspecialchars($tx['item_name'] ?? '-') ?></td>
                                 <td class="text-start ps-3 fw-bold text-dark"><?= htmlspecialchars($tx['transaction_type'] ?? '-') ?></td>
+                             
                                 <td class="<?= $prevClass ?> fw-bold bg-light"><?= number_format($tx['previous_stock'] ?? 0) ?></td>
                                 <td class="fw-bold <?= $qtyClass ?>"><?= $qtySign . number_format(abs($qty)) ?></td>
                                 <td class="<?= $currClass ?> fw-bold bg-light">

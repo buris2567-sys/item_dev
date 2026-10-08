@@ -6,10 +6,14 @@ require_once 'config/db.php';
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit;
+    
 }
 
+// ถ้าไม่มี  $_GET['page'] 
 $page = $_GET['page'] ?? 'home';
 $role = $_SESSION['role'] ?? 'User';
+
+echo $page;
 
 // ตารางแจกจ่ายเส้นทาง (Front Controller Pattern)
 $routes = [];
@@ -45,6 +49,7 @@ if (array_key_exists($page, $routes)) {
             <!-- 🟢 3. ดึง Sidebar มาแสดงทางซ้าย อัตโนมัติตามสิทธิ์ (Role) -->
             <?php 
             if ($role === 'Admin') {
+   
                 include 'includes/sidebar_admin.php';
             } else {
                 include 'includes/sidebar_user.php';

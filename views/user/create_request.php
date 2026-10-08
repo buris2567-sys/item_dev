@@ -24,6 +24,8 @@ $items = $pdo->query("
 ")->fetchAll();
 ?>
 
+<script src="assets/js/cart_system.js"></script>
+
 <!-- 🟢 1. สร้างคลาส CSS เฉพาะกิจ สำหรับจัดวาง 5 กล่องต่อแถว บนหน้าจอขนาดใหญ่ (lg ขึ้นไป) -->
 <style>
     @media (min-width: 992px) {
@@ -51,7 +53,7 @@ $items = $pdo->query("
             
             <div class="row mb-3">
                 <div class="col-md-3 text-md-end fw-bold text-muted pt-1">สถานะ:</div>
-                <div class="col-md-9"><span class="badge bg-warning text-dark px-3 py-2 rounded-pill shadow-sm">รอพิจารณา</span></div>
+                <div class="col-md-9"><span class="badge bg- text-dark px-3 py-2 rounded-pill shadow-sm">รอพิจารณา</span></div>
             </div>
             <div class="row mb-3">
                 <div class="col-md-3 text-md-end fw-bold text-muted pt-1">วันที่:</div>
