@@ -6,7 +6,7 @@ if (session_status() === PHP_SESSION_NONE) {
 $host = '127.0.0.1';
 $db   = 'item_db';
 $user = 'root';
-$pass = '';
+$pass = '1234';
 $charset = 'utf8mb4';
 
 $dsn = "mysql:host=$host;dbname=$db;charset=$charset";
