@@ -45,7 +45,7 @@ define('DB_NAME',    'item_db');
 define('DB_USER',    'root');
 
 // [Refactored] Replaced hardcoded '' (empty password) with DB_PASS constant
-define('DB_PASS',    '');
+define('DB_PASS',    '1234');
 
 // [Refactored] Replaced hardcoded 'utf8mb4' with DB_CHARSET constant
 define('DB_CHARSET', 'utf8mb4');
