@@ -1,18 +1,16 @@
-// ดึงประวัติการเปลี่ยนแปลงล่าสุด
+<!-- // ดึงประวัติการเปลี่ยนแปลงล่าสุด -->
 <?php
 $transactions = $pdo->query("
-    SELECT t.*, u.username
+    SELECT 
+        t.*, 
+        u.username, 
+        i.name AS item_name,
+        c.name AS category_name
     FROM inventory_transactions t
-    LEFT JOIN users u 
-    ON t.created_by = u.user_id
+    LEFT JOIN users u ON t.created_by = u.user_id
+    LEFT JOIN items i ON t.item_id = i.item_id
+    LEFT JOIN categories c ON i.category_id = c.category_id
     ORDER BY t.created_at DESC
-")->fetchAll();
-
-$transactions = $pdo->query("
-SELECT i.name
-from  items  as i
-LEFT JOIN inventory_transactions as t 
-ON t.item_id = i.item_id;
 ")->fetchAll();
 
 ?>

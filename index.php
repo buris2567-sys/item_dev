@@ -13,8 +13,6 @@ if (!isset($_SESSION['user_id'])) {
 $page = $_GET['page'] ?? 'home';
 $role = $_SESSION['role'] ?? 'User';
 
-echo $page;
-
 // ตารางแจกจ่ายเส้นทาง (Front Controller Pattern)
 $routes = [];
 if ($role === 'Admin') {
