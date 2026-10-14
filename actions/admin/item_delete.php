@@ -1,95 +1,71 @@
 <?php
-session_start();
-require_once '../../config/db.php';
-
-// ตรวจสอบสิทธิ์ Admin
-if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'Admin') {
-    exit('Unauthorized access');
+if (!defined('APP_RUNNING')) {
+    session_start();
+    require_once '../../config/db.php';
+} else {
+    require_once 'config/db.php';
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['item_id'])) {
-    $item_id    = $_POST['item_id'];
-    $deleted_by = $_SESSION['user_id'];
-    
+if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'Admin') {
+    $_SESSION['error'] = 'เฉพาะผู้ดูแลระบบเท่านั้นที่สามารถทำรายการนี้ได้';
+    header("Location: ../../index.php?page=manage_items");
+    exit;
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $item_id = trim($_POST['item_id'] ?? '');
+
+    if (empty($item_id)) {
+        $_SESSION['error'] = 'ไม่พบรหัสสิ่งของที่ต้องการลบ';
+        header("Location: ../../index.php?page=manage_items");
+        exit;
+    }
+
     try {
         $pdo->beginTransaction();
 
-        // 1. ดึงชื่อ, หมวดหมู่ และสต็อกเดิม ก่อนที่จะถูกลบทิ้ง
-        $stmt = $pdo->prepare("
-            SELECT i.name, i.current_stock, i.images, c.name as category_name 
-            FROM items i 
-            LEFT JOIN categories c ON i.category_id = c.category_id 
-            WHERE i.item_id = ?
-        ");
-        $stmt->execute([$item_id]);
-        $itemData = $stmt->fetch();
+        // 🟢 1. ตรวจสอบว่ามีการนำพัสดุนี้ไปใช้ในใบเบิก (request_items) หรือยัง
+        $stmtReq = $pdo->prepare("SELECT COUNT(*) FROM request_items WHERE item_id = ?");
+        $stmtReq->execute([$item_id]);
+        if ($stmtReq->fetchColumn() > 0) {
+            $_SESSION['error'] = 'ไม่สามารถลบสิ่งของนี้ได้ เนื่องจากมีประวัติการเบิกในระบบแล้ว';
+            $pdo->rollBack();
+            header("Location: ../../index.php?page=manage_items");
+            exit;
+        }
 
-        // เตรียมข้อมูล Snapshot จาก item
-        $item_name      = $itemData['name'] ?? ($_POST['item_name'] ?? 'ไม่ทราบชื่อ');
-        $category_name  = $itemData['category_name'] ?? '-';
-        $previous_stock = $itemData ? (int)$itemData['current_stock'] : 0;
-        $current_stock  = 0; 
-        $quantity_change = -$previous_stock; 
+        // 🟢 2. ลบข้อมูลประวัติในตารางลูก (inventory_transactions) ก่อน เพื่อไม่ให้ติด FK Constraint (RESTRICT)
+        $stmtDelTrans = $pdo->prepare("DELETE FROM inventory_transactions WHERE item_id = ?");
+        $stmtDelTrans->execute([$item_id]);
 
-        // 2. ดึงชื่อคนทำรายการ (Username)
-        $userStmt = $pdo->prepare("SELECT username FROM users WHERE user_id = ?");
-        $userStmt->execute([$deleted_by]);
-        $username = $userStmt->fetchColumn() ?: 'System';
-        
-        // 3. จัดการลบไฟล์รูปภาพ
-        if ($itemData && !empty($itemData['images'])) {
-            $images = json_decode($itemData['images'], true);
+        // 🟢 3. ดึงชื่อไฟล์รูปภาพมาเพื่อทำการลบไฟล์ออกจาก Disk
+        $stmtImg = $pdo->prepare("SELECT images FROM items WHERE item_id = ?");
+        $stmtImg->execute([$item_id]);
+        $imagesJson = $stmtImg->fetchColumn();
+
+        if ($imagesJson) {
+            $images = json_decode($imagesJson, true);
             if (is_array($images)) {
                 foreach ($images as $img) {
                     $file_path = '../../assets/uploads/items/' . $img;
-                    if (file_exists($file_path)) unlink($file_path);
+                    if (file_exists($file_path)) {
+                        @unlink($file_path);
+                    }
                 }
             }
         }
 
-        // 4. บันทึก Transaction ฝังรายละเอียด + ชื่อ + ประเภท + คนลบ 
-        $remark = "ลบสิ่งของ: โดย {$username}";
-        
-        $logStmt = $pdo->prepare("
-            INSERT INTO inventory_transactions 
-            (item_id, item_name, category_name, transaction_type, quantity, previous_stock, current_stock, remark, created_by) 
-            VALUES (?, ?, ?, 'ลบสิ่งของ', ?, ?, ?, ?, ?)
-        ");
-        $logStmt->execute([$item_id, $item_name, $category_name, $quantity_change, $previous_stock, $current_stock, $remark, $deleted_by]);
-
-        // 5. ลบข้อมูลจากตาราง items ออกถาวร
-        $delStmt = $pdo->prepare("DELETE FROM items WHERE item_id = ?");
-        $delStmt->execute([$item_id]);
+        // 🟢 4. ลบข้อมูลในตารางหลัก items
+        $stmtDel = $pdo->prepare("DELETE FROM items WHERE item_id = ?");
+        $stmtDel->execute([$item_id]);
 
         $pdo->commit();
-        $_SESSION['success'] = "ลบข้อมูลสิ่งของและเก็บประวัติเรียบร้อยแล้ว";
-
+        $_SESSION['success'] = 'ลบรายการสิ่งของเรียบร้อยแล้ว';
     } catch (Exception $e) {
         $pdo->rollBack();
-        $_SESSION['error'] = "เกิดข้อผิดพลาดในการลบ: " . $e->getMessage();
+        $_SESSION['error'] = 'ไม่สามารถลบข้อมูลได้: ' . $e->getMessage();
     }
-    
+
     header("Location: ../../index.php?page=manage_items");
     exit;
 }
-?>
-
-<!-- 
-try {
-    // 1. สั่งเปิดโหมด Transaction (เริ่มจุดเซฟ)
-    $pdo->beginTransaction(); 
-
-    // คำสั่ง SQL ที่ 1: บันทึก Log ลงตารางประวัติ
-    $logStmt->execute(...); 
-
-    // คำสั่ง SQL ที่ 2: ลบสินค้าออกจากตาราง items
-    $delStmt->execute(...); 
-
-    // 2. ถ้าทำงานผ่านหมดไม่มี Error สั่งยื่นเรื่องเซฟลงฐานข้อมูลจริง
-    $pdo->commit(); 
-
-} catch (Exception $e) {
-    // 3. ถ้าบรรทัดไหนพังก็ตาม โค้ดจะเด้งมาที่นี่ทันที
-    // สั่งย้อนเวลากลับไปสภาพก่อนเริ่มทำธุรกรรม (ยกเลิกทุกลำดับที่ทำไปก่อนหน้า)
-    $pdo->rollBack(); 
-} -->

@@ -9,7 +9,7 @@ if (!isset($_SESSION['user_id'])) {
     
 }
 
-// ถ้าไม่มี  $_GET['page'] 
+// ถ้าไม่มี  $_GET['page']   มีแต่หน้านี้หน้าเดียสเท่านั้นที่เป็นรูปแบบนี้
 $page = $_GET['page'] ?? 'home';
 $role = $_SESSION['role'] ?? 'User';
 

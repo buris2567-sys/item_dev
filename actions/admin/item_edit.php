@@ -1,107 +1,114 @@
 <?php
-session_start();
-require_once '../../config/db.php';
-
-if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'Admin') {
-    exit('Unauthorized access');
+if (!defined('APP_RUNNING')) {
+    session_start();
+    require_once '../../config/db.php';
+} else {
+    require_once 'config/db.php';
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['item_id'])) {
-    
-    $item_id     = $_POST['item_id'];
-    $category_id = $_POST['category_id'];
-    $name        = trim($_POST['name']);
-    $description = trim($_POST['description']);
-    $updated_by  = $_SESSION['user_id'];
+if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'Admin') {
+    $_SESSION['error'] = 'เฉพาะผู้ดูแลระบบเท่านั้นที่สามารถทำรายการนี้ได้';
+    header("Location: ../../index.php?page=manage_items");
+    exit;
+}
 
-    try {
-        $pdo->beginTransaction();
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $item_id = trim($_POST['item_id'] ?? '');
+    $category_id = trim($_POST['category_id'] ?? '');
+    $name = trim($_POST['name'] ?? '');
+    $description = trim($_POST['description'] ?? '');
+    $user_id = $_SESSION['user_id'] ?? null;
 
-        // 1. ดึงข้อมูลพัสดุเดิม (เพื่อเอาชื่อภาพเก่ามาจัดการ)
-        $stmt = $pdo->prepare("SELECT current_stock, images FROM items WHERE item_id = ?");
-        $stmt->execute([$item_id]);
-        $itemData = $stmt->fetch();
-        $current_stock = (int)$itemData['current_stock'];
-        
-        // จัดการรูปภาพเดิม
-        $existing_images = [];
-        if (!empty($itemData['images'])) {
-            $existing_images = json_decode($itemData['images'], true) ?: [];
-        }
+    // 🟢 1. ตรวจสอบข้อมูลบังคับ
+    if (empty($item_id) || empty($category_id) || empty($name)) {
+        $_SESSION['error'] = 'กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน';
+        header("Location: ../../index.php?page=manage_items");
+        exit;
+    }
 
-        $upload_dir = '../../assets/uploads/items/';
-        if (!is_dir($upload_dir)) mkdir($upload_dir, 0777, true);
+    // 🟢 2. ดึงข้อมูลพัสดุเดิมเพื่อตรวจสอบความถูกต้องและจัดการรูปภาพ
+    $stmtOld = $pdo->prepare("SELECT * FROM items WHERE item_id = ?");
+    $stmtOld->execute([$item_id]);
+    $oldItem = $stmtOld->fetch();
 
-        // วนลูปตรวจสอบว่ามีการอัปโหลดไฟล์ใหม่ในแต่ละช่อง (0, 1, 2) หรือไม่
-        if (isset($_FILES['item_images'])) {
-            for ($i = 0; $i < 3; $i++) {
-                if (!empty($_FILES['item_images']['name'][$i]) && $_FILES['item_images']['error'][$i] === UPLOAD_ERR_OK) {
-                    $tmp_name  = $_FILES['item_images']['tmp_name'][$i];
-                    $file_name = $_FILES['item_images']['name'][$i];
-                    $ext = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
-                    
+    if (!$oldItem) {
+        $_SESSION['error'] = 'ไม่พบรายการสิ่งของที่ต้องการแก้ไข';
+        header("Location: ../../index.php?page=manage_items");
+        exit;
+    }
+
+    // 🟢 3. ตรวจสอบว่า category_id มีอยู่จริงในตาราง categories (ป้องกัน FK Error #1452)
+    $stmtCat = $pdo->prepare("SELECT name FROM categories WHERE category_id = ?");
+    $stmtCat->execute([$category_id]);
+    $category_name = $stmtCat->fetchColumn();
+
+    if (!$category_name) {
+        $_SESSION['error'] = 'หมวดหมู่ที่เลือกไม่มีอยู่ในระบบ';
+        header("Location: ../../index.php?page=manage_items");
+        exit;
+    }
+
+    // 🟢 4. จัดการรูปภาพเดิมร่วมกับรูปภาพที่อัปโหลดใหม่
+    $existing_images = json_decode($oldItem['images'] ?? '[]', true);
+    if (!is_array($existing_images)) $existing_images = [];
+
+    $upload_dir = '../../assets/uploads/items/';
+    $final_images = $existing_images;
+
+    if (isset($_FILES['item_images']['name']) && is_array($_FILES['item_images']['name'])) {
+        foreach ($_FILES['item_images']['name'] as $slot => $fileName) {
+            if (!empty($fileName) && $_FILES['item_images']['error'][$slot] === UPLOAD_ERR_OK) {
+                $tmpName = $_FILES['item_images']['tmp_name'][$slot];
+                $fileSize = $_FILES['item_images']['size'][$slot];
+
+                if ($fileSize <= 5242880) {
+                    $ext = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
                     if (in_array($ext, ['jpg', 'jpeg', 'png'])) {
-                        // ลบรูปภาพเก่าในช่องนี้ (ถ้ามี) ออกจากโฟลเดอร์
-                        if (isset($existing_images[$i])) {
-                            $old_file = $upload_dir . $existing_images[$i];
-                            if (file_exists($old_file)) unlink($old_file);
+                        // ลบรูปเดิมในตำแหน่ง slot นั้นออกหากมีอยู่
+                        if (!empty($final_images[$slot]) && file_exists($upload_dir . $final_images[$slot])) {
+                            @unlink($upload_dir . $final_images[$slot]);
                         }
 
-                        // บันทึกรูปภาพใหม่
-                        $new_filename = $item_id . '_edit_' . ($i + 1) . '_' . uniqid() . '.' . $ext;
-                        if (move_uploaded_file($tmp_name, $upload_dir . $new_filename)) {
-                            $existing_images[$i] = $new_filename; // อัปเดตชื่อรูปใหม่ลง array ที่ตำแหน่งเดิม
+                        $new_filename = $item_id . '_edit_' . ($slot + 1) . '_' . uniqid() . '.' . $ext;
+                        if (move_uploaded_file($tmpName, $upload_dir . $new_filename)) {
+                            $final_images[$slot] = $new_filename;
                         }
                     }
                 }
             }
         }
-        
-        // ล้างค่า null ใน array และจัดเรียง index ใหม่
-        $existing_images = array_values(array_filter($existing_images));
-        $images_json = !empty($existing_images) ? json_encode($existing_images) : null;
+    }
 
-        // 2. ดึงข้อมูลประกอบสำหรับ Transaction
-        $catStmt = $pdo->prepare("SELECT name FROM categories WHERE category_id = ?");
-        $catStmt->execute([$category_id]);
-        $category_name = $catStmt->fetchColumn() ?: '-';
+    // เคลียร์ index ของ array ให้เรียงลำดับต่อเนื่อง
+    $final_images = array_values(array_filter($final_images));
+    $images_json = json_encode($final_images, JSON_UNESCAPED_UNICODE);
 
-        $userStmt = $pdo->prepare("SELECT username FROM users WHERE user_id = ?");
-        $userStmt->execute([$updated_by]);
-        $username = $userStmt->fetchColumn() ?: 'System';
+    try {
+        $pdo->beginTransaction();
 
-        // 3. อัปเดตข้อมูลลงตาราง items
-        $updateStmt = $pdo->prepare("UPDATE items SET category_id = ?, name = ?, description = ?, images = ? WHERE item_id = ?");
-        $updateStmt->execute([$category_id, $name, $description, $images_json, $item_id]);
-
-        // 4. บันทึก Transaction (Snapshot)
-        $quantity_change = 0;
-        $remark = "แก้ไขข้อมูลสิ่งของ โดย {$username}";
-
-        $logStmt = $pdo->prepare("
-            INSERT INTO inventory_transactions 
-            (item_id,  transaction_type, quantity, previous_stock, current_stock, remark, created_by) 
-            VALUES (?,'แก้ไขสิ่งของ', ?, ?, ?, ?, ?)
+        // 🟢 5. อัปเดตข้อมูลลงตาราง items
+        $stmtUpdate = $pdo->prepare("
+            UPDATE items 
+            SET category_id = ?, name = ?, description = ?, images = ? 
+            WHERE item_id = ?
         ");
-        $logStmt->execute([
-            $item_id, 
-                  
-            $quantity_change, 
-            $current_stock, 
-            $current_stock, 
-            $remark, 
-            $updated_by
-        ]);
+        $stmtUpdate->execute([$category_id, $name, $description, $images_json, $item_id]);
+
+        // 🟢 6. บันทึกประวัติการแก้ไขลงตาราง inventory_transactions
+        $stmtTrans = $pdo->prepare("
+            INSERT INTO inventory_transactions 
+            (item_id, category_name, transaction_type, quantity, previous_stock, current_stock, remark, created_by, created_at)
+            VALUES (?, ?, 'แก้ไขสิ่งของ', 0, ?, ?, 'แก้ไขข้อมูลรายละเอียดสิ่งของ', ?, NOW())
+        ");
+        $stmtTrans->execute([$item_id, $category_name, $oldItem['current_stock'], $oldItem['current_stock'], $user_id]);
 
         $pdo->commit();
-        $_SESSION['success'] = "แก้ไขข้อมูลสิ่งของเรียบร้อยแล้ว";
-
+        $_SESSION['success'] = 'แก้ไขข้อมูลสิ่งของเรียบร้อยแล้ว';
     } catch (Exception $e) {
         $pdo->rollBack();
-        $_SESSION['error'] = "เกิดข้อผิดพลาดในการแก้ไข: " . $e->getMessage();
+        $_SESSION['error'] = 'เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' . $e->getMessage();
     }
-    
+
     header("Location: ../../index.php?page=manage_items");
     exit;
 }
-?>

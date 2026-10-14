@@ -2,102 +2,84 @@
 session_start();
 require_once '../../config/db.php';
 
-// ตรวจสอบสิทธิ์ Admin
+// 1. เช็คสิทธิ์ให้ชัวร์ว่ามี user_id แน่นอน (ป้องกัน FK created_by เป็น NULL)
 if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'Admin') {
-    exit('Unauthorized access');
+    die("เกิดข้อผิดพลาด: คุณไม่มีสิทธิ์ หรือ Session หมดอายุ กรุณาล็อกอินใหม่");
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['item_id'])) {
-    $item_id = $_POST['item_id'];
-    $action_type = $_POST['action_type']; // 'add' หรือ 'reduce'
-    $quantity = (int)$_POST['quantity'];
-    $updated_by = $_SESSION['user_id'];
-    
-    // ป้องกันการกรอกค่าจำนวนเป็น 0 หรือติดลบ
-    if ($quantity <= 0) {
-        $_SESSION['error'] = "จำนวนที่ต้องการเพิ่มหรือลดต้องมากกว่า 0";
-        header("Location: ../../index.php?page=manage_items");
-        exit;
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // 🟢 เปลี่ยนมารับค่าตามฟอร์มเดิมของคุณ
+    $item_id = $_POST['item_id'] ?? '';
+    $action_type = $_POST['action_type'] ?? ''; // 'add' หรือ 'reduce'
+    $quantity = (int)($_POST['quantity'] ?? 0);
+    $remark = trim($_POST['remark'] ?? '');
+    $user_id = $_SESSION['user_id']; 
+
+    // เช็คว่าส่งข้อมูลมาครบไหม และจำนวนต้องมากกว่า 0
+    if (empty($item_id) || empty($action_type) || $quantity <= 0) {
+        die("เกิดข้อผิดพลาด: ข้อมูลไม่ครบถ้วน หรือกรอกจำนวนไม่ถูกต้อง");
     }
+
+    if (empty($remark)) {
+        $remark = ($action_type === 'add') ? 'ปรับเพิ่มสต็อกโดยแอดมิน' : 'ปรับลดสต็อกโดยแอดมิน';
+    }
+
+    // 🟢 แปลงค่า quantity ให้เป็นบวกหรือลบตาม action_type
+    $qty_change = ($action_type === 'reduce') ? -$quantity : $quantity;
 
     try {
         $pdo->beginTransaction();
 
-        // 1. ดึงข้อมูลพัสดุและสต็อกปัจจุบัน (ก่อนอัปเดต)
+        // 2. ดึงข้อมูลพัสดุเดิม และใช้ LEFT JOIN ดึงชื่อหมวดหมู่มาด้วย
         $stmt = $pdo->prepare("
-            SELECT i.name, i.current_stock, c.name as category_name 
+            SELECT i.current_stock, c.name as category_name 
             FROM items i 
             LEFT JOIN categories c ON i.category_id = c.category_id 
             WHERE i.item_id = ?
         ");
         $stmt->execute([$item_id]);
-        $itemData = $stmt->fetch();
+        $item = $stmt->fetch();
 
-        if (!$itemData) {
-            throw new Exception("ไม่พบข้อมูลสิ่งของในระบบ");
+        if (!$item) {
+            throw new Exception("ไม่พบรหัสสิ่งของ: $item_id ในระบบ");
         }
 
-        // เตรียมข้อมูล Snapshot
-        $item_name      = $itemData['name'];
-        $category_name  = $itemData['category_name'] ?? '-';
-        $previous_stock = (int)$itemData['current_stock'];
-        
-        // 2. คำนวณสต็อกใหม่ และกำหนดประเภท Transaction
-        if ($action_type === 'add') {
-            $current_stock = $previous_stock + $quantity;
-            $transaction_type = 'นำเข้าสิ่งของ';
-            $quantity_change = $quantity; // เก็บเป็นค่าบวก
-        } elseif ($action_type === 'reduce') {
-            // ป้องกันสต็อกติดลบ
-            if ($quantity > $previous_stock) {
-                throw new Exception("ไม่สามารถลดสต็อกเกินจำนวนที่มีอยู่ได้ (มีอยู่ {$previous_stock} ชิ้น)");
-            }
-            $current_stock = $previous_stock - $quantity;
-            $transaction_type = 'ถอนออกสิ่งของ';
-            $quantity_change = -$quantity; // เก็บเป็นค่าติดลบ
-        } else {
-            throw new Exception("ประเภทการดำเนินการไม่ถูกต้อง");
+        // คำนวณสต็อกใหม่
+        $new_stock = $item['current_stock'] + $qty_change;
+        if ($new_stock < 0) {
+            throw new Exception("สต็อกติดลบไม่ได้ (ปัจจุบันมี {$item['current_stock']} ชิ้น คุณพยายามลดออก $quantity ชิ้น)");
         }
 
-        // 3. ดึงชื่อ Username ของคนทำรายการ
-        $userStmt = $pdo->prepare("SELECT username FROM users WHERE user_id = ?");
-        $userStmt->execute([$updated_by]);
-        $username = $userStmt->fetchColumn() ?: 'System';
+        // 3. อัปเดตตาราง items
+        $stmtUpdate = $pdo->prepare("UPDATE items SET current_stock = ? WHERE item_id = ?");
+        $stmtUpdate->execute([$new_stock, $item_id]);
 
-        // 4. อัปเดตข้อมูลจำนวนลงในตาราง items
-        $updateStmt = $pdo->prepare("UPDATE items SET current_stock = ? WHERE item_id = ?");
-        $updateStmt->execute([$current_stock, $item_id]);
-
-        // 5. บันทึก Transaction ฝังรายละเอียด + ชื่อ + ประเภท + คนอัปเดต ครบจบในช่องเดียว
-        $remark_action = ($action_type === 'add') ? 'เพิ่มสต็อก' : 'ลดสต็อก';
-        $remark = "{$remark_action}: โดย {$username}";
+        // 4. บันทึกลงตารางประวัติ (inventory_transactions)
+        $tx_type = ($action_type === 'add') ? 'นำเข้าสิ่งของ' : 'ถอนสิ่งของ';
         
-        $logStmt = $pdo->prepare("
-            INSERT INTO inventory_transactions 
-            (item_id, item_name, category_name, transaction_type, quantity, previous_stock, current_stock, remark, created_by) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ");
-        $logStmt->execute([
-            $item_id, 
-            $item_name, 
-            $category_name, 
-            $transaction_type, 
-            $quantity_change, 
-            $previous_stock, 
-            $current_stock, 
-            $remark, 
-            $updated_by
-        ]);
+        // ลบ category_name ออกจากวงเล็บ และลบตัวแปรที่ส่งเข้าไป
+$stmtTx = $pdo->prepare("
+    INSERT INTO inventory_transactions 
+    (item_id, transaction_type, quantity, previous_stock, current_stock, remark, created_by, created_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, NOW())
+");
+$stmtTx->execute([
+    $item_id, 
+    $tx_type, 
+    $qty_change, 
+    $item['current_stock'], 
+    $new_stock, 
+    $remark, 
+    $user_id
+]);
 
         $pdo->commit();
-        $_SESSION['success'] = "อัปเดตจำนวนสต็อกและเก็บประวัติเรียบร้อยแล้ว";
+        header("Location: ../../index.php?page=manage_items");
+        exit;
 
     } catch (Exception $e) {
         $pdo->rollBack();
-        $_SESSION['error'] = "เกิดข้อผิดพลาดในการอัปเดต: " . $e->getMessage();
+        // ถ้ามีปัญหาเรื่อง DB หรือ FK จะแสดง Error ชัดเจน
+        die("<div style='color:red; padding: 20px; font-size: 20px;'><b>Database Error:</b> " . $e->getMessage() . "<br><br><a href='../../index.php?page=manage_items'>กลับไปหน้าจัดการสิ่งของ</a></div>");
     }
-    
-    header("Location: ../../index.php?page=manage_items");
-    exit;
 }
-?>
