@@ -1,4 +1,8 @@
 <?php
+// เริ่ม session หากยังไม่ได้ประกาศใน db.php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 require_once '../config/db.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -6,20 +10,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = $_POST['password'] ?? '';
 
     if (!empty($username) && !empty($password)) {
-        // ค้นหาผู้ใช้ตาม username[cite: 8, 12]
+        // ค้นหาผู้ใช้ตาม username
         $stmt = $pdo->prepare("SELECT * FROM users WHERE username = :username LIMIT 1");
         $stmt->execute([':username' => $username]);
-        // fetch คือ การดึงข้อมูลจาก statement
-    //    statement คือ object ที่ใช้ในการเตรียมและดำเนินการคำสั่ง SQL ใน PDO (PHP Data Objects) โดย statement จะถูกสร้างขึ้นเมื่อคุณเรียกใช้ prepare() บนวัตถุ PDO และสามารถใช้ execute() เพื่อรันคำสั่ง SQL ที่เตรียมไว้ได้
         $user = $stmt->fetch();
 
         // ตรวจสอบ Hashing Password
-        
         if ($user && password_verify($password, $user['password'])) {
             $_SESSION['user_id']       = $user['user_id'];
             $_SESSION['full_name']     = $user['full_name'];
             $_SESSION['role']          = $user['role'];
             $_SESSION['department_id'] = $user['department_id'];
+            
+            // 🟢 เพิ่มบรรทัดนี้: บันทึกเวลาที่ล็อกอินหรือขยับเมาส์ล่าสุด
+            $_SESSION['last_activity'] = time(); 
 
             header("Location: ../index.php");
             exit;
