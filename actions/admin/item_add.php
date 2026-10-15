@@ -1,16 +1,10 @@
 <?php
-if (!defined('APP_RUNNING')) {
-    session_start();
-    require_once '../../config/db.php';
-} else {
-    require_once 'config/db.php';
-}
+session_start();
+require_once '../../config/db.php';
 
-// ตรวจสอบสิทธิ์ผู้ใช้งาน
+// 1. ตรวจสอบสิทธิ์ผู้ใช้งาน (ป้องกัน FK created_by เป็น NULL)
 if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'Admin') {
-    $_SESSION['error'] = 'เฉพาะผู้ดูแลระบบเท่านั้นที่สามารถทำรายการนี้ได้';
-    header("Location: ../../index.php?page=manage_items");
-    exit;
+    die("เกิดข้อผิดพลาด: คุณไม่มีสิทธิ์ หรือ Session หมดอายุ กรุณาล็อกอินใหม่");
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -18,37 +12,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = trim($_POST['name'] ?? '');
     $initial_stock = (int)($_POST['initial_stock'] ?? 0);
     $description = trim($_POST['description'] ?? '');
-    $user_id = $_SESSION['user_id'] ?? null;
+    $user_id = $_SESSION['user_id'];
 
-    // 🟢 1. ตรวจสอบข้อมูลบังคับเพื่อป้องกัน NOT NULL Violation
+    // 2. ตรวจสอบข้อมูลบังคับเพื่อป้องกัน NOT NULL Violation
     if (empty($category_id) || empty($name)) {
-        $_SESSION['error'] = 'กรุณากรอกข้อมูลหมวดหมู่และชื่อสิ่งของให้ครบถ้วน';
-        header("Location: ../../index.php?page=manage_items");
-        exit;
-    }
-
-    // 🟢 2. ตรวจสอบว่า category_id มีอยู่จริงในตาราง categories หรือไม่ (ป้องกัน Foreign Key Error #1452)
-    $stmtCat = $pdo->prepare("SELECT name FROM categories WHERE category_id = ?");
-    $stmtCat->execute([$category_id]);
-    $category_name = $stmtCat->fetchColumn();
-
-    if (!$category_name) {
-        $_SESSION['error'] = 'หมวดหมู่ที่เลือกไม่มีอยู่ในระบบ กรุณาเลือกใหม่';
-        header("Location: ../../index.php?page=manage_items");
-        exit;
-    }
-
-    // 🟢 3. ตรวจสอบว่า user_id ของผู้สร้างมีตัวตนในตาราง users หรือไม่
-    $stmtUser = $pdo->prepare("SELECT user_id FROM users WHERE user_id = ?");
-    $stmtUser->execute([$user_id]);
-    if (!$stmtUser->fetchColumn()) {
-        $user_id = null; // หากไม่พบผู้ใช้ ให้ตั้งเป็น NULL เพื่อไม่ให้ขัดกับ FK fk_trans_user
+        die("เกิดข้อผิดพลาด: กรุณากรอกข้อมูลหมวดหมู่และชื่อสิ่งของให้ครบถ้วน");
     }
 
     // สร้างรหัสสินค้าแบบสุ่มเพื่อใช้เป็น Primary Key (item_id)
     $item_id = 'ITM' . time() . rand(100, 999);
 
-    // 🟢 4. จัดการอัปโหลดรูปภาพ (เก็บเป็น JSON Array)
+    // 3. จัดการอัปโหลดรูปภาพ (เก็บเป็น JSON Array ไม่เกิน 3 รูป)
     $uploaded_images = [];
     $upload_dir = '../../assets/uploads/items/';
 
@@ -82,31 +56,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         $pdo->beginTransaction();
 
-        // 🟢 5. เพิ่มข้อมูลลงตาราง items
+        // 4. เพิ่มข้อมูลลงตาราง items 
+        // (is_active จะถูกกำหนดเป็น 1 อัตโนมัติจาก Default ของ Database)
+        $stmtInsert = $pdo->prepare("
+            INSERT INTO items (item_id, category_id, name, description, current_stock, images, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, NOW())
+        ");
+        $stmtInsert->execute([$item_id, $category_id, $name, $description, $initial_stock, $images_json]);
 
-        // ลบ category_name ออกจากการ INSERT ประวัติ
+        // 5. บันทึกประวัติการสร้างสิ่งของลงตาราง inventory_transactions
+        // 🟢 นำ category_name ออกจากการ INSERT เรียบร้อยแล้ว (อ้างอิงผ่าน FK item_id แทน)
         $stmtTrans = $pdo->prepare("
-        INSERT INTO inventory_transactions 
-        (item_id, transaction_type, quantity, previous_stock, current_stock, remark, created_by, created_at)
-        VALUES (?, 'สร้างรายการ', ?, 0, ?, 'ลงทะเบียนเพิ่มสิ่งของใหม่ในระบบ', ?, NOW())
+            INSERT INTO inventory_transactions 
+            (item_id, transaction_type, quantity, previous_stock, current_stock, remark, created_by, created_at)
+            VALUES (?, 'สร้างสิ่งของ', ?, 0, ?, 'ลงทะเบียนเพิ่มสิ่งของใหม่ในระบบ', ?, NOW())
         ");
         $stmtTrans->execute([$item_id, $initial_stock, $initial_stock, $user_id]);
 
-        // 🟢 6. บันทึกประวัติการสร้างสิ่งของลงตาราง inventory_transactions
-        $stmtTrans = $pdo->prepare("
-            INSERT INTO inventory_transactions 
-            (item_id, category_name, transaction_type, quantity, previous_stock, current_stock, remark, created_by, created_at)
-            VALUES (?, ?, 'สร้างสิ่งของ', ?, 0, ?, 'ลงทะเบียนเพิ่มสิ่งของใหม่ในระบบ', ?, NOW())
-        ");
-        $stmtTrans->execute([$item_id, $category_name, $initial_stock, $initial_stock, $user_id]);
-
         $pdo->commit();
         $_SESSION['success'] = 'เพิ่มสิ่งของเรียบร้อยแล้ว';
+        
+        // เมื่อสำเร็จให้พากลับไปหน้าจัดการสิ่งของ
+        header("Location: ../../index.php?page=manage_items");
+        exit;
+
     } catch (Exception $e) {
         $pdo->rollBack();
-        $_SESSION['error'] = 'เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' . $e->getMessage();
+        // 🟢 โชว์ Error ทันที ถ้าระบบหยุดกะทันหัน เช่น FK มีปัญหา (หมวดหมู่ไม่ตรง)
+        die("<div style='color:red; padding: 20px; font-size: 20px;'><b>Database Error:</b> " . $e->getMessage() . "<br><br><a href='../../index.php?page=manage_items'>กลับไปหน้าจัดการสิ่งของ</a></div>");
     }
-
-    header("Location: ../../index.php?page=manage_items");
-    exit;
 }

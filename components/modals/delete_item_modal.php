@@ -4,15 +4,16 @@
             
             <div class="modal-body p-4 text-center bg-white">
                 <i class="bi bi-exclamation-triangle text-danger" style="font-size: 3rem;"></i>
-                <h5 class="fw-bold mt-3 mb-2 text-dark">ต้องการที่จะลบ?</h5>
-                <p class="text-muted small mb-4">สิ่งของ: <strong id="del_item_name_display" class="text-dark"></strong><br>ข้อมูลนี้จะถูกลบออกจากระบบทันที</p>
+                <!-- ปรับคำอธิบายให้เข้ากับการทำ Soft Delete -->
+                <h5 class="fw-bold mt-3 mb-2 text-dark">ระงับการใช้งาน?</h5>
+                <p class="text-muted small mb-4">สิ่งของ: <strong id="del_item_name_display" class="text-dark"></strong><br>รายการนี้จะถูกซ่อนจากการเบิกของผู้ใช้งาน</p>
                 
                 <!-- ส่งค่าซ่อนไปให้ Backend -->
                 <input type="hidden" name="item_id" id="del_item_id_input">
                 <input type="hidden" name="item_name" id="del_item_name_input">
                 
                 <div class="d-flex justify-content-center gap-2">
-                    <button type="submit" class="btn btn-danger rounded-0 fw-bold w-50">ใช่, ลบเลย</button>
+                    <button type="submit" class="btn btn-danger rounded-0 fw-bold w-50">ใช่, ระงับเลย</button>
                     <button type="button" class="btn btn-secondary rounded-0 fw-bold w-50" data-bs-dismiss="modal">ไม่</button>
                 </div>
             </div>

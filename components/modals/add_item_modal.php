@@ -88,7 +88,7 @@
 
                                     <!-- ฝั่งขวาของบล็อก: กล่องสำหรับแสดงตัวอย่างรูปภาพ (Preview) -->
                                     <div class="flex-grow-1 position-relative">
-                                        <!-- กล่องพรีวิว (เมื่อเลือกรูปแล้วจะใส่รูปภาพเป็น background-image) -->
+                                        <!--    กล่องพรีวิว (เมื่อเลือกรูปแล้วจะใส่รูปภาพเป็น background-image) -->
                                         <div id="previewBox_<?= $slot ?>" class="border border-secondary border-opacity-25 bg-white d-flex flex-column justify-content-center align-items-center text-muted rounded" style="height: 120px; background-size: contain; background-repeat: no-repeat; background-position: center;">
                                             <!-- ข้อความ/ไอคอนเริ่มต้นเมื่อยังไม่ได้เลือกรูป -->
                                             <div id="placeholderText_<?= $slot ?>" class="text-center text-secondary opacity-75">
@@ -97,10 +97,16 @@
                                             </div>
                                         </div>
 
-                                        <!-- ปุ่มลบรูปภาพ (ซ่อนไว้เป็น d-none ก่อน จะแสดงเมื่อมีการเลือกรูปแล้วเท่านั้น) -->
-                                        <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1 rounded-circle p-0 d-none btn-clear-image" id="clearBtn_
-                                    <?= $slot ?>" data-slot="<?= $slot ?>" style="width: 24px; height: 24px; line-height: 1;" title="ลบรูปนี้">
-                                            <i class="bi bi-x"></i>
+                                        <!-- ปุ่มลบรูปภาพ (กากบาท) -->
+                                        <!-- 🟢 แก้ไขการเว้นบรรทัดที่ id="clearBtn_<?= $slot ?>" ให้อยู่ติดกันแล้ว -->
+                                        <!-- 🟢 ใช้ translate-middle เพื่อให้กึ่งกลางปุ่มอยู่ตรงมุมกล่องพอดีเป๊ะ -->
+                                        <button type="button"
+                                            class="btn btn-sm btn-danger position-absolute top-0 end-0 translate-middle rounded-circle shadow-sm p-0 d-none btn-clear-image"
+                                            id="clearBtn_<?= $slot ?>"
+                                            data-slot="<?= $slot ?>"
+                                            style="width: 26px; height: 26px; z-index: 10;"
+                                            title="ลบรูปนี้">
+                                            <i class="bi bi-x-lg fw-bold"></i>
                                         </button>
                                     </div>
 

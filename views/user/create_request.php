@@ -14,15 +14,17 @@ $user = $stmtUser->fetch();
 // ดึงข้อมูลหมวดหมู่ทั้งหมด
 $categories = $pdo->query("SELECT * FROM categories WHERE is_active = 1 ORDER BY name ASC")->fetchAll();
 
-// ดึงรายการสิ่งของทั้งหมดที่พร้อมให้เบิก
+// ดึงรายการสิ่งของทั้งหมดที่พร้อมให้เบิก (ต้องมีสต็อก และยังเปิดใช้งานอยู่)
 $items = $pdo->query("
     SELECT i.*, c.name as category_name 
     FROM items i 
     LEFT JOIN categories c ON i.category_id = c.category_id 
-    WHERE i.current_stock > 0 
+    WHERE i.current_stock > 0 AND i.is_active = 1 
     ORDER BY c.name ASC, i.name ASC
 ")->fetchAll();
 ?>
+
+
 
 <script src="assets/js/cart_system.js"></script>
 

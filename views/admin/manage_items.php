@@ -11,11 +11,12 @@ if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'Admin') {
 // ดึงรายการหมวดหมู่
 $categories = $pdo->query("SELECT * FROM categories ORDER BY name ASC")->fetchAll();
 
-// ดึงรายการสิ่งของ
+// ดึงรายการสิ่งของทั้งหมดที่ยังเปิดใช้งานอยู่ (is_active = 1) มาแสดงในตารางแอดมิน
 $items = $pdo->query("
     SELECT i.*, c.name as category_name 
     FROM items i 
     LEFT JOIN categories c ON i.category_id = c.category_id 
+    WHERE i.is_active = 1 
     ORDER BY i.created_at DESC
 ")->fetchAll();
 
