@@ -55,34 +55,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ");
         $stmtReq->execute([$request_id, $user_id, $use_date, $event_type, $event_name, $location, $purpose, $user_note]);
 
-        // 3. บันทึกข้อมูลตะกร้าลงตาราง request_items
+        // 3. บันทึกข้อมูลตะกร้าลงตาราง request_items (ลบคอลัมน์ซ้ำซ้อนออกแล้ว)
         $stmtItem = $pdo->prepare("
-            INSERT INTO request_items (request_id, item_id, item_name, category, images, requested_qty) 
-            VALUES (?, ?, ?, ?, ?, ?)
+            INSERT INTO request_items (request_id, item_id, requested_qty) 
+            VALUES (?, ?, ?)
         ");
 
         foreach ($items as $item_id => $qty) {
             $qty = (int)$qty;
             if ($qty > 0) {
-                // ดึงข้อมูลแบบเต็ม (ชื่อ, หมวดหมู่, รูปภาพ) จากตาราง items
+                // 🟢 เพิ่ม AND i.is_active = 1 เพื่อป้องกันเบิกของที่ถูกระงับไปแล้ว
                 $getItem = $pdo->prepare("
-                    SELECT i.name, i.images, c.name as cat_name 
+                    SELECT i.item_id 
                     FROM items i 
-                    LEFT JOIN categories c ON i.category_id = c.category_id 
-                    WHERE i.item_id = ?
+                    WHERE i.item_id = ? AND i.is_active = 1
                 ");
                 $getItem->execute([$item_id]);
-                $itemData = $getItem->fetch();
-
-                // กำหนดค่า Snapshot
-                $item_name = $itemData['name'] ?? 'ไม่ทราบชื่อ';
-                $category  = $itemData['cat_name'] ?? 'ไม่ระบุ';
-                $images    = $itemData['images'] ?? null;
-
-                // บันทึกลงตาราง request_items
-                $stmtItem->execute([$request_id, $item_id, $item_name, $category, $images, $qty]);
+                
+                // ถ้ารายการนี้ยังมีอยู่และ Active ถึงจะบันทึก
+                if ($getItem->fetch()) {
+                    $stmtItem->execute([$request_id, $item_id, $qty]);
+                }
             }
         }
+        
         $pdo->commit();
         $_SESSION['success'] = "สร้างคำขอเบิกพัสดุเรียบร้อยแล้ว (เลขที่ $request_id)";
         header("Location: ../../index.php?page=my_requests");
@@ -90,9 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     } catch (Exception $e) {
         $pdo->rollBack();
-        $_SESSION['error'] = "เกิดข้อผิดพลาดในการบันทึกข้อมูล: " . $e->getMessage();
-        header("Location: ../../index.php?page=create_request");
-        exit;
+        die("<div style='color:red; padding: 20px; font-size: 20px;'><b>Database Error:</b> " . $e->getMessage() . "<br><br><a href='../../index.php?page=create_request'>กลับไปหน้าสร้างคำขอ</a></div>");
     }
 }
 ?>

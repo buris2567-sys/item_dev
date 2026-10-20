@@ -11,7 +11,8 @@ if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'Admin') {
 // ดึงรายการหมวดหมู่
 $categories = $pdo->query("SELECT * FROM categories ORDER BY name ASC")->fetchAll();
 
-// ดึงรายการสิ่งของทั้งหมดที่ยังเปิดใช้งานอยู่ (is_active = 1) มาแสดงในตารางแอดมิน
+// ดึงรายการสิ่งของทั้งหมดที่ยังเปิดใช้งานอยู่ (is_active = 1) 
+// 🟢 [แก้ไข] เพิ่มการดึง item_code มาแสดงด้วย และอ้างอิง PK คือ id
 $items = $pdo->query("
     SELECT i.*, c.name as category_name 
     FROM items i 
@@ -110,13 +111,13 @@ $transactions = $pdo->query("
                         <td class="border-light py-3">
                             <!-- 🟢 [ปรับปรุง] กล่องจำนวนปัจจุบันและปุ่มปรับสต็อก ดูนุ่มนวลขึ้น -->
                             <div class="d-inline-flex align-items-center bg-light rounded-pill px-4 py-2 shadow-sm border border-white">
-                                <span class="me-3 fw-bolder text-success fs-5" id="stock-val-<?= $item['item_id'] ?>">
+                                <span class="me-3 fw-bolder text-success fs-5" id="stock-val-<?= $item['id'] ?>">
                                     <?= number_format($item['current_stock']) ?>
                                 </span>
                                 <div class="vr mx-2 bg-secondary opacity-25"></div>
                                 <button type="button" class="btn btn-sm btn-link text-warning p-0 ms-1 border-0" 
                                         title="ปรับจำนวนสต็อก"
-                                        onclick="openUpdateStockModal('<?= $item['item_id'] ?>', '<?= htmlspecialchars($item['name']) ?>', <?= $item['current_stock'] ?>)">
+                                        onclick="openUpdateStockModal('<?= $item['id'] ?>', '<?= htmlspecialchars($item['name']) ?>', <?= $item['current_stock'] ?>)">
                                     <i class="bi bi-plus-slash-minus fs-5"></i>
                                 </button>
                             </div>
@@ -128,7 +129,7 @@ $transactions = $pdo->query("
                             <div class="d-flex justify-content-center gap-2">
                                 <button type="button" class="btn btn-sm btn-light rounded-circle shadow-sm text-info d-flex justify-content-center align-items-center border-0"
                                     style="width: 38px; height: 38px;" title="ดูรายละเอียด"
-                                    data-id="<?= $item['item_id'] ?>" data-name="<?= htmlspecialchars($item['name']) ?>"
+                                    data-id="<?= $item['id'] ?>" data-name="<?= htmlspecialchars($item['name']) ?>"
                                     data-desc="<?= htmlspecialchars($item['description']) ?>" data-stock="<?= $item['current_stock'] ?>"
                                     data-images="<?= $imgJson ?>" onclick="openViewModal(this)">
                                     <i class="bi bi-search"></i>
@@ -136,7 +137,7 @@ $transactions = $pdo->query("
 
                                 <button type="button" class="btn btn-sm btn-light rounded-circle shadow-sm text-dark d-flex justify-content-center align-items-center border-0"
                                     style="width: 38px; height: 38px;" title="แก้ไขข้อมูล"
-                                    data-id="<?= $item['item_id'] ?>" data-category="<?= $item['category_id'] ?>"
+                                    data-id="<?= $item['id'] ?>" data-category="<?= $item['category_id'] ?>"
                                     data-name="<?= htmlspecialchars($item['name']) ?>" data-stock="<?= $item['current_stock'] ?>"
                                     data-desc="<?= htmlspecialchars($item['description']) ?>" data-images="<?= $imgJson ?>"
                                     onclick="openEditModal(this)">
@@ -145,7 +146,7 @@ $transactions = $pdo->query("
 
                                 <button type="button" class="btn btn-sm btn-light rounded-circle shadow-sm text-danger d-flex justify-content-center align-items-center border-0"
                                     style="width: 38px; height: 38px;" title="ลบรายการ"
-                                    onclick="openDeleteModal('<?= $item['item_id'] ?>', '<?= htmlspecialchars($item['name']) ?>')">
+                                    onclick="openDeleteModal('<?= $item['id'] ?>', '<?= htmlspecialchars($item['name']) ?>')">
                                     <i class="bi bi-trash"></i>
                                 </button>
                             </div>

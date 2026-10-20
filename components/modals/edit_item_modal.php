@@ -2,7 +2,7 @@
 <div class="modal fade" id="editItemModal" tabindex="-1">
     <div class="modal-dialog modal-xl modal-dialog-centered">
         <form action="actions/admin/item_edit.php" method="POST" enctype="multipart/form-data" class="modal-content border-dark rounded-0" style="border-width: 2px !important;">
-            
+
             <div class="modal-header border-dark" style="border-bottom-width: 2px !important;">
                 <h5 class="modal-title fw-bold">แก้ไขข้อมูลสิ่งของ</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -19,7 +19,7 @@
                             <select name="category_id" id="edit_category_id" class="form-select border-dark rounded-0" required>
                                 <option value="">เลือกประเภท...</option>
                                 <?php if (!empty($categories)): ?>
-                                    <?php foreach ($categories as$cat): ?>
+                                    <?php foreach ($categories as $cat): ?>
                                         <option value="<?= $cat['category_id'] ?>"><?= htmlspecialchars($cat['name']) ?></option>
                                     <?php endforeach; ?>
                                 <?php endif; ?>
@@ -90,94 +90,97 @@
 </div>
 
 <script>
-// จัดการการดึงข้อมูลมาแสดงตอนเปิด Modal (รวมถึงการพรีวิวรูปเก่า)
-function openEditModal(btn) {
-    const id = btn.getAttribute('data-id');
-    const category = btn.getAttribute('data-category');
-    const name = btn.getAttribute('data-name');
-    const desc = btn.getAttribute('data-desc');
-    const stock = btn.getAttribute('data-stock');
-    const imagesJson = btn.getAttribute('data-images');
+    // จัดการการดึงข้อมูลมาแสดงตอนเปิด Modal (รวมถึงการพรีวิวรูปเก่า)
+    function openEditModal(btn) {
+        const id = btn.getAttribute('data-id');
+        const category = btn.getAttribute('data-category');
+        const name = btn.getAttribute('data-name');
+        const desc = btn.getAttribute('data-desc');
+        const stock = btn.getAttribute('data-stock');
+        const imagesJson = btn.getAttribute('data-images');
 
-    document.getElementById('edit_item_id').value = id;
-    document.getElementById('edit_category_id').value = category;
-    document.getElementById('edit_name').value = name;
-    document.getElementById('edit_desc').value = desc;
-    document.getElementById('edit_stock').value = stock;
+        document.getElementById('edit_item_id').value = id;
+        document.getElementById('edit_category_id').value = category;
+        document.getElementById('edit_name').value = name;
+        document.getElementById('edit_desc').value = desc;
+        document.getElementById('edit_stock').value = stock;
 
-    // เคลียร์ค่ารูปภาพทั้งหมดก่อน
-    for(let i=0; i<3; i++) {
-        document.getElementById('editFileInput_' + i).value = '';
-        document.getElementById('editPreviewBox_' + i).style.backgroundImage = '';
-        document.getElementById('editPlaceholderText_' + i).classList.remove('d-none');
-        document.getElementById('editClearBtn_' + i).classList.add('d-none');
+        // เคลียร์ค่ารูปภาพทั้งหมดก่อน
+        for (let i = 0; i < 3; i++) {
+            document.getElementById('editFileInput_' + i).value = '';
+            document.getElementById('editPreviewBox_' + i).style.backgroundImage = '';
+            document.getElementById('editPlaceholderText_' + i).classList.remove('d-none');
+            document.getElementById('editClearBtn_' + i).classList.add('d-none');
+        }
+
+        // นำรูปภาพเก่ามาแสดง
+        // นำรูปภาพเก่ามาแสดง
+        if (imagesJson) {
+            try {
+                const images = JSON.parse(imagesJson);
+                if (Array.isArray(images)) {
+                    images.forEach((img, index) => {
+                        if (index < 3 && img) {
+                            const previewBox = document.getElementById('editPreviewBox_' + index);
+                            const placeholder = document.getElementById('editPlaceholderText_' + index);
+                            const clearBtn = document.getElementById('editClearBtn_' + index); // ดึงปุ่มกากบาทมา
+
+                            previewBox.style.backgroundImage = `url('assets/uploads/items/${img}')`;
+                            placeholder.classList.add('d-none');
+                            clearBtn.classList.remove('d-none'); // สั่งให้ปุ่มกากบาทโผล่ขึ้นมา
+                        }
+                    });
+                }
+            } catch (e) {
+                console.error("Error parsing images JSON", e);
+            }
+        }
+
+        new bootstrap.Modal(document.getElementById('editItemModal')).show();
     }
 
-    // นำรูปภาพเก่ามาแสดง
-    if (imagesJson) {
-        try {
-            const images = JSON.parse(imagesJson);
-            if (Array.isArray(images)) {
-                images.forEach((img, index) => {
-                    if (index < 3 && img) {
-                        const previewBox = document.getElementById('editPreviewBox_' + index);
-                        const placeholder = document.getElementById('editPlaceholderText_' + index);
-                        
-                        previewBox.style.backgroundImage = `url('assets/uploads/items/${img}')`;
-                        placeholder.classList.add('d-none');
-                    }
-                });
+    // จัดการการอัปโหลดไฟล์ (เหมือนหน้า Add)
+    document.querySelectorAll('.edit-btn-upload-trigger').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const slot = this.getAttribute('data-slot');
+            document.getElementById('editFileInput_' + slot).click();
+        });
+    });
+
+    document.querySelectorAll('.edit-slot-file-input').forEach(input => {
+        input.addEventListener('change', function(e) {
+            const slot = this.getAttribute('data-slot');
+            const previewBox = document.getElementById('editPreviewBox_' + slot);
+            const placeholder = document.getElementById('editPlaceholderText_' + slot);
+            const clearBtn = document.getElementById('editClearBtn_' + slot);
+            const file = e.target.files[0];
+
+            if (file) {
+                if (file.size > 5242880) {
+                    alert('ไฟล์มีขนาดเกิน 5MB กรุณาเลือกไฟล์ใหม่');
+                    this.value = '';
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    previewBox.style.backgroundImage = `url('${event.target.result}')`;
+                    placeholder.classList.add('d-none');
+                    clearBtn.classList.remove('d-none');
+                };
+                reader.readAsDataURL(file);
             }
-        } catch (e) {
-            console.error("Error parsing images JSON", e);
-        }
-    }
-
-    new bootstrap.Modal(document.getElementById('editItemModal')).show();
-}
-
-// จัดการการอัปโหลดไฟล์ (เหมือนหน้า Add)
-document.querySelectorAll('.edit-btn-upload-trigger').forEach(btn => {
-    btn.addEventListener('click', function() {
-        const slot = this.getAttribute('data-slot');
-        document.getElementById('editFileInput_' + slot).click();
+        });
     });
-});
 
-document.querySelectorAll('.edit-slot-file-input').forEach(input => {
-    input.addEventListener('change', function(e) {
-        const slot = this.getAttribute('data-slot');
-        const previewBox = document.getElementById('editPreviewBox_' + slot);
-        const placeholder = document.getElementById('editPlaceholderText_' + slot);
-        const clearBtn = document.getElementById('editClearBtn_' + slot);
-        const file = e.target.files[0];
-
-        if (file) {
-            if (file.size > 5242880) {
-                alert('ไฟล์มีขนาดเกิน 5MB กรุณาเลือกไฟล์ใหม่');
-                this.value = '';
-                return;
-            }
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                previewBox.style.backgroundImage = `url('${event.target.result}')`;
-                placeholder.classList.add('d-none');
-                clearBtn.classList.remove('d-none');
-            };
-            reader.readAsDataURL(file);
-        }
+    document.querySelectorAll('.edit-btn-clear-image').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const slot = this.getAttribute('data-slot');
+            document.getElementById('editFileInput_' + slot).value = '';
+            document.getElementById('editPreviewBox_' + slot).style.backgroundImage = '';
+            document.getElementById('editPlaceholderText_' + slot).classList.remove('d-none');
+            this.classList.add('d-none');
+        });
     });
-});
-
-document.querySelectorAll('.edit-btn-clear-image').forEach(btn => {
-    btn.addEventListener('click', function() {
-        const slot = this.getAttribute('data-slot');
-        document.getElementById('editFileInput_' + slot).value = '';
-        document.getElementById('editPreviewBox_' + slot).style.backgroundImage = '';
-        document.getElementById('editPlaceholderText_' + slot).classList.remove('d-none');
-        this.classList.add('d-none');
-    });
-});
 </script>
 
 <!-- เพิ่ม id ใน  input เพื่อเรียกใช้ส่งต่อไป -->

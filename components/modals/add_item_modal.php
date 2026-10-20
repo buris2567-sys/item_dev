@@ -89,7 +89,12 @@
                                     <!-- ฝั่งขวาของบล็อก: กล่องสำหรับแสดงตัวอย่างรูปภาพ (Preview) -->
                                     <div class="flex-grow-1 position-relative">
                                         <!--    กล่องพรีวิว (เมื่อเลือกรูปแล้วจะใส่รูปภาพเป็น background-image) -->
-                                        <div id="previewBox_<?= $slot ?>" class="border border-secondary border-opacity-25 bg-white d-flex flex-column justify-content-center align-items-center text-muted rounded" style="height: 120px; background-size: contain; background-repeat: no-repeat; background-position: center;">
+                                        <div id="previewBox_<?= $slot ?>" class="border border-secondary border-opacity-25 bg-white d-flex flex-column 
+                                        justify-content-center align-items-center text-muted rounded" 
+                                        style="height: 120px; 
+                                        background-size: contain; 
+                                        background-repeat: no-repeat; 
+                                        background-position: center;">
                                             <!-- ข้อความ/ไอคอนเริ่มต้นเมื่อยังไม่ได้เลือกรูป -->
                                             <div id="placeholderText_<?= $slot ?>" class="text-center text-secondary opacity-75">
                                                 <i class="bi bi-image fs-3 d-block mb-1"></i>

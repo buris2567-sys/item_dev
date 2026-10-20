@@ -1,8 +1,8 @@
 <?php
-// 🟢 [คงเดิม] ตรวจสอบสิทธิ์และการเข้าถึง
+// ตรวจสอบสิทธิ์และการเข้าถึง
 if (!defined('APP_RUNNING')) exit('Forbidden');
 
-$request_id = $_GET['id'] ?? '';
+$request_id =$_GET['id'] ?? '';
 
 // ดึงข้อมูลคำร้องและผู้เบิก
 $stmt =$pdo->prepare("
@@ -19,11 +19,17 @@ if (!$request) {
     exit;
 }
 
-// ดึงรายการสิ่งของในคำร้อง
+// 🟢 [จุดที่แก้ไขที่ 1]: เปลี่ยน Query ให้ JOIN ไปเอาชื่อ, รูปภาพ, หมวดหมู่ จากตารางหลักมาแสดง
 $itemStmt =$pdo->prepare("
-    SELECT ri.*, i.current_stock 
+    SELECT 
+        ri.*, 
+        i.name AS item_name, 
+        i.images, 
+        i.current_stock,
+        c.name AS category_name
     FROM request_items ri 
     LEFT JOIN items i ON ri.item_id = i.item_id 
+    LEFT JOIN categories c ON i.category_id = c.category_id
     WHERE ri.request_id = ?
 ");
 $itemStmt->execute([$request_id]);
@@ -31,7 +37,7 @@ $items =$itemStmt->fetchAll();
 
 $isPending = ($request['status'] === 'รออนุมัติ' || $request['status'] === 'Pending');
 
-// 🟢 [ปรับปรุง] กำหนดสีป้ายสถานะให้สวยงาม และไม่มีขอบดำ (border)
+// กำหนดสีป้ายสถานะ
 $statusText = $request['status'];$badgeStyle = 'min-width: 110px; ';
 
 if ($statusText === 'รออนุมัติ' || $statusText === 'Pending') {$badgeStyle .= 'background-color: #ffc107; color: #000;'; // สีเหลือง
@@ -47,21 +53,18 @@ if ($statusText === 'รออนุมัติ' || $statusText === 'Pending') 
 }
 ?>
 
-<!-- 🟢 [ปรับปรุง] เริ่มโครงสร้างเนื้อหาเลย ตัด container/row/sidebar ทิ้ง -->
 <form action="actions/admin/request_approve.php" method="POST" id="approvalForm">
     <input type="hidden" name="request_id" value="<?= htmlspecialchars($request_id) ?>">
 
     <!-- หัวข้อหน้า -->
     <div class="d-flex justify-content-between align-items-center mb-4 pb-2" style="border-bottom: 2px solid #e9ecef;">
         <div>
-            <!-- <h3 class="fw-bolder mb-1 text-dark">พิจารณาอนุมัติคำขอเบิกสิ่งของ</h3> -->
              <h3 class="fw-bolder mb-1 text-dark"><i class="bi bi-boxes text-warning me-2"></i>พิจารณาอนุมัติคำขอ</h3>
              <span class="text-muted small">ระบบสิ่งพิมพ์และของที่ระลึก</span>    
         </div>
     </div>
 
     <!-- 📦 ส่วนที่ 1: ข้อมูลคำขอเบิก -->
-    <!-- 🟢 [ปรับปรุง] เปลี่ยน Card ให้โค้งมน ไร้ขอบดำ (border-0, rounded-4) -->
     <div class="card border-0 rounded-4 shadow-sm mb-4 border-warning border-top border-4 bg-white">
         <div class="card-header bg-white py-3 px-4 border-bottom d-flex justify-content-between align-items-center rounded-top-4">
             <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-person-fill text-warning me-2"></i>ข้อมูลคำขอเบิก</h5>
@@ -86,7 +89,6 @@ if ($statusText === 'รออนุมัติ' || $statusText === 'Pending') 
                 </div>
                 <div class="col-12 col-sm-6 col-md-3">
                     <div class="text-muted small mb-1">สถานะคำขอ</div>
-                    <!-- 🟢 [ปรับปรุง] ป้ายสถานะทรงมน -->
                     <span class="badge px-3 py-2 fs-6 rounded-pill shadow-sm d-inline-flex align-items-center justify-content-center" style="<?= $badgeStyle ?>" id="headerStatusBadge">
                         <i class="bi bi-circle-fill small me-1" style="font-size: 0.55rem;"></i>
                         <?= htmlspecialchars($statusText) ?>
@@ -136,15 +138,15 @@ if ($statusText === 'รออนุมัติ' || $statusText === 'Pending') 
 
             $reqQty = (int)$item['requested_qty'];$curStock = (int)($item['current_stock'] ?? 0);$appQty = $isPending ? min($reqQty, $curStock) : (int)$item['approved_qty'];
         ?>
-            <!-- 🟢 [ปรับปรุง] การ์ดรายการแต่ละชิ้น โค้งมนและไร้กรอบดำ -->
             <div class="card border-0 rounded-4 shadow-sm mb-3 bg-white">
                 <div class="card-body p-3 d-flex align-items-center flex-wrap gap-3">
                     
                     <img src="<?= $imgSrc ?>" class="rounded-3 object-fit-cover border border-light shadow-sm" style="width: 80px; height: 80px;">
                     
                     <div class="flex-grow-1" style="min-width: 150px;">
-                        <span class="badge bg-secondary bg-opacity-25 text-dark rounded-pill mb-1"><?= htmlspecialchars($item['category'] ?? 'ไม่ระบุ') ?></span>
-                        <h6 class="fw-bolder mb-0 text-dark"><?= htmlspecialchars($item['item_name']) ?></h6>
+                        <!-- 🟢 [จุดที่แก้ไขที่ 2] เปลี่ยนจาก $item['category'] เป็น $item['category_name'] -->
+                        <span class="badge bg-secondary bg-opacity-25 text-dark rounded-pill mb-1"><?= htmlspecialchars($item['category_name'] ?? 'ไม่ระบุ') ?></span>
+                        <h6 class="fw-bolder mb-0 text-dark"><?= htmlspecialchars($item['item_name'] ?? 'ไม่ทราบชื่อ (ไอเทมอาจถูกลบ)') ?></h6>
                     </div>
 
                     <div class="text-center px-4 border-end border-light d-none d-md-block">
@@ -159,7 +161,6 @@ if ($statusText === 'รออนุมัติ' || $statusText === 'Pending') 
 
                     <div class="d-flex align-items-center px-3" style="min-width: 150px;">
                         <span class="fw-bold me-2 text-dark small ">อนุมัติ:</span>
-                        <!-- 🟢 [ปรับปรุง] ปุ่มปรับจำนวน (Input group) ใช้ขอบสีอ่อนแทน -->
                         <div class="input-group input-group-sm shadow-sm rounded-2">
                             <button type="button" class="btn  btn-light border-secondary border-opacity-25 fw-bold px-2 text-dark" onclick="adjustApprove(<?= $index ?>, -1)" <?= !$isPending ? 'disabled' : '' ?>>-</button>
                             <input type="text" name="approved_qty[<?= $item['request_item_id'] ?>]" id="approve_input_<?= $index ?>"
@@ -180,7 +181,6 @@ if ($statusText === 'รออนุมัติ' || $statusText === 'Pending') 
     </div>
 
     <!-- 📦 ส่วนที่ 3: สรุปผล -->
-    <!-- 🟢 [ปรับปรุง] กล่องสรุปผล ใช้พื้นหลังสีเหลืองอ่อนขอบมน -->
     <div class="card border-0 rounded-4 shadow-sm mb-5 bg-warning bg-opacity-10">
         <div class="card-body p-4">
             <h6 class="fw-bold mb-4 text-dark"><i class="bi bi-pencil-square me-2 text-warning"></i>สรุปผลการพิจารณา (ระบบคำนวณอัตโนมัติ)</h6>
@@ -188,13 +188,11 @@ if ($statusText === 'รออนุมัติ' || $statusText === 'Pending') 
             <div class="d-flex align-items-center mb-4 pb-3 border-bottom border-warning border-opacity-25 flex-wrap gap-2">
                 <span class="fw-bold text-dark me-2">สถานะคำร้องภาพรวม:</span>
                 <span class="badge px-3 py-2 fs-6 rounded-pill shadow-sm" id="summaryOverallBadge">รออนุมัติ</span>
-                <!-- 🟢 [ปรับปรุง] กล่องบอกจำนวนอนุมัติ ขอบมนสวยงาม -->
                 <span class="fw-bold bg-white text-muted px-3 py-2 rounded-pill shadow-sm small" id="summaryTextInfo"></span>
             </div>
             
             <div class="mb-2">
                 <label class="fw-bold mb-2 text-dark">ความคิดเห็นเพิ่มเติม (ไม่บังคับ) :</label>
-                <!-- 🟢 [ปรับปรุง] ช่องกรอกความคิดเห็น -->
                 <textarea name="admin_comment" class="form-control border-light shadow-sm rounded-4 p-3" rows="3" <?= !$isPending ? 'readonly' : '' ?> placeholder="พิมพ์ความคิดเห็นถึงผู้เบิก (ถ้ามี)..."><?= htmlspecialchars($request['admin_comment'] ?? '') ?></textarea>
             </div>
         </div>
@@ -202,7 +200,6 @@ if ($statusText === 'รออนุมัติ' || $statusText === 'Pending') 
 
     <!-- ปุ่มการจัดการ -->
     <div class="d-flex justify-content-end gap-3 mb-5 flex-wrap">
-        <!-- 🟢 [ปรับปรุง] ปุ่มทั้งหมดปรับให้มน (rounded-pill) เข้ากับสไตล์ใหม่ -->
         <a href="index.php?page=request_list" class="btn btn-outline-secondary fw-bold px-4 py-2 bg-white rounded-pill shadow-sm">
             <i class="bi bi-arrow-left me-2"></i>กลับ
         </a>
@@ -227,7 +224,6 @@ if ($statusText === 'รออนุมัติ' || $statusText === 'Pending') 
     </div>
 </form>
 
-<!-- 🟢 [คงเดิม] โค้ด JavaScript จัดการบวกลบสินค้าและการเปลี่ยนสีสถานะ -->
 <script>
     document.addEventListener("DOMContentLoaded", calculateAllStatuses);
 
@@ -256,7 +252,6 @@ if ($statusText === 'รออนุมัติ' || $statusText === 'Pending') 
             let textSpan = document.getElementById(`item_text_${index}`);
             let circle = badge.querySelector('i');
 
-            // 🟢 [ปรับปรุง] คลาสพื้นฐานของป้ายสถานะ (ไร้ขอบดำ)
             badge.className = 'badge rounded-pill py-2 w-100 item-status-badge d-inline-flex align-items-center justify-content-center shadow-sm';
 
             if (approved === requested) {
@@ -284,10 +279,10 @@ if ($statusText === 'รออนุมัติ' || $statusText === 'Pending') 
         let finalStatus = '';
         let finalClass = '';
 
-        if (counts.full === inputs.length) {
+        if (counts.full === inputs.length && inputs.length > 0) {
             finalClass = 'bg-success text-white';
             finalStatus = 'อนุมัติ';
-        } else if (counts.reject === inputs.length) {
+        } else if (counts.reject === inputs.length && inputs.length > 0) {
             finalClass = 'bg-danger text-white';
             finalStatus = 'ไม่อนุมัติ';
         } else {

@@ -2,7 +2,7 @@
 session_start();
 require_once '../../config/db.php';
 
-// 1. ตรวจสอบสิทธิ์ผู้ใช้งาน (ป้องกัน FK created_by เป็น NULL)
+// 1. ตรวจสอบสิทธิ์ผู้ใช้งาน
 if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'Admin') {
     die("เกิดข้อผิดพลาด: คุณไม่มีสิทธิ์ หรือ Session หมดอายุ กรุณาล็อกอินใหม่");
 }
@@ -14,15 +14,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $description = trim($_POST['description'] ?? '');
     $user_id = $_SESSION['user_id'];
 
-    // 2. ตรวจสอบข้อมูลบังคับเพื่อป้องกัน NOT NULL Violation
     if (empty($category_id) || empty($name)) {
         die("เกิดข้อผิดพลาด: กรุณากรอกข้อมูลหมวดหมู่และชื่อสิ่งของให้ครบถ้วน");
     }
 
-    // สร้างรหัสสินค้าแบบสุ่มเพื่อใช้เป็น Primary Key (item_id)
-    $item_id = 'ITM' . time() . rand(100, 999);
+    // 🟢 [แก้ไข] สร้างรหัสเพื่อใช้เป็น "ป้ายชื่อ (item_code)" ไว้สำหรับโชว์เท่านั้น ไม่ใช่ Primary Key แล้ว
+    $item_code = 'ITM' . time() . rand(100, 999);
 
-    // 3. จัดการอัปโหลดรูปภาพ (เก็บเป็น JSON Array ไม่เกิน 3 รูป)
     $uploaded_images = [];
     $upload_dir = '../../assets/uploads/items/';
 
@@ -41,7 +39,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($error === UPLOAD_ERR_OK && $file_size > 0 && $file_size <= 5242880) {
                 $ext = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
                 if (in_array($ext, ['jpg', 'jpeg', 'png'])) {
-                    $new_filename = $item_id . '_' . (count($uploaded_images) + 1) . '_' . uniqid() . '.' . $ext;
+                    // ตั้งชื่อไฟล์รูปภาพใหม่โดยใช้ item_code เพื่อให้เชื่อมโยงได้
+                    $new_filename = $item_code . '_' . (count($uploaded_images) + 1) . '_' . uniqid() . '.' . $ext;
                     $destination = $upload_dir . $new_filename;
                     if (move_uploaded_file($tmp_name, $destination)) {
                         $uploaded_images[] = $new_filename;
@@ -56,33 +55,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         $pdo->beginTransaction();
 
-        // 4. เพิ่มข้อมูลลงตาราง items 
-        // (is_active จะถูกกำหนดเป็น 1 อัตโนมัติจาก Default ของ Database)
+        // 🟢 [แก้ไข] INSERT ข้อมูลลงตาราง items (ไม่ต้องใส่ id เพราะเป็น Auto Increment)
         $stmtInsert = $pdo->prepare("
-            INSERT INTO items (item_id, category_id, name, description, current_stock, images, created_at)
+            INSERT INTO items (item_code, category_id, name, description, current_stock, images, created_at)
             VALUES (?, ?, ?, ?, ?, ?, NOW())
         ");
-        $stmtInsert->execute([$item_id, $category_id, $name, $description, $initial_stock, $images_json]);
+        $stmtInsert->execute([$item_code, $category_id, $name, $description, $initial_stock, $images_json]);
 
-        // 5. บันทึกประวัติการสร้างสิ่งของลงตาราง inventory_transactions
-        // 🟢 นำ category_name ออกจากการ INSERT เรียบร้อยแล้ว (อ้างอิงผ่าน FK item_id แทน)
+        // 🟢 [แก้ไข] ดึงรหัสตัวเลข (id) ที่เพิ่งรันขึ้นมาใหม่สุดของตาราง items
+        $new_item_id = $pdo->lastInsertId();
+
+        // บันทึกประวัติลงตาราง inventory_transactions โดยใช้ id แบบตัวเลข ($new_item_id)
         $stmtTrans = $pdo->prepare("
             INSERT INTO inventory_transactions 
             (item_id, transaction_type, quantity, previous_stock, current_stock, remark, created_by, created_at)
             VALUES (?, 'สร้างสิ่งของ', ?, 0, ?, 'ลงทะเบียนเพิ่มสิ่งของใหม่ในระบบ', ?, NOW())
         ");
-        $stmtTrans->execute([$item_id, $initial_stock, $initial_stock, $user_id]);
+        $stmtTrans->execute([$new_item_id, $initial_stock, $initial_stock, $user_id]);
 
         $pdo->commit();
         $_SESSION['success'] = 'เพิ่มสิ่งของเรียบร้อยแล้ว';
         
-        // เมื่อสำเร็จให้พากลับไปหน้าจัดการสิ่งของ
         header("Location: ../../index.php?page=manage_items");
         exit;
 
     } catch (Exception $e) {
         $pdo->rollBack();
-        // 🟢 โชว์ Error ทันที ถ้าระบบหยุดกะทันหัน เช่น FK มีปัญหา (หมวดหมู่ไม่ตรง)
         die("<div style='color:red; padding: 20px; font-size: 20px;'><b>Database Error:</b> " . $e->getMessage() . "<br><br><a href='../../index.php?page=manage_items'>กลับไปหน้าจัดการสิ่งของ</a></div>");
     }
 }

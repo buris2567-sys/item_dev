@@ -2,7 +2,6 @@
 session_start();
 require_once '../../config/db.php';
 
-// ตรวจสอบสิทธิ์
 if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'Admin') {
     $_SESSION['error'] = 'เฉพาะผู้ดูแลระบบเท่านั้นที่สามารถทำรายการนี้ได้';
     header("Location: ../../index.php?page=manage_items");
@@ -22,28 +21,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         $pdo->beginTransaction();
 
-        // 1. ดึงข้อมูลสต็อกปัจจุบันมาเพื่อบันทึกลงประวัติ
-        $stmtStock = $pdo->prepare("SELECT current_stock FROM items WHERE item_id = ?");
+        // 1. ดึงข้อมูลสต็อกปัจจุบัน
+        $stmtStock = $pdo->prepare("SELECT current_stock FROM items WHERE id = ?");
         $stmtStock->execute([$item_id]);
         $current_stock = (int)$stmtStock->fetchColumn();
 
-        // 🟢 2. ปรับ is_active = 0 (ซ่อน) และล้างสต็อก current_stock = 0 ไปพร้อมกัน
-        $stmtUpdate = $pdo->prepare("UPDATE items SET is_active = 0, current_stock = 0 WHERE item_id = ?");
+        // 🟢 2. ปรับแค่ is_active = 0 (Soft Delete) เท่านั้น ไม่ไปแตะต้อง current_stock
+        $stmtUpdate = $pdo->prepare("UPDATE items SET is_active = 0 WHERE id = ?");
         $stmtUpdate->execute([$item_id]);
 
-        // 3. บันทึกประวัติลงตาราง inventory_transactions ว่ามีการ "ลบ(ซ่อน)และล้างสต็อก"
-        // quantity ให้ติดลบตามจำนวนสต็อกที่ถูกล้างออกไป
-        $qty_removed = -$current_stock;
-        
+        // 🟢 3. บันทึกประวัติ Transaction โดย quantity = 0 และใช้ $current_stock ตัวเดิม 
         $stmtTx = $pdo->prepare("
             INSERT INTO inventory_transactions 
             (item_id, transaction_type, quantity, previous_stock, current_stock, remark, created_by, created_at)
-            VALUES (?, 'ลบสิ่งของ', ?, ?, 0, 'ยกเลิกการใช้งานและล้างสต็อกเป็น 0', ?, NOW())
+            VALUES (?, 'ลบสิ่งของ', 0, ?, ?, 'ยกเลิกการใช้งานสิ่งของ (Soft Delete)', ?, NOW())
         ");
-        $stmtTx->execute([$item_id, $qty_removed, $current_stock, $user_id]);
+        $stmtTx->execute([$item_id, $current_stock, $current_stock, $user_id]);
 
         $pdo->commit();
-        $_SESSION['success'] = 'ระงับการใช้งานและล้างสต็อกสิ่งของเรียบร้อยแล้ว';
+        $_SESSION['success'] = 'ระงับการใช้งานสิ่งของเรียบร้อยแล้ว (ซ่อนจากระบบ)';
         
         header("Location: ../../index.php?page=manage_items");
         exit;
