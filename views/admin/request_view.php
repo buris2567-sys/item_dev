@@ -2,17 +2,17 @@
 // ตรวจสอบสิทธิ์และการเข้าถึง
 if (!defined('APP_RUNNING')) exit('Forbidden');
 
-$request_id =$_GET['id'] ?? '';
+$request_id = $_GET['id'] ?? '';
 
 // ดึงข้อมูลคำร้องและผู้เบิก
-$stmt =$pdo->prepare("
+$stmt = $pdo->prepare("
     SELECT r.*, u.full_name, u.phone_number 
     FROM requests r 
     LEFT JOIN users u ON r.user_id = u.user_id 
     WHERE r.request_id = ?
 ");
 $stmt->execute([$request_id]);
-$request =$stmt->fetch();
+$request = $stmt->fetch();
 
 if (!$request) {
     echo "<div class='p-4 text-center mt-5'><h5>ไม่พบข้อมูลคำขอ</h5><a href='index.php?page=request_list' class='btn btn-dark mt-3'>กลับ</a></div>";
@@ -20,7 +20,7 @@ if (!$request) {
 }
 
 // 🟢 [จุดที่แก้ไขที่ 1]: เปลี่ยน Query ให้ JOIN ไปเอาชื่อ, รูปภาพ, หมวดหมู่ จากตารางหลักมาแสดง
-$itemStmt =$pdo->prepare("
+$itemStmt = $pdo->prepare("
     SELECT 
         ri.*, 
         i.name AS item_name, 
@@ -28,19 +28,21 @@ $itemStmt =$pdo->prepare("
         i.current_stock,
         c.name AS category_name
     FROM request_items ri 
-    LEFT JOIN items i ON ri.item_id = i.item_id 
+    LEFT JOIN items i ON ri.item_id = i.id 
     LEFT JOIN categories c ON i.category_id = c.category_id
     WHERE ri.request_id = ?
 ");
 $itemStmt->execute([$request_id]);
-$items =$itemStmt->fetchAll();
+$items = $itemStmt->fetchAll();
 
 $isPending = ($request['status'] === 'รออนุมัติ' || $request['status'] === 'Pending');
 
 // กำหนดสีป้ายสถานะ
-$statusText = $request['status'];$badgeStyle = 'min-width: 110px; ';
+$statusText = $request['status'];
+$badgeStyle = 'min-width: 110px; ';
 
-if ($statusText === 'รออนุมัติ' || $statusText === 'Pending') {$badgeStyle .= 'background-color: #ffc107; color: #000;'; // สีเหลือง
+if ($statusText === 'รออนุมัติ' || $statusText === 'Pending') {
+    $badgeStyle .= 'background-color: #ffc107; color: #000;'; // สีเหลือง
     $statusText = 'รออนุมัติ';
 } elseif (strpos($statusText, 'อนุมัติบางส่วน') !== false) {
     $badgeStyle .= 'background-color: #fd7e14; color: #fff;'; // สีส้ม
@@ -59,15 +61,16 @@ if ($statusText === 'รออนุมัติ' || $statusText === 'Pending') 
     <!-- หัวข้อหน้า -->
     <div class="d-flex justify-content-between align-items-center mb-4 pb-2" style="border-bottom: 2px solid #e9ecef;">
         <div>
-             <h3 class="fw-bolder mb-1 text-dark"><i class="bi bi-boxes text-warning me-2"></i>พิจารณาอนุมัติคำขอ</h3>
-             <span class="text-muted small">ระบบสิ่งพิมพ์และของที่ระลึก</span>    
+            <h3 class="fw-bolder mb-1 text-dark"><i class="bi bi-boxes text-warning me-2"></i>พิจารณาอนุมัติคำขอ</h3>
+            <span class="text-muted small">ระบบสิ่งพิมพ์และของที่ระลึก</span>
         </div>
     </div>
 
     <!-- 📦 ส่วนที่ 1: ข้อมูลคำขอเบิก -->
     <div class="card border-0 rounded-4 shadow-sm mb-4 border-warning border-top border-4 bg-white">
         <div class="card-header bg-white py-3 px-4 border-bottom d-flex justify-content-between align-items-center rounded-top-4">
-            <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-person-fill text-warning me-2"></i>ข้อมูลคำขอเบิก</h5>
+            <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-file-earmark-text me-2 text-warning"></i>ข้อมูลคำขอเบิก</h5>
+            <span class="text-muted small">รหัสอ้างอิง: <span class="fw-bold text-primary"><?= htmlspecialchars($request['request_no']) ?></span></span>
         </div>
         <div class="card-body p-4">
 
@@ -134,15 +137,18 @@ if ($statusText === 'รออนุมัติ' || $statusText === 'Pending') 
     </h5>
 
     <div class="mb-4">
-        <?php foreach ($items as$index => $item):$images = json_decode($item['images'] ?? '[]', true);$imgSrc = !empty($images) ? 'assets/uploads/items/' .$images[0] : 'assets/images/placeholder.jpg';
+        <?php foreach ($items as $index => $item): $images = json_decode($item['images'] ?? '[]', true);
+            $imgSrc = !empty($images) ? 'assets/uploads/items/' . $images[0] : 'assets/images/placeholder.jpg';
 
-            $reqQty = (int)$item['requested_qty'];$curStock = (int)($item['current_stock'] ?? 0);$appQty = $isPending ? min($reqQty, $curStock) : (int)$item['approved_qty'];
+            $reqQty = (int)$item['requested_qty'];
+            $curStock = (int)($item['current_stock'] ?? 0);
+            $appQty = $isPending ? min($reqQty, $curStock) : (int)$item['approved_qty'];
         ?>
             <div class="card border-0 rounded-4 shadow-sm mb-3 bg-white">
                 <div class="card-body p-3 d-flex align-items-center flex-wrap gap-3">
-                    
+
                     <img src="<?= $imgSrc ?>" class="rounded-3 object-fit-cover border border-light shadow-sm" style="width: 80px; height: 80px;">
-                    
+
                     <div class="flex-grow-1" style="min-width: 150px;">
                         <!-- 🟢 [จุดที่แก้ไขที่ 2] เปลี่ยนจาก $item['category'] เป็น $item['category_name'] -->
                         <span class="badge bg-secondary bg-opacity-25 text-dark rounded-pill mb-1"><?= htmlspecialchars($item['category_name'] ?? 'ไม่ระบุ') ?></span>
@@ -184,13 +190,13 @@ if ($statusText === 'รออนุมัติ' || $statusText === 'Pending') 
     <div class="card border-0 rounded-4 shadow-sm mb-5 bg-warning bg-opacity-10">
         <div class="card-body p-4">
             <h6 class="fw-bold mb-4 text-dark"><i class="bi bi-pencil-square me-2 text-warning"></i>สรุปผลการพิจารณา (ระบบคำนวณอัตโนมัติ)</h6>
-            
+
             <div class="d-flex align-items-center mb-4 pb-3 border-bottom border-warning border-opacity-25 flex-wrap gap-2">
                 <span class="fw-bold text-dark me-2">สถานะคำร้องภาพรวม:</span>
                 <span class="badge px-3 py-2 fs-6 rounded-pill shadow-sm" id="summaryOverallBadge">รออนุมัติ</span>
                 <span class="fw-bold bg-white text-muted px-3 py-2 rounded-pill shadow-sm small" id="summaryTextInfo"></span>
             </div>
-            
+
             <div class="mb-2">
                 <label class="fw-bold mb-2 text-dark">ความคิดเห็นเพิ่มเติม (ไม่บังคับ) :</label>
                 <textarea name="admin_comment" class="form-control border-light shadow-sm rounded-4 p-3" rows="3" <?= !$isPending ? 'readonly' : '' ?> placeholder="พิมพ์ความคิดเห็นถึงผู้เบิก (ถ้ามี)..."><?= htmlspecialchars($request['admin_comment'] ?? '') ?></textarea>
@@ -214,11 +220,11 @@ if ($statusText === 'รออนุมัติ' || $statusText === 'Pending') 
             <button type="button" class="btn btn-info text-white fw-bolder px-4 py-2 rounded-pill shadow-sm">
                 <i class="bi bi-file-earmark-pdf me-2"></i>Export PDF
             </button>
-            
+
             <?php if ($request['status'] !== 'ยกเลิก' && $request['status'] !== 'ไม่อนุมัติ'): ?>
-            <button type="submit" name="action" value="cancel" class="btn btn-danger fw-bolder px-4 py-2 shadow-sm rounded-pill" onclick="return confirm('ต้องการยกเลิกคำร้องนี้และคืนสต็อกใช่หรือไม่?');">
-                <i class="bi bi-x-circle me-2"></i>ยกเลิกคำร้อง
-            </button>
+                <button type="submit" name="action" value="cancel" class="btn btn-danger fw-bolder px-4 py-2 shadow-sm rounded-pill" onclick="return confirm('ต้องการยกเลิกคำร้องนี้และคืนสต็อกใช่หรือไม่?');">
+                    <i class="bi bi-x-circle me-2"></i>ยกเลิกคำร้อง
+                </button>
             <?php endif; ?>
         <?php endif; ?>
     </div>
@@ -243,7 +249,11 @@ if ($statusText === 'รออนุมัติ' || $statusText === 'Pending') 
 
     function calculateAllStatuses() {
         let inputs = document.querySelectorAll('.approve-input');
-        let counts = { full: 0, partial: 0, reject: 0 };
+        let counts = {
+            full: 0,
+            partial: 0,
+            reject: 0
+        };
 
         inputs.forEach((input, index) => {
             let approved = parseInt(input.value);

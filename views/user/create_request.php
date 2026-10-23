@@ -19,11 +19,11 @@ $items = $pdo->query("
     SELECT i.*, c.name as category_name 
     FROM items i 
     LEFT JOIN categories c ON i.category_id = c.category_id 
-    WHERE i.current_stock > 0 AND i.is_active = 1 
+    WHERE i.is_active = 1 
     ORDER BY c.name ASC, i.name ASC
 ")->fetchAll();
 ?>
-
+<!-- WHERE i.current_stock > 0 AND i.is_active = 1  -->
 
 
 <script src="assets/js/cart_system.js"></script>
@@ -181,17 +181,17 @@ $items = $pdo->query("
                                         <!-- กลุ่มปุ่มเพิ่ม/ลด จำนวนก่อนหยิบ -->
                                         <div class="input-group input-group-sm mb-2 shadow-sm rounded-2">
                                             <!-- ส่ง maxStock ให้ฟังก์ชันลดจำนวนด้วย เพื่อควบคุม -->
-                                            <button class="btn btn-light border-secondary border-opacity-25 px-2 fw-bold text-dark" type="button" onclick="adjustInputQty('<?= $item['item_id'] ?>', -1, <?= $item['current_stock'] ?>)">-</button>
+                                            <button class="btn btn-light border-secondary border-opacity-25 px-2 fw-bold text-dark" type="button" onclick="adjustInputQty('<?= $item['id'] ?>', -1, <?= $item['current_stock'] ?>)">-</button>
                                             
                                             <!-- กล่องตัวเลขระบุจำนวน และจำกัดไม่ให้พิมพ์ตัวเลขเกินจำนวนสต๊อก -->
-                                            <input type="number" id="input_qty_<?= $item['item_id'] ?>" class="form-control text-center fw-bold px-0 border-secondary border-opacity-25" value="1" min="1" max="<?= $item['current_stock'] ?>">
+                                            <input type="number" id="input_qty_<?= $item['id'] ?>" class="form-control text-center fw-bold px-0 border-secondary border-opacity-25" value="1" min="1" >
                                             
                                             <!-- ส่ง maxStock ให้ฟังก์ชันเพิ่มจำนวน -->
-                                            <button class="btn btn-light border-secondary border-opacity-25 px-2 fw-bold text-dark" type="button" onclick="adjustInputQty('<?= $item['item_id'] ?>', 1, <?=$item['current_stock'] ?>)">+</button>
+                                            <button class="btn btn-light border-secondary border-opacity-25 px-2 fw-bold text-dark" type="button" onclick="adjustInputQty('<?= $item['id'] ?>', 1, <?=$item['current_stock'] ?>)">+</button>
                                         </div>
                                         
                                         <!-- 🟢 3. ปุ่มเพิ่มลงรายการ แก้ไขฟังก์ชันให้ส่งค่าของ maxStock เข้าไปด้วย! -->
-                                        <button type="button" class="btn btn-warning w-100 fw-bold rounded-2 btn-sm shadow-sm" onclick="addToCart('<?= $item['item_id'] ?>', '<?= htmlspecialchars($item['name'], ENT_QUOTES) ?>', '<?= htmlspecialchars($item['category_name'] ?? '', ENT_QUOTES) ?>', '<?= $imgSrc ?>', <?= $item['current_stock'] ?>)">
+                                        <button type="button" class="btn btn-warning w-100 fw-bold rounded-2 btn-sm shadow-sm" onclick="addToCart('<?= $item['id'] ?>', '<?= htmlspecialchars($item['name'], ENT_QUOTES) ?>', '<?= htmlspecialchars($item['category_name'] ?? '', ENT_QUOTES) ?>', '<?= $imgSrc ?>', <?= $item['current_stock'] ?>)">
                                             <i class="bi bi-plus-lg me-1"></i> เพิ่มลงรายการ
                                         </button>
                                     </div>

@@ -1,6 +1,36 @@
 <?php
 session_start();
-define('APP_RUNNING', true); // สร้างตัวแปรป้องกันการเข้าไฟล์ตรงๆ
+require_once 'config/db.php';
+
+// 1. เช็คก่อนว่ามีสิทธิ์เข้าใช้งานไหม (ล็อกอินหรือยัง)
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit;
+}
+
+// 2. ถ้าล็อกอินแล้ว ค่อยมาทำระบบจับเวลา Timeout: 15 นาที (900 วินาที)
+$timeout_duration = 900;
+
+if (isset($_SESSION['last_activity'])) {
+    $duration = time() - $_SESSION['last_activity'];
+    
+    if ($duration > $timeout_duration) {
+        // ถ้าปล่อยหน้าเว็บทิ้งไว้ (ไม่รีเฟรช/ไม่เปลี่ยนหน้า) เกิน 15 นาที ให้เตะออก
+        session_unset();
+        session_destroy();
+        
+        session_start(); // สตาร์ทใหม่เพื่อสร้าง Session แจ้งเตือน
+        $_SESSION['error'] = 'ระบบตัดการเชื่อมต่ออัตโนมัติเนื่องจากไม่มีการใช้งานเกิน 15 นาที';
+        header("Location: login.php");
+        exit;
+    }
+}
+
+// 3. ถ้ายังไม่หมดเวลา ให้อัปเดตเวลาล่าสุดทุกครั้งที่มีการโหลดหน้าเว็บ
+$_SESSION['last_activity'] = time();
+
+// 4. สร้างตัวแปรป้องกันการเข้าไฟล์ตรงๆ
+define('APP_RUNNING', true);
 require_once 'config/db.php';
 
 if (!isset($_SESSION['user_id'])) {

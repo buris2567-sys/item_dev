@@ -37,9 +37,17 @@ $transactions = $pdo->query("
 
         <div class="table-responsive">
             <style>
-                table#txTable { counter-reset: txRowNumber; }
-                table#txTable tbody tr.tx-row:not([style*="display: none"]) { counter-increment: txRowNumber; }
-                table#txTable tbody tr.tx-row:not([style*="display: none"]) .tx-row-number::before { content: counter(txRowNumber); }
+                table#txTable {
+                    counter-reset: txRowNumber;
+                }
+
+                table#txTable tbody tr.tx-row:not([style*="display: none"]) {
+                    counter-increment: txRowNumber;
+                }
+
+                table#txTable tbody tr.tx-row:not([style*="display: none"]) .tx-row-number::before {
+                    content: counter(txRowNumber);
+                }
             </style>
 
             <table class="table table-bordered border-dark align-middle text-center mb-0" id="txTable">
@@ -53,7 +61,7 @@ $transactions = $pdo->query("
                         <th class="text-muted small fw-bold" style="width: 100px;">เปลี่ยนแปลง</th>
                         <th class="text-muted small fw-bold bg-light" style="width: 80px;">คงเหลือ</th>
                         <th class="text-muted small fw-bold" style="width: 100px;">วันที่</th>
-                        <th class="text-start ps-3 text-muted small fw-bold">รายละเอียด (อ้างอิง)</th>
+                        <th class="text-start ps-3 text-muted small fw-bold">รายละเอียด</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -72,8 +80,8 @@ $transactions = $pdo->query("
                             } elseif ($qty < 0) {
                                 $qtySign = ''; // ไม่ต้องใส่ - ซ้อน เพราะเลขมันติดลบมาแต่แรกอยู่แล้ว
                                 $qtyClass = 'text-danger';
-                                $prevClass = 'text-danger'; 
-                                $currClass = 'text-danger'; 
+                                $prevClass = 'text-muted';
+                                $currClass = 'text-dark';
                             } else {
                                 // กรณีแก้ไขที่จำนวนไม่เปลี่ยน (qty = 0)
                                 $qtySign = '';
@@ -91,7 +99,7 @@ $transactions = $pdo->query("
                                         <?= htmlspecialchars($tx['transaction_type'] ?? '-') ?>
                                     </span>
                                 </td>
-                             
+
                                 <td class="<?= $prevClass ?> fw-bold bg-light"><?= number_format($tx['previous_stock'] ?? 0) ?></td>
                                 <td class="fw-bold <?= $qtyClass ?>"><?= $qtySign . number_format($qty) ?></td>
                                 <td class="<?= $currClass ?> fw-bold bg-light">
@@ -106,10 +114,21 @@ $transactions = $pdo->query("
                                     <div class="small text-muted"><?= !empty($tx['created_at']) ? date('H:i', strtotime($tx['created_at'])) : '-' ?></div>
                                 </td>
                                 <td class="text-start ps-3 text-muted small">
+                                    <!-- 1. แสดงหมายเหตุหลัก -->
                                     <?= htmlspecialchars($tx['remark'] ?? '-') ?>
-                                    <!-- 🟢 แสดงเลขใบเบิก ถ้ามี -->
+
+                                    <!-- 2. แสดงเลขที่ใบเบิก (จะโชว์เฉพาะเมื่อมีการอ้างอิงเอกสารเท่านั้น) -->
                                     <?php if (!empty($tx['request_no'])): ?>
-                                        <div class="text-primary mt-1"><i class="bi bi-file-earmark-text"></i> อ้างอิง: <?= htmlspecialchars($tx['request_no']) ?></div>
+                                        <div class="text-primary mt-1">
+                                            <i class="bi bi-file-earmark-text"></i> อ้างอิง: <?= htmlspecialchars($tx['request_no']) ?>
+                                        </div>
+                                    <?php endif; ?>
+
+                                    <!-- 3. แสดงชื่อผู้ทำรายการ (โชว์เสมอเพื่อให้รู้ว่าใครเป็นคนกดเซฟรายการนี้) -->
+                                    <?php if (!empty($tx['username'])): ?>
+                                        <div class="text-secondary mt-1" style="font-size: 0.85em;">
+                                            <i class="bi bi-person-fill"></i> ทำรายการโดย: <?= htmlspecialchars($tx['username']) ?>
+                                        </div>
                                     <?php endif; ?>
                                 </td>
                             </tr>
@@ -137,11 +156,11 @@ $transactions = $pdo->query("
         const searchTxBox = document.getElementById('searchTxInput');
         if (typeof initTablePagination === 'function') {
             initTablePagination({
-                rowSelector: '.tx-row',                        
-                wrapperSelector: '#txTablePaginationWrapper',  
-                noDataSelector: '#noTxFilterRow',              
-                triggerInputs: [searchTxBox],                  
-                
+                rowSelector: '.tx-row',
+                wrapperSelector: '#txTablePaginationWrapper',
+                noDataSelector: '#noTxFilterRow',
+                triggerInputs: [searchTxBox],
+
                 filterLogic: function(row) {
                     const search = searchTxBox.value.toLowerCase().trim();
                     const rowText = row.getAttribute('data-search-text') || '';

@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $purpose    = trim($_POST['purpose'] ?? '');
     $user_note  = trim($_POST['user_note'] ?? '');
     
-    $items      = $_POST['items'] ?? []; // Array ตะกร้า [ 'ITM001' => '5', 'ITM002' => '10' ]
+    $items      = $_POST['items'] ?? []; // Array ตะกร้า [ '1' => '5', '3' => '10' ]
 
     // ตรวจสอบข้อมูลเบื้องต้น
     if (empty($use_date) || empty($event_name) || empty($items)) {
@@ -31,31 +31,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         $pdo->beginTransaction();
 
-        // 1. สร้าง Request ID แบบรันอัตโนมัติ (เช่น REQ-2609-XXXX)
-        $yearMonth = date('ym'); // เช่น ปี 2026 เดือน 09 -> 2609
+        // 1. สร้าง Request No แบบรันอัตโนมัติ (เช่น REQ-2609-XXXX)
+        $yearMonth = date('ym'); 
         $prefix = "REQ-{$yearMonth}-";
         
-        // หาเลขล่าสุดในเดือนนี้
-        $stmtId = $pdo->prepare("SELECT request_id FROM requests WHERE request_id LIKE ? ORDER BY request_id DESC LIMIT 1");
+        // 🟢 [แก้ไข] ค้นหาเลขล่าสุดจากคอลัมน์ request_no แทน
+        $stmtId = $pdo->prepare("SELECT request_no FROM requests WHERE request_no LIKE ? ORDER BY request_no DESC LIMIT 1");
         $stmtId->execute([$prefix . '%']);
-        $lastId = $stmtId->fetchColumn();
+        $lastNo = $stmtId->fetchColumn();
 
-        if ($lastId) {
-            $lastNumber = (int)substr($lastId, -4);
-            $newNumber = str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
+        if ($lastNo) {
+            $lastNumber = (int)substr($lastNo, -4);
+            $newNumber = str_pad($lastNumber + 4, 4, '0', STR_PAD_LEFT);
         } else {
             $newNumber = '0001';
         }
-        $request_id = $prefix . $newNumber; // ได้เป็น REQ-2609-0001
+        $request_no = $prefix . $newNumber; // ได้เป็น REQ-2609-0001
 
-        // 2. บันทึกข้อมูลลงตาราง requests
+        // 2. 🟢 [แก้ไข] บันทึกข้อมูลลงตาราง requests โดยใช้ request_no (ส่วน request_id จะสร้างเลข INT ให้เอง)
         $stmtReq = $pdo->prepare("
-            INSERT INTO requests (request_id, user_id, use_date, event_type, event_name, location, purpose, user_note, status) 
+            INSERT INTO requests (request_no, user_id, use_date, event_type, event_name, location, purpose, user_note, status) 
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'รออนุมัติ')
         ");
-        $stmtReq->execute([$request_id, $user_id, $use_date, $event_type, $event_name, $location, $purpose, $user_note]);
+        $stmtReq->execute([$request_no, $user_id, $use_date, $event_type, $event_name, $location, $purpose, $user_note]);
 
-        // 3. บันทึกข้อมูลตะกร้าลงตาราง request_items (ลบคอลัมน์ซ้ำซ้อนออกแล้ว)
+        // 🟢 [แก้ไข] ดึง request_id (INT) ที่เพิ่งสร้างเสร็จหมาดๆ ออกมาใช้งาน
+        $new_request_id = $pdo->lastInsertId();
+
+        // 3. บันทึกข้อมูลตะกร้าลงตาราง request_items
         $stmtItem = $pdo->prepare("
             INSERT INTO request_items (request_id, item_id, requested_qty) 
             VALUES (?, ?, ?)
@@ -64,23 +67,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         foreach ($items as $item_id => $qty) {
             $qty = (int)$qty;
             if ($qty > 0) {
-                // 🟢 เพิ่ม AND i.is_active = 1 เพื่อป้องกันเบิกของที่ถูกระงับไปแล้ว
+                // 🟢 [แก้ไข] เปลี่ยนการค้นหา Primary Key ของ items จาก item_id เป็น id
                 $getItem = $pdo->prepare("
-                    SELECT i.item_id 
-                    FROM items i 
-                    WHERE i.item_id = ? AND i.is_active = 1
+                    SELECT id 
+                    FROM items 
+                    WHERE id = ? AND is_active = 1
                 ");
                 $getItem->execute([$item_id]);
                 
-                // ถ้ารายการนี้ยังมีอยู่และ Active ถึงจะบันทึก
                 if ($getItem->fetch()) {
-                    $stmtItem->execute([$request_id, $item_id, $qty]);
+                    // ใช้ $new_request_id ที่เป็นตัวเลขผูกข้อมูล
+                    $stmtItem->execute([$new_request_id, $item_id, $qty]);
                 }
             }
         }
         
         $pdo->commit();
-        $_SESSION['success'] = "สร้างคำขอเบิกพัสดุเรียบร้อยแล้ว (เลขที่ $request_id)";
+        $_SESSION['success'] = "สร้างคำขอเบิกพัสดุเรียบร้อยแล้ว (เลขที่ $request_no)";
         header("Location: ../../index.php?page=my_requests");
         exit;
 

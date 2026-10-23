@@ -28,7 +28,7 @@ $itemStmt = $pdo->prepare("
         i.images, 
         c.name AS category_name
     FROM request_items ri 
-    LEFT JOIN items i ON ri.item_id = i.item_id 
+    LEFT JOIN items i ON ri.item_id = i.id 
     LEFT JOIN categories c ON i.category_id = c.category_id
     WHERE ri.request_id = ?
 ");
@@ -61,28 +61,14 @@ if ($statusText === 'รออนุมัติ' || $statusText === 'Pending') 
     </div>
 
     <!-- 🟢 [เพิ่ม] กลุ่มปุ่มจัดการด้านบนขวา (กลับ, PDF, Excel) -->
-    <div class="d-flex gap-2 flex-wrap">
-        <a href="index.php?page=my_requests" class="btn btn-outline-secondary fw-bold px-4 py-2 rounded-pill shadow-sm bg-white">
-            <i class="bi bi-arrow-left me-2"></i>ย้อนกลับ
-        </a>
-
-        <!-- โชว์ปุ่ม Export เฉพาะตอนที่อนุมัติแล้วเท่านั้น -->
-        <?php if ($request['status'] !== 'รออนุมัติ' && $request['status'] !== 'ยกเลิก'): ?>
-            <button type="button" class="btn btn-success fw-bolder px-4 py-2 rounded-pill shadow-sm" onclick="alert('ฟังก์ชัน Export Excel กำลังพัฒนา');">
-                <i class="bi bi-file-earmark-excel-fill me-1"></i> Excel
-            </button>
-            <button type="button" class="btn btn-danger fw-bolder px-4 py-2 rounded-pill shadow-sm" onclick="alert('ฟังก์ชัน Export PDF กำลังพัฒนา');">
-                <i class="bi bi-file-earmark-pdf-fill me-1"></i> PDF
-            </button>
-        <?php endif; ?>
-    </div>
+    
 </div>
 
 <!-- 📦 ส่วนที่ 1: ข้อมูลคำขอเบิก -->
 <div class="card border-0 rounded-4 shadow-sm mb-4 border-warning border-top border-4 bg-white">
     <div class="card-header bg-white py-3 px-4 border-bottom d-flex justify-content-between align-items-center rounded-top-4">
         <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-file-earmark-text me-2 text-warning"></i>ข้อมูลคำขอเบิก</h5>
-        <span class="text-muted small">รหัสอ้างอิง: <span class="fw-bold text-primary"><?= htmlspecialchars($request_id) ?></span></span>
+        <span class="text-muted small">รหัสอ้างอิง: <span class="fw-bold text-primary"><?= htmlspecialchars($request['request_no']) ?></span></span>
     </div>
     <div class="card-body p-4">
 
