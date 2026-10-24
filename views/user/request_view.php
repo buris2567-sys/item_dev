@@ -61,7 +61,7 @@ if ($statusText === 'รออนุมัติ' || $statusText === 'Pending') 
     </div>
 
     <!-- 🟢 [เพิ่ม] กลุ่มปุ่มจัดการด้านบนขวา (กลับ, PDF, Excel) -->
-    
+
 </div>
 
 <!-- 📦 ส่วนที่ 1: ข้อมูลคำขอเบิก -->
@@ -232,9 +232,10 @@ if ($statusText === 'รออนุมัติ' || $statusText === 'Pending') 
         <button type="button" class="btn btn-success fw-bolder px-4 py-2 rounded-pill shadow-sm" onclick="alert('ฟังก์ชัน Export Excel กำลังพัฒนา');">
             <i class="bi bi-file-earmark-excel-fill me-2"></i>Export Excel
         </button>
-        <button type="button" class="btn btn-danger fw-bolder px-4 py-2 rounded-pill shadow-sm" onclick="alert('ฟังก์ชัน Export PDF กำลังพัฒนา');">
-            <i class="bi bi-file-earmark-pdf-fill me-2"></i>Export PDF
-        </button>
+        <!-- อนุมัติไปแล้ว หรือ ยกเลิกไปแล้ว: แสดงปุ่ม Export PDF -->
+        <a href="actions/export_pdf.php?id=<?= $request['request_id'] ?>" target="_blank" class="btn btn-info text-white fw-bolder px-4 py-2 rounded-pill shadow-sm">
+            <i class="bi bi-file-earmark-pdf me-2"></i>Export PDF
+        </a>
     <?php endif; ?>
 
 </div>

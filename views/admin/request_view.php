@@ -216,11 +216,11 @@ if ($statusText === 'รออนุมัติ' || $statusText === 'Pending') 
                 <i class="bi bi-save me-2"></i>บันทึกผลพิจารณา
             </button>
         <?php else: ?>
-            <!-- อนุมัติไปแล้ว หรือ ยกเลิกไปแล้ว: แสดงปุ่ม Export PDF -->
-            <button type="button" class="btn btn-info text-white fw-bolder px-4 py-2 rounded-pill shadow-sm">
-                <i class="bi bi-file-earmark-pdf me-2"></i>Export PDF
-            </button>
 
+            <!-- อนุมัติไปแล้ว หรือ ยกเลิกไปแล้ว: แสดงปุ่ม Export PDF -->
+            <a href="actions/export_pdf.php?id=<?= $request['request_id'] ?>" target="_blank" class="btn btn-info text-white fw-bolder px-4 py-2 rounded-pill shadow-sm">
+                <i class="bi bi-file-earmark-pdf me-2"></i>Export PDF
+            </a>
             <?php if ($request['status'] !== 'ยกเลิก' && $request['status'] !== 'ไม่อนุมัติ'): ?>
                 <button type="submit" name="action" value="cancel" class="btn btn-danger fw-bolder px-4 py-2 shadow-sm rounded-pill" onclick="return confirm('ต้องการยกเลิกคำร้องนี้และคืนสต็อกใช่หรือไม่?');">
                     <i class="bi bi-x-circle me-2"></i>ยกเลิกคำร้อง
