@@ -171,7 +171,9 @@ if ($statusText === 'รออนุมัติ' || $statusText === 'Pending') 
                             <button type="button" class="btn  btn-light border-secondary border-opacity-25 fw-bold px-2 text-dark" onclick="adjustApprove(<?= $index ?>, -1)" <?= !$isPending ? 'disabled' : '' ?>>-</button>
                             <input type="text" name="approved_qty[<?= $item['request_item_id'] ?>]" id="approve_input_<?= $index ?>"
                                 class="form-control text-center fw-bolder fs-6 approve-input border-secondary border-opacity-25"
-                                value="<?= $appQty ?>" data-req="<?= $reqQty ?>" data-stock="<?= $curStock ?>" <?= !$isPending ? 'readonly' : '' ?>>
+                                value="<?= $appQty ?>" data-req="<?= $reqQty ?>" data-stock="<?= $curStock ?>"
+                                oninput="validateInput(this)"
+                                <?= !$isPending ? 'readonly' : '' ?>>
                             <button type="button" class="btn btn-light border-secondary border-opacity-25 fw-bold px-2 text-dark" onclick="adjustApprove(<?= $index ?>, 1)" <?= !$isPending ? 'disabled' : '' ?>>+</button>
                         </div>
                     </div>
@@ -244,6 +246,31 @@ if ($statusText === 'รออนุมัติ' || $statusText === 'Pending') 
         let newVal = Math.max(0, Math.min(maxAllowed, currentVal + change));
 
         input.value = newVal;
+        calculateAllStatuses();
+    }
+    // ฟังก์ชันใหม่: ดักจับเวลาคนพิมพ์ตัวเลขด้วยคีย์บอร์ด
+    function validateInput(input) {
+        if (input.hasAttribute('readonly')) return;
+
+        let reqQty = parseInt(input.getAttribute('data-req'));
+        let stockQty = parseInt(input.getAttribute('data-stock'));
+        let maxAllowed = Math.min(reqQty, stockQty);
+
+        // แปลงค่าที่พิมพ์ให้เป็นตัวเลข (ถ้าพิมพ์ตัวอักษรจะกลายเป็น 0)
+        let currentVal = parseInt(input.value) || 0;
+
+        // เช็คว่าถ้าเลขติดลบ ให้เป็น 0
+        if (currentVal < 0) {
+            currentVal = 0;
+        }
+        // เช็คว่าถ้าพิมพ์เกินเพดานที่อนุญาต ให้บังคับดึงกลับมาเท่าเพดานสูงสุด
+        else if (currentVal > maxAllowed) {
+            currentVal = maxAllowed;
+        }
+
+        input.value = currentVal;
+
+        // เรียกคำนวณป้ายสถานะใหม่ทันที
         calculateAllStatuses();
     }
 
