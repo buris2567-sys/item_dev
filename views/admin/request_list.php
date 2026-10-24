@@ -18,7 +18,7 @@ $requests = $pdo->query("
 <div class="d-flex justify-content-between align-items-center mb-4 pb-2" style="border-bottom: 2px solid #e9ecef;">
     <div>
         <h3 class="fw-bolder mb-1 text-dark"><i class="bi bi-boxes text-warning me-2"></i>รายการคำขอ</h3>
-          <span class="text-muted small">ระบบสิ่งพิมพ์และของที่ระลึก</span>    
+        <span class="text-muted small">ระบบสิ่งพิมพ์และของที่ระลึก</span>
     </div>
 </div>
 
@@ -27,7 +27,7 @@ $requests = $pdo->query("
     <div class="card-header bg-white py-3 px-4 border-bottom d-flex align-items-center rounded-top-4">
         <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-list-task me-2 text-warning"></i>คำขอทั้งหมด</h5>
     </div>
-    
+
     <div class="card-body p-0 table-responsive">
         <table class="table table-hover align-middle text-center mb-0">
             <thead class="table-light text-muted">
@@ -55,10 +55,11 @@ $requests = $pdo->query("
                     <?php foreach ($requests as $index => $req):
                         // 🟢 [คงเดิม] โลจิกเช็คสถานะ แต่อัปเดตคลาสให้เป็นป้ายแบบขอบมน (rounded-pill) เข้ากับ Theme
                         $status = $req['status'];
-                        $badgeClass = 'rounded-pill px-4 py-2 fw-bold shadow-sm '; 
+                        $badgeClass = 'rounded-pill px-4 py-2 fw-bold shadow-sm ';
 
                         if ($status === 'รออนุมัติ' || $status === 'Pending') {
-                            $badgeClass .= 'bg-warning text-dark'; $status = 'รออนุมัติ';
+                            $badgeClass .= 'bg-warning text-dark';
+                            $status = 'รออนุมัติ';
                         } elseif (strpos($status, 'อนุมัติบางส่วน') !== false) {
                             $badgeClass .= 'bg-warning text-dark';
                         } elseif (strpos($status, 'ไม่อนุมัติ') !== false) {
@@ -91,10 +92,11 @@ $requests = $pdo->query("
                                     <a href="index.php?page=request_view&id=<?= $req['request_id'] ?>" class="btn btn-sm btn-light rounded-circle shadow-sm text-info d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;" title="พิจารณา/ดูรายละเอียด">
                                         <i class="bi bi-search"></i>
                                     </a>
-                                    <?php if ($status !== 'รออนุมัติ'): ?>
-                                        <button class="btn btn-sm btn-light rounded-circle shadow-sm text-dark d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;" title="พิมพ์เอกสาร">
+                                    <?php if ($req['status'] === 'อนุมัติ' || $req['status'] === 'อนุมัติบางส่วน'): ?>
+                                        <a href="actions/export_pdf.php?id=<?= $req['request_id'] ?>" class="btn btn-sm btn-light rounded-circle shadow-sm text-dark d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;" title="พิมพ์เอกสาร">
                                             <i class="bi bi-printer"></i>
-                                        </button>
+                                        </a>
+                                        
                                     <?php endif; ?>
                                 </div>
                             </td>
@@ -104,7 +106,7 @@ $requests = $pdo->query("
             </tbody>
         </table>
     </div>
-    
+
     <!-- 🟢 [ปรับปรุง] Footer ของ Card -->
     <div class="card-footer bg-white border-0 py-3 px-4 text-muted small fw-bold rounded-bottom-4 d-flex justify-content-end">
         แสดง 1-<?= count($requests) ?> จาก <?= count($requests) ?> รายการ
