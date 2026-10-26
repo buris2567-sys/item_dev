@@ -50,6 +50,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
+    $name = trim($_POST['name']);
+
+    // เช็คชื่อซ้ำที่ Backend อีกรอบก่อนบันทึก
+    $checkStmt = $pdo->prepare("SELECT COUNT(*) FROM items WHERE name = ? ");
+    $checkStmt->execute([$name]);
+    if ($checkStmt->fetchColumn() > 0) {
+        // ถ้าชื่อซ้ำ ให้ส่งกลับไปหน้าเดิมพร้อมแจ้งเตือน Error
+        $_SESSION['error'] = "ไม่สามารถเพิ่มได้: มีสิ่งของชื่อนี้ในระบบอยู่แล้ว";
+        header("Location: ../../index.php?page=item_list");
+        exit();
+    }
+
+    // ถ้าไม่ซ้ำ ถึงจะรันคำสั่ง INSERT INTO ... ต่อไป
+
     $images_json = json_encode($uploaded_images, JSON_UNESCAPED_UNICODE);
 
     try {
@@ -75,10 +89,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $pdo->commit();
         $_SESSION['success'] = 'เพิ่มสิ่งของเรียบร้อยแล้ว';
-        
+
         header("Location: ../../index.php?page=manage_items");
         exit;
-
     } catch (Exception $e) {
         $pdo->rollBack();
         die("<div style='color:red; padding: 20px; font-size: 20px;'><b>Database Error:</b> " . $e->getMessage() . "<br><br><a href='../../index.php?page=manage_items'>กลับไปหน้าจัดการสิ่งของ</a></div>");

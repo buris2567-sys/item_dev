@@ -293,19 +293,19 @@ if ($statusText === 'รออนุมัติ' || $statusText === 'Pending') 
 
             if (approved === requested) {
                 badge.classList.add('bg-success');
-                circle.className = 'bi bi-circle-fill text-white small me-1';
-                textSpan.innerText = 'อนุมัติเต็ม';
+                
+                textSpan.innerText = 'อนุมัติเต็มจำนวน';
                 textSpan.className = 'text-white';
                 counts.full++;
             } else if (approved === 0) {
                 badge.classList.add('bg-danger');
-                circle.className = 'bi bi-circle-fill text-white small me-1';
+             
                 textSpan.innerText = 'ไม่อนุมัติ';
                 textSpan.className = 'text-white';
                 counts.reject++;
             } else {
                 badge.classList.add('bg-warning', 'bg-opacity-25');
-                circle.className = 'bi bi-circle-fill text-warning small me-1';
+                
                 textSpan.innerText = 'อนุมัติบางส่วน';
                 textSpan.className = 'text-dark';
                 counts.partial++;
@@ -318,7 +318,7 @@ if ($statusText === 'รออนุมัติ' || $statusText === 'Pending') 
 
         if (counts.full === inputs.length && inputs.length > 0) {
             finalClass = 'bg-success text-white';
-            finalStatus = 'อนุมัติ';
+            finalStatus = 'อนุมัติเต็มจำนวน';
         } else if (counts.reject === inputs.length && inputs.length > 0) {
             finalClass = 'bg-danger text-white';
             finalStatus = 'ไม่อนุมัติ';

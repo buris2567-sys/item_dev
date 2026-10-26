@@ -7,7 +7,7 @@
              - action: กำหนดพาธไปยังไฟล์หลังบ้านเพื่อประมวลผล
              - method="POST": ส่งข้อมูลแบบซ่อนใน Background
              - enctype="multipart/form-data": จำเป็นต้องใส่เสมอเมื่อมีการส่งไฟล์อัปโหลด -->
-        <form action="actions/admin/item_add.php" method="POST" enctype="multipart/form-data" class="modal-content border-dark rounded-0" style="border-width: 2px !important;">
+        <form id="addItemForm" action="actions/admin/item_add.php" method="POST" enctype="multipart/form-data" class="modal-content border-dark rounded-0" style="border-width: 2px !important;">
 
             <!-- ส่วนหัวของ Modal -->
             <div class="modal-header border-dark" style="border-bottom-width: 2px !important;">
@@ -42,7 +42,7 @@
                         <!-- 2. ช่องกรอกชื่อสิ่งของ -->
                         <div class="mb-3">
                             <label class="form-label fw-bold small text-danger">ชื่อ *</label>
-                            <input type="text" name="name" class="form-control border-dark rounded-0" placeholder="เช่น Printer หน้าห้อง" required>
+                            <input id="itemName" type="text" name="name" class="form-control border-dark rounded-0" required>
                         </div>
 
                         <!-- 3. ช่องกรอกจำนวนสต็อกเริ่มต้น -->
@@ -90,8 +90,8 @@
                                     <div class="flex-grow-1 position-relative">
                                         <!--    กล่องพรีวิว (เมื่อเลือกรูปแล้วจะใส่รูปภาพเป็น background-image) -->
                                         <div id="previewBox_<?= $slot ?>" class="border border-secondary border-opacity-25 bg-white d-flex flex-column 
-                                        justify-content-center align-items-center text-muted rounded" 
-                                        style="height: 120px; 
+                                        justify-content-center align-items-center text-muted rounded"
+                                            style="height: 120px; 
                                         background-size: contain; 
                                         background-repeat: no-repeat; 
                                         background-position: center;">
@@ -129,7 +129,8 @@
             <!-- ส่วนท้ายของ Modal: ปุ่มยกเลิก และ ปุ่มบันทึก -->
             <div class="modal-footer bg-light border-0">
                 <button type="button" class="btn btn-secondary border-dark rounded-0 fw-bold px-4" data-bs-dismiss="modal">ยกเลิก</button>
-                <button type="submit" class="btn btn-warning border-dark rounded-0 fw-bold px-5 shadow-sm">บันทึก</button>
+                <!-- 🟢 เปลี่ยน type เป็น button และเพิ่ม id="saveItemBtn" -->
+                <button type="button" id="saveItemBtn" class="btn btn-warning border-dark rounded-0 fw-bold px-5 shadow-sm">บันทึก</button>
             </div>
         </form>
     </div>
@@ -139,15 +140,16 @@
      สคริปต์ JavaScript จัดการการอัปโหลดและพรีวิวรูปภาพ
      ========================================== -->
 <script>
-    // 1. ส่งการคลิกจากปุ่มไปให้ <input type="file"> ของช่องนั้นๆ
+    // ==========================================
+    // 1. สคริปต์จัดการพรีวิวรูปภาพ (ส่วนนี้ทำงานได้ปกติดีแล้ว)
+    // ==========================================
     document.querySelectorAll('.btn-upload-trigger').forEach(btn => {
         btn.addEventListener('click', function() {
-            const slot = this.getAttribute('data-slot'); // ดึงเลขสล็อต (0, 1, 2)
-            document.getElementById('fileInput_' + slot).click(); // จำลองการคลิก Input File
+            const slot = this.getAttribute('data-slot');
+            document.getElementById('fileInput_' + slot).click();
         });
     });
 
-    // 2. ดักจับเมื่อมีการเลือกไฟล์ใน Input เพื่อแสดงรูปตัวอย่าง (Preview)
     document.querySelectorAll('.slot-file-input').forEach(input => {
         input.addEventListener('change', function(e) {
             const slot = this.getAttribute('data-slot');
@@ -157,26 +159,22 @@
             const file = e.target.files[0];
 
             if (file) {
-                // ตรวจสอบขนาดไฟล์ ป้องกันไฟล์ขนาดเกิน 5MB (5,242,880 Bytes)
                 if (file.size > 5242880) {
                     alert('ไฟล์มีขนาดเกิน 5MB กรุณาเลือกไฟล์ใหม่');
-                    this.value = ''; // ล้างค่าที่เลือกไว้
+                    this.value = ''; 
                     return;
                 }
-
-                // อ่านไฟล์รูปภาพมาแปลงเป็น DataURL เพื่อนำมาแสดงในกล่องพรีวิว
                 const reader = new FileReader();
                 reader.onload = function(event) {
-                    previewBox.style.backgroundImage = `url('${event.target.result}')`; // แสดงรูปเป็นพื้นหลัง
-                    placeholder.classList.add('d-none'); // ซ่อนข้อความ No image available
-                    clearBtn.classList.remove('d-none'); // แสดงปุ่มลบรูปภาพ
+                    previewBox.style.backgroundImage = `url('${event.target.result}')`; 
+                    placeholder.classList.add('d-none'); 
+                    clearBtn.classList.remove('d-none'); 
                 };
                 reader.readAsDataURL(file);
             }
         });
     });
 
-    // 3. ฟังก์ชันสำหรับกดปุ่มลบรูปภาพในช่องนั้นๆ
     document.querySelectorAll('.btn-clear-image').forEach(btn => {
         btn.addEventListener('click', function() {
             const slot = this.getAttribute('data-slot');
@@ -184,10 +182,62 @@
             const previewBox = document.getElementById('previewBox_' + slot);
             const placeholder = document.getElementById('placeholderText_' + slot);
 
-            fileInput.value = ''; // ล้างค่าไฟล์ใน <input type="file">
-            previewBox.style.backgroundImage = ''; // ลบรูปพื้นหลังออก
-            placeholder.classList.remove('d-none'); // ดึงข้อความ No image available กลับมาแสดง
-            this.classList.add('d-none'); // ซ่อนปุ่มลบรูปภาพ
+            fileInput.value = ''; 
+            previewBox.style.backgroundImage = ''; 
+            placeholder.classList.remove('d-none'); 
+            this.classList.add('d-none'); 
         });
+    });
+
+    // ==========================================
+    // 2. สคริปต์เช็คชื่อซ้ำ (โค้ดสำหรับสืบหาต้นตอปัญหา)
+    // ==========================================
+    document.getElementById('saveItemBtn').addEventListener('click', function() {
+        let form = document.getElementById('addItemForm');
+        let itemNameInput = document.getElementById('itemName');
+        let itemName = itemNameInput.value.trim();
+
+        if (!form.checkValidity()) {
+            form.reportValidity(); 
+            return;
+        }
+
+        let btn = this;
+        let originalText = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="bi bi-hourglass-split me-1"></i>กำลังเช็ค...';
+
+        // ยิง AJAX ไปที่ไฟล์ check_item_name.php
+        fetch('actions/admin/check_item_name.php?name=' + encodeURIComponent(itemName))
+            .then(response => response.text()) 
+            .then(text => {
+                console.log("สิ่งที่ PHP ตอบกลับมาคือ:", text); 
+                
+                try {
+                    let data = JSON.parse(text); 
+                    
+                    if (data.exists) {
+                        // ❌ ถ้าชื่อซ้ำ: จะเด้งข้อความนี้
+                        alert('❌ ไม่สามารถเพิ่มได้: มีสิ่งของชื่อ "' + itemName + '" ในระบบอยู่แล้ว (หรือเคยมีและถูกลบไปแล้ว)');
+                        btn.disabled = false;
+                        btn.innerHTML = originalText;
+                        itemNameInput.focus();
+                    } else {
+                        // ✅ ถ้าไม่ซ้ำ: บันทึกข้อมูล
+                        form.submit();
+                    }
+                } catch (err) {
+                    // ❌ ถ้าไฟล์ PHP พ่น Error หรือช่องว่างออกมา จะเด้งข้อความนี้
+                    alert('ไฟล์ PHP ส่งข้อมูลกลับมาผิดพลาด (ไม่ใช่ JSON) กด F12 ดู Console ครับ\n\nข้อมูลที่ได้รับคือ:\n' + text);
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                }
+            })
+            .catch(error => {
+                // ❌ ถ้าหาไฟล์ไม่เจอ (Path ผิด) จะเด้งข้อความนี้
+                alert('หาไฟล์ check_item_name.php ไม่เจอครับ กรุณาเช็ค Path');
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            });
     });
 </script>
