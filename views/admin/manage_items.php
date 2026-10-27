@@ -9,7 +9,8 @@ if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'Admin') {
 }
 
 // ดึงรายการหมวดหมู่
-$categories = $pdo->query("SELECT * FROM categories ORDER BY name ASC")->fetchAll();
+// ดึงรายการหมวดหมู่ (เฉพาะที่เปิดใช้งานอยู่)
+$categories = $pdo->query("SELECT * FROM categories WHERE is_active = 1 ORDER BY name ASC")->fetchAll();
 
 // ดึงรายการสิ่งของทั้งหมดที่ยังเปิดใช้งานอยู่ (is_active = 1) 
 // 🟢 [แก้ไข] เพิ่มการดึง item_code มาแสดงด้วย และอ้างอิง PK คือ id

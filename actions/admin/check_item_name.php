@@ -8,7 +8,7 @@ $response = ['exists' => false];
 if ($name !== '') {
     try {
         // ค้นหาว่ามีชื่อนี้ในระบบและยังมีสถานะเปิดใช้งานอยู่หรือไม่
-        $stmt = $pdo->prepare("SELECT COUNT(*) FROM items WHERE name = ? AND is_active = 1");
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM items WHERE name = ? ");
         $stmt->execute([$name]);
         
         if ($stmt->fetchColumn() > 0) {

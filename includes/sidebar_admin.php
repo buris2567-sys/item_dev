@@ -62,6 +62,10 @@ $currentPage = $_GET['page'] ?? 'home';
             <i class="bi bi-list-ul me-3"></i> รายการคำขอ
         </a>
         
+        <a href="index.php?page=manage_categories" class="sidebar-link mb-2 <?= $currentPage === 'manage_categories' ? 'active' : '' ?>">
+            <i class="bi bi-tags me-3"></i> จัดการหมวดหมู่
+        </a>
+
         <a href="index.php?page=manage_items" class="sidebar-link mb-2 <?= $currentPage === 'manage_items' ? 'active' : '' ?>">
             <i class="bi bi-box me-3"></i> เพิ่มสิ่งของ
         </a>
