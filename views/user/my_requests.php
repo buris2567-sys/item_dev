@@ -97,10 +97,18 @@ $requests = $stmt->fetchAll();
                             <td class="border-light text-muted"><?= $req['approved_at'] ? date('d/m/Y', strtotime($req['approved_at'])) : '-' ?></td>
                             <td class="border-light"><span class="badge fs-6 fw-bold px-4 py-2 <?= $badgeClass ?>"><?= htmlspecialchars($status) ?></span></td>
                             <td class="border-light">
+                            <td class="py-3">
                                 <div class="d-flex justify-content-center gap-2">
                                     <a href="index.php?page=request_view&id=<?= $req['request_id'] ?>" class="btn btn-sm btn-light rounded-circle shadow-sm text-info d-inline-flex align-items-center justify-content-center" style="width: 36px; height: 36px;" title="ดูรายละเอียด">
                                         <i class="bi bi-search"></i>
                                     </a>
+
+                                    <!-- 🟢 ปุ่มแก้ไข (แสดงเฉพาะสถานะ "รออนุมัติ") -->
+                                    <?php if ($req['status'] === 'รออนุมัติ'): ?>
+                                        <a href="edit_request.php?id=<?= $req['request_id'] ?>" class="btn btn-sm btn-light text-warning border rounded-circle shadow-sm" style="width: 32px; height: 32px;" title="แก้ไขคำร้อง">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                    <?php endif; ?>
                                     <?php if ($req['status'] === 'อนุมัติ' || $req['status'] === 'อนุมัติบางส่วน'): ?>
                                         <a href="actions/export_pdf.php?id=<?= $req['request_id'] ?>" class="btn btn-sm btn-light rounded-circle shadow-sm text-dark d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;" title="พิมพ์เอกสาร">
                                             <i class="bi bi-printer"></i>
@@ -108,6 +116,7 @@ $requests = $stmt->fetchAll();
 
                                     <?php endif; ?>
                                 </div>
+                            </td>
                             </td>
                         </tr>
                     <?php endforeach; ?>

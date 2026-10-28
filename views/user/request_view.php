@@ -223,9 +223,17 @@ if ($statusText === 'รออนุมัติ' || $statusText === 'Pending') 
 <!-- 📦 ปุ่มจัดการด้านล่างสุด (กลับ, Export) -->
 <div class="d-flex justify-content-end gap-3 mb-5 flex-wrap">
 
-    <a href="index.php?page=my_requests" class="btn btn-outline-secondary fw-bold px-5 py-2 bg-white rounded-pill shadow-sm">
+    <a href="index.php?page=my_requests" class="btn btn-outline-secondary fw-bold px-2 py-2 bg-white rounded-pill shadow-sm">
         <i class="bi bi-arrow-left me-2"></i>กลับหน้ารายการ
     </a>
+
+
+     <!-- 🟢 ปุ่มแก้ไข (แสดงเฉพาะสถานะ "รออนุมัติ") -->
+    <?php if ($request['status'] === 'รออนุมัติ'): ?>
+        <a href="edit_request.php?id=<?= $request['request_id'] ?>" class="btn btn-warning rounded-pill px-4 fw-bold shadow-sm">
+            <i class="bi bi-pencil-square me-1"></i> แก้ไขคำร้อง
+        </a>
+    <?php endif; ?>
 
     <?php if ($request['status'] !== 'รออนุมัติ' && $request['status'] !== 'ยกเลิก'): ?>
         <!-- ปุ่ม Export จะแสดงก็ต่อเมื่อรายการถูกพิจารณาแล้ว และไม่ได้ถูกยกเลิก -->
@@ -239,3 +247,4 @@ if ($statusText === 'รออนุมัติ' || $statusText === 'Pending') 
     <?php endif; ?>
 
 </div>
+
