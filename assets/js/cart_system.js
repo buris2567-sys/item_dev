@@ -121,9 +121,10 @@ function renderCart() {
             </tr>
         `;
 
-        // 🟢 [คงเดิม] สร้าง Input แบบซ่อน (Hidden) ไว้ในฟอร์ม เพื่อให้ส่งข้อมูลกลับไปที่ Backend (PHP) เมื่อกดปุ่มบันทึก
+     // 🟢 แก้ชื่อ Input ให้ตรงกับที่ PHP (request_update.php) ต้องการ
         hiddenContainer.innerHTML += `
-            <input type="hidden" name="items[${item.id}]" value="${item.qty}">
+            <input type="hidden" name="item_id[]" value="${item.id}">
+            <input type="hidden" name="qty[]" value="${item.qty}">
         `;
     });
 }

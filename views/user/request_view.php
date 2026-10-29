@@ -228,9 +228,10 @@ if ($statusText === 'รออนุมัติ' || $statusText === 'Pending') 
     </a>
 
 
-     <!-- 🟢 ปุ่มแก้ไข (แสดงเฉพาะสถานะ "รออนุมัติ") -->
+    <!-- ปุ่มแก้ไข (แสดงเฉพาะสถานะ "รออนุมัติ") -->
     <?php if ($request['status'] === 'รออนุมัติ'): ?>
-        <a href="edit_request.php?id=<?= $request['request_id'] ?>" class="btn btn-warning rounded-pill px-4 fw-bold shadow-sm">
+        <!-- 🟢 แก้ไขตรง href ให้วิ่งไปที่หน้า create_request พร้อมส่ง id ไปด้วย -->
+        <a href="index.php?page=create_request&id=<?= $request['request_id'] ?>" class="btn btn-warning rounded-pill px-4 fw-bold shadow-sm">
             <i class="bi bi-pencil-square me-1"></i> แก้ไขคำร้อง
         </a>
     <?php endif; ?>
@@ -247,4 +248,3 @@ if ($statusText === 'รออนุมัติ' || $statusText === 'Pending') 
     <?php endif; ?>
 
 </div>
-
