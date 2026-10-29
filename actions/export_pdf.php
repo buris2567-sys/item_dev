@@ -85,91 +85,123 @@ $mpdf = new \Mpdf\Mpdf([
     ]),
     'fontdata' => $fontData + [
         'thsarabunnew' => [
-            'R' => 'THSarabunNew.ttf'
+            'R' => 'THSarabunNew.ttf',
+            'B' => 'THSarabunNew Bold.ttf',
+            'I' => 'THSarabunNew Italic.ttf',
+            'BI' => 'THSarabunNew BoldItalic.ttf'
         ]
     ],
     'default_font' => 'thsarabunnew',
     'format' => 'A4',
 ]);
 
-// 5. ออกแบบหน้าตา HTML ของ PDF (โค้ดที่แก้เรื่องตัวหนังสือเรียงตั้งแล้ว)
+// 5. ออกแบบหน้าตา HTML ของ PDF ให้มีเส้นจุดไข่ปลาตามแบบที่ 1
 $html = '
 <style>
-    body { font-family: "thsarabunnew"; font-size: 16pt; line-height: 1.2; }
-    h1 { text-align: center; font-size: 20pt; font-weight: bold; margin-bottom: 20px; }
+    body { 
+        font-family: "thsarabunnew"; 
+        font-size: 16pt; 
+        line-height: 1.25; 
+    }
+    .title { 
+        text-align: center; 
+        font-size: 20pt; 
+        font-weight: bold; 
+        margin-bottom: 20px; 
+    }
     
-    /* สไตล์สำหรับโครงสร้างฟอร์มเส้นประ */
-    table.form-layout { width: 100%; border-collapse: collapse; margin-bottom: 6px; }
-    table.form-layout td { vertical-align: bottom; padding: 2px 0; border: none; }
-    
-    /* 🟢 เอา width: 1% และ nowrap ออก เพื่อแก้ปัญหาตัวอักษรเรียงแนวตั้ง */
-    .label { font-weight: bold; padding-right: 5px; } 
-    .line { border-bottom: 1px dotted #000; color: #333; }
-    
-    /* สไตล์สำหรับตารางรายการของ */
-    table.items { width: 100%; border-collapse: collapse; margin-top: 15px; }
-    table.items th, table.items td { border: 1px solid #000; padding: 5px; }
-    table.items th { background-color: #d9d9d9; text-align: center; font-weight: bold; }
+    /* สไตล์สำหรับตารางรายการหนังสือ/ของด้านล่าง */
+    table.items-table { 
+        width: 100%; 
+        border-collapse: collapse; 
+        margin-top: 15px; 
+    }
+    table.items-table th, table.items-table td { 
+        border: 1px solid #000; 
+        padding: 5px; 
+    }
+    table.items-table th { 
+        background-color: #bfbfbf; 
+        text-align: center; 
+        font-weight: bold; 
+    }
 </style>
 
-<h1>แบบฟอร์มเบิกเอกสารเผยแพร่และของที่ระลึก</h1>
+<div class="title">แบบฟอร์มเบิกเอกสารเผยแพร่และของที่ระลึก</div>
 
-<!-- ส่วนวันที่ด้านบน -->
-<table class="form-layout" style="width: 60%; margin: 0 auto 15px auto;">
+<!-- 1. ส่วนวันที่ด้านบน จัดวางกึ่งกลางค่อนขวา -->
+<table style="width: 70%; margin: 0 auto 15px auto; border-collapse: separate; border-spacing: 0;">
     <tr>
-        <td class="label" style="text-align: right; width: 15%;">วันที่</td>
-        <td class="line" style="text-align: center; width: 15%;">' . $req_d . '</td>
-        <td class="label" style="text-align: right; padding-left: 10px; width: 15%;">เดือน</td>
-        <td class="line" style="text-align: center; width: 35%;">' . $req_m . '</td>
-        <td class="label" style="text-align: right; padding-left: 10px; width: 10%;">พ.ศ.</td>
-        <td class="line" style="text-align: center; width: 10%;">' . $req_y . '</td>
+        <td style="width: 10%; text-align: right; font-weight: bold; vertical-align: bottom;">วันที่</td>
+        <td style="width: 15%; text-align: center; border-bottom: 1px dotted #000; vertical-align: bottom;">' . $req_d . '</td>
+        <td style="width: 15%; text-align: right; font-weight: bold; padding-left: 10px; vertical-align: bottom;">เดือน</td>
+        <td style="width: 30%; text-align: center; border-bottom: 1px dotted #000; vertical-align: bottom;">' . $req_m . '</td>
+        <td style="width: 10%; text-align: right; font-weight: bold; padding-left: 10px; vertical-align: bottom;">พ.ศ.</td>
+        <td style="width: 20%; text-align: center; border-bottom: 1px dotted #000; vertical-align: bottom;">' . $req_y . '</td>
     </tr>
 </table>
 
-<!-- ส่วนข้อมูลผู้เบิก -->
-<table class="form-layout">
+<!-- 2. ข้อความเรียน -->
+<table style="width: 100%; margin-bottom: 6px; border-collapse: separate; border-spacing: 0;">
     <tr>
-        <td colspan="2" style="padding-bottom: 10px;">
-            <span style="padding-left: 30px;"><b>เรียน</b> หัวหน้ากลุ่มส่งเสริมฝึกอบรมและเผยแพร่ประชาสัมพันธ์</span>
+        <td style="padding-left: 45px; vertical-align: bottom;">
+            <b>เรียน</b> หัวหน้ากลุ่มส่งเสริมฝึกอบรมและเผยแพร่ประชาสัมพันธ์
         </td>
     </tr>
+</table>
+
+<!-- 3. ผู้เบิก -->
+<table style="width: 100%; margin-bottom: 6px; border-collapse: separate; border-spacing: 0;">
     <tr>
-        <td class="label" style="width: 10%;">ผู้เบิก:</td>
-        <td class="line" style="width: 90%;">&nbsp;&nbsp;' . htmlspecialchars($request['full_name']) . '</td>
+        <td style="width: 55px; font-weight: bold; white-space: nowrap; vertical-align: bottom;">ผู้เบิก:</td>
+        <td style="border-bottom: 1px dotted #000; padding-left: 12px; vertical-align: bottom;">' . htmlspecialchars($request['full_name'] ?? '') . '</td>
     </tr>
 </table>
 
-<!-- ส่วนข้อมูลการใช้งาน -->
-<table class="form-layout">
+<!-- 4. ใช้ในวันที่ และ โทร -->
+<table style="width: 100%; margin-bottom: 6px; border-collapse: separate; border-spacing: 0;">
     <tr>
-        <td class="label" style="width: 15%;">ใช้ในวันที่</td>
-        <td class="line" style="width: 35%;">&nbsp;&nbsp;' . $use_date_thai . '</td>
-        <td class="label" style="width: 10%; text-align: center;">โทร</td>
-        <td class="line" style="width: 40%;">&nbsp;&nbsp;' . htmlspecialchars($request['phone_number'] ?? '-') . '</td>
+        <td style="width: 75px; font-weight: bold; white-space: nowrap; vertical-align: bottom;">ใช้ในวันที่</td>
+        <td style="width: 250px; border-bottom: 1px dotted #000; padding-left: 12px; vertical-align: bottom;">' . $use_date_thai . '</td>
+        <td style="width: 50px; font-weight: bold; text-align: center; white-space: nowrap; vertical-align: bottom;">โทร</td>
+        <td style="border-bottom: 1px dotted #000; padding-left: 12px; vertical-align: bottom;">' . htmlspecialchars($request['phone_number'] ?? '-') . '</td>
     </tr>
 </table>
 
-<table class="form-layout">
+<!-- 5. ประเภทของงาน -->
+<table style="width: 100%; margin-bottom: 6px; border-collapse: separate; border-spacing: 0;">
     <tr>
-        <td class="label" style="width: 20%;">ประเภทของงาน:</td>
-        <td class="line" style="width: 80%;">&nbsp;&nbsp;' . htmlspecialchars($request['event_type']) . '</td>
-    </tr>
-    <tr>
-        <td class="label" style="width: 35%;">ชื่องาน/โครงการ/ประชุม/สัมมนา:</td>
-        <td class="line" style="width: 65%;">&nbsp;&nbsp;' . htmlspecialchars($request['event_name']) . '</td>
-    </tr>
-    <tr>
-        <td class="label" style="width: 20%;">สถานที่นำไปใช้:</td>
-        <td class="line" style="width: 80%;">&nbsp;&nbsp;' . htmlspecialchars($request['location']) . '</td>
-    </tr>
-    <tr>
-        <td class="label" style="width: 30%;">วัตถุประสงค์เพื่อใช้ในงาน:</td>
-        <td class="line" style="width: 70%;">&nbsp;&nbsp;' . htmlspecialchars($request['purpose']) . '</td>
+        <td style="width: 105px; font-weight: bold; white-space: nowrap; vertical-align: bottom;">ประเภทของงาน:</td>
+        <td style="border-bottom: 1px dotted #000; padding-left: 12px; vertical-align: bottom;">' . htmlspecialchars($request['event_type'] ?? '') . '</td>
     </tr>
 </table>
 
-<!-- ส่วนตารางรายการสิ่งของ -->
-<table class="items">
+<!-- 6. ชื่องาน/โครงการ/ประชุม/สัมมนา -->
+<table style="width: 100%; margin-bottom: 6px; border-collapse: separate; border-spacing: 0;">
+    <tr>
+        <td style="width: 205px; font-weight: bold; white-space: nowrap; vertical-align: bottom;">ชื่องาน/โครงการ/ประชุม/สัมมนา:</td>
+        <td style="border-bottom: 1px dotted #000; padding-left: 12px; vertical-align: bottom;">' . htmlspecialchars($request['event_name'] ?? '') . '</td>
+    </tr>
+</table>
+
+<!-- 7. สถานที่นำไปใช้ -->
+<table style="width: 100%; margin-bottom: 6px; border-collapse: separate; border-spacing: 0;">
+    <tr>
+        <td style="width: 110px; font-weight: bold; white-space: nowrap; vertical-align: bottom;">สถานที่นำไปใช้:</td>
+        <td style="border-bottom: 1px dotted #000; padding-left: 12px; vertical-align: bottom;">' . htmlspecialchars($request['location'] ?? '') . '</td>
+    </tr>
+</table>
+
+<!-- 8. วัตถุประสงค์เพื่อใช้ในงาน -->
+<table style="width: 100%; margin-bottom: 12px; border-collapse: separate; border-spacing: 0;">
+    <tr>
+        <td style="width: 150px; font-weight: bold; white-space: nowrap; vertical-align: bottom;">วัตถุประสงค์เพื่อใช้ในงาน:</td>
+        <td style="border-bottom: 1px dotted #000; padding-left: 12px; vertical-align: bottom;">' . htmlspecialchars($request['purpose'] ?? '') . '</td>
+    </tr>
+</table>
+
+<!-- ตารางรายการหนังสือ/สิ่งของ -->
+<table class="items-table">
     <thead>
         <tr>
             <th>หนังสือทั้งหมด</th>
@@ -181,11 +213,6 @@ $html = '
         ' . $tableRows . '
     </tbody>
 </table>
-
-<!-- วันที่กำกับมุมล่างขวา -->
-<div style="text-align: right; margin-top: 30px;">
-    ' . date('d-m-Y', strtotime($request['request_date'])) . '
-</div>
 ';
 
 // 6. สั่งสร้าง PDF
