@@ -1,82 +1,70 @@
 // 🟢 สคริปต์ระบบตะกร้า (Cart Logic)
 let cart = {}; // ตัวแปรออบเจ็กต์สำหรับเก็บข้อมูลสินค้าในตะกร้า 
 
-// 1. ฟังก์ชันปุ่มเพิ่ม-ลดจำนวนสินค้า (ในหน้าเลือกสินค้าก่อนหยิบใส่ตะกร้า)
-// 🟢 [แก้ไข] ตัดการรับค่าและเช็ค maxStock ออกทั้งหมด ให้บวกเลขขึ้นได้เรื่อยๆ ไม่มีลิมิต
 function adjustInputQty(itemId, change) {
     let input = document.getElementById('input_qty_' + itemId);
     let currentVal = parseInt(input.value) || 1;
     let newVal = currentVal + change;
-
-    // ตรวจสอบไม่ให้จำนวนลดลงต่ำกว่า 1 
     if (newVal < 1) newVal = 1;
-    
-    // อัปเดตค่ากลับลงไปในช่องกรอก
     input.value = newVal;
 }
 
-// 2. ฟังก์ชันเพิ่มสินค้าลงตะกร้า
-// 🟢 [แก้ไข] ลบการส่งค่าและการเช็ค Alert สต๊อกเต็มออก อนุญาตให้กดใส่ตะกร้าได้ไม่จำกัดจำนวน
 function addToCart(id, name, category, img) {
-    // ดึงจำนวนที่ผู้ใช้ต้องการเพิ่มจากช่อง input ของสินค้านั้นๆ
     let qtyToAdd = parseInt(document.getElementById('input_qty_' + id).value) || 1;
 
-    // ตรวจสอบว่ามีสินค้านี้อยู่ในตะกร้าแล้วหรือไม่
     if (cart[id]) {
-        // 🟢 [แก้ไข] ถ้ามีอยู่แล้ว ให้บวกจำนวนเพิ่มเข้าไปเลย ไม่ต้องมีเงื่อนไขเช็คสต๊อก
         cart[id].qty += qtyToAdd;
     } else {
-        // 🟢 [แก้ไข] สร้างข้อมูลสินค้าใหม่ในตะกร้า โดยไม่จำเป็นต้องเก็บค่า maxStock อีกต่อไป
         cart[id] = { id: id, name: name, category: category, img: img, qty: qtyToAdd };
     }
 
-    // รีเซ็ตค่าช่อง input กลับเป็น 1 หลังจากหยิบใส่ตะกร้าสำเร็จ
     document.getElementById('input_qty_' + id).value = 1; 
-    
-    // สั่งให้วาดตะกร้าใหม่บนหน้าจอ
     renderCart();
 }
 
-// 3. ฟังก์ชันปุ่มเพิ่ม-ลดจำนวนสินค้า (ในหน้าตะกร้าสินค้า)
 function updateCartQty(id, change) {
     if (cart[id]) {
         let newVal = cart[id].qty + change;
-        
-        // ถ้ากดลดจนเหลือ 0 จะไม่ลดต่อ (ต้องกดปุ่มกากบาทเพื่อลบออกแทน)
         if (newVal < 1) return; 
-        
-        // 🟢 [แก้ไข] ลบเงื่อนไข if (newVal > cart[id].maxStock) ทิ้งไป เพื่อไม่ให้มันเด้งบล็อกผู้ใช้
         cart[id].qty = newVal;
-        
-        // วาดตะกร้าใหม่
         renderCart();
     }
 }
 
-// 4. ฟังก์ชันลบสินค้าออกจากตะกร้า
-// 🟢 [คงเดิม] ใช้สำหรับลบของที่ไม่ต้องการออกจากตะกร้า
+// 🟢 ฟังก์ชันใหม่: รับค่าจำนวนที่ผู้ใช้พิมพ์กรอกเองในตะกร้า
+function manualUpdateCartQty(id, newValue) {
+    if (cart[id]) {
+        let parsedValue = parseInt(newValue, 10);
+        
+        // ตรวจสอบว่าค่าที่พิมพ์มาถูกต้องไหม ถ้ากรอกตัวอักษรหรือติดลบ ให้บังคับเป็น 1
+        if (isNaN(parsedValue) || parsedValue < 1) {
+            parsedValue = 1;
+        }
+
+        // อัปเดตค่าลงในตะกร้า
+        cart[id].qty = parsedValue;
+        
+        // วาดตะกร้าใหม่เพื่ออัปเดต Hidden Input ให้พร้อมส่ง
+        renderCart();
+    }
+}
+
 function removeFromCart(id) {
-    // ลบข้อมูลสินค้ารหัสนี้ออกจากออบเจ็กต์ cart
     delete cart[id];
-    // วาดตะกร้าใหม่
     renderCart();
 }
 
-// 5. ฟังก์ชันวาด (Render) ตะกร้าสินค้าแสดงบนหน้าจอ
 function renderCart() {
     let tbody = document.getElementById('cartBody');
     let hiddenContainer = document.getElementById('hiddenCartInputs');
     let countBadge = document.getElementById('cartTotalCount');
 
-    // เคลียร์ข้อมูลเก่าทิ้งก่อนวาดใหม่
     tbody.innerHTML = '';
     hiddenContainer.innerHTML = '';
 
-    // นับจำนวนรายการสินค้าทั้งหมดในตะกร้า (ไม่นับจำนวนชิ้นรวม)
     let totalItems = Object.keys(cart).length;
-    countBadge.innerText = totalItems + ' รายการ';
+    if (countBadge) countBadge.innerText = totalItems + ' รายการ';
 
-    // ถ้าไม่มีสินค้าในตะกร้า ให้แสดงข้อความว่างเปล่า
     if (totalItems === 0) {
         tbody.innerHTML = `
             <tr id="emptyCartRow">
@@ -90,9 +78,7 @@ function renderCart() {
         return;
     }
 
-    // นำข้อมูลในตะกร้ามาวนลูปเพื่อสร้างตารางแสดงผล
     Object.values(cart).forEach(item => {
-        // 🟢 [คงเดิม] สร้าง HTML แถวตารางแสดงรายการสินค้าในตะกร้า
         tbody.innerHTML += `
             <tr class="bg-white border-bottom">
                 <td style="width: 80px;" class="ps-4">
@@ -104,16 +90,17 @@ function renderCart() {
                 </td>
                 <td style="width: 150px;">
                     <div class="input-group input-group-sm">
-                        <!-- เรียกฟังก์ชัน updateCartQty เพื่อลดจำนวน -->
                         <button class="btn btn-outline-secondary" type="button" onclick="updateCartQty('${item.id}', -1)">-</button>
-                        <!-- แสดงจำนวนสินค้า -->
-                        <input type="text" class="form-control text-center fw-bold bg-light" value="${item.qty}" readonly>
-                        <!-- เรียกฟังก์ชัน updateCartQty เพื่อเพิ่มจำนวน -->
+                        
+                        <!-- 🟢 แก้ไขตรงนี้: เปลี่ยนเป็น type="number" เอา readonly ออก และเพิ่ม onchange -->
+                        <input type="number" class="form-control text-center fw-bold bg-light" 
+                               value="${item.qty}" min="1" 
+                               onchange="manualUpdateCartQty('${item.id}', this.value)">
+                        
                         <button class="btn btn-outline-secondary" type="button" onclick="updateCartQty('${item.id}', 1)">+</button>
                     </div>
                 </td>
                 <td style="width: 80px;" class="text-center pe-4">
-                    <!-- เรียกฟังก์ชัน removeFromCart เพื่อลบสินค้า -->
                     <button type="button" class="btn btn-outline-danger btn-sm rounded-3" onclick="removeFromCart('${item.id}')">
                         <i class="bi bi-x-lg"></i>
                     </button>
@@ -121,7 +108,7 @@ function renderCart() {
             </tr>
         `;
 
-     // 🟢 แก้ชื่อ Input ให้ตรงกับที่ PHP (request_update.php) ต้องการ
+        // Input สำหรับส่งค่าไปบันทึก (PHP จะได้รับจำนวนที่อัปเดตล่าสุดเสมอ)
         hiddenContainer.innerHTML += `
             <input type="hidden" name="item_id[]" value="${item.id}">
             <input type="hidden" name="qty[]" value="${item.qty}">
@@ -129,21 +116,17 @@ function renderCart() {
     });
 }
 
-// 6. ฟังก์ชันตรวจสอบก่อนกดบันทึกคำขอ (Submit Form)
 function submitRequest() {
-    // เช็คว่าตะกร้าว่างเปล่าไหม
     if (Object.keys(cart).length === 0) {
         alert('กรุณาเลือกสิ่งของอย่างน้อย 1 รายการ');
         return;
     }
 
-    // เช็คว่ากรอกข้อมูลในฟอร์ม (ชื่องาน, วันที่ ฯลฯ) ครบถ้วนและถูกต้องตามเงื่อนไข (Required) หรือไม่
     const form = document.getElementById('requestForm');
     if (!form.checkValidity()) {
-        form.reportValidity(); // แสดงคำเตือนของ Browser ให้กรอกข้อมูลให้ครบ
+        form.reportValidity(); 
         return;
     }
 
-    // ส่งฟอร์มไปยัง backend
     form.submit();
 }

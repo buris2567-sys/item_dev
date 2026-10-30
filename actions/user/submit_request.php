@@ -19,11 +19,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $purpose    = trim($_POST['purpose'] ?? '');
     $user_note  = trim($_POST['user_note'] ?? '');
     
-    $items      = $_POST['items'] ?? []; // Array ตะกร้า [ '1' => '5', '3' => '10' ]
+    // 🟢 1. รับข้อมูลตะกร้าแบบใหม่ที่ส่งมาจาก JS
+    $item_ids = $_POST['item_id'] ?? [];
+    $qtys = $_POST['qty'] ?? [];
 
-    // ตรวจสอบข้อมูลเบื้องต้น
-    if (empty($use_date) || empty($event_name) || empty($items)) {
-        $_SESSION['error'] = 'กรุณากรอกข้อมูลและเลือกรายการพัสดุให้ครบถ้วน';
+    // เช็คว่าตะกร้าว่างไหม
+    if (empty($item_ids)) {
+        $_SESSION['error'] = "ไม่มีรายการสิ่งของในตะกร้า";
         header("Location: ../../index.php?page=create_request");
         exit;
     }
@@ -35,50 +37,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $yearMonth = date('ym'); 
         $prefix = "REQ-{$yearMonth}-";
         
-        // 🟢 [แก้ไข] ค้นหาเลขล่าสุดจากคอลัมน์ request_no แทน
+        // ค้นหาเลขล่าสุดจากคอลัมน์ request_no แทน
         $stmtId = $pdo->prepare("SELECT request_no FROM requests WHERE request_no LIKE ? ORDER BY request_no DESC LIMIT 1");
         $stmtId->execute([$prefix . '%']);
         $lastNo = $stmtId->fetchColumn();
 
         if ($lastNo) {
             $lastNumber = (int)substr($lastNo, -4);
-            $newNumber = str_pad($lastNumber + 4, 4, '0', STR_PAD_LEFT);
+            // 🟢 ปรับให้รัน +1 ตามลำดับปกติ
+            $newNumber = str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
         } else {
             $newNumber = '0001';
         }
         $request_no = $prefix . $newNumber; // ได้เป็น REQ-2609-0001
 
-        // 2. 🟢 [แก้ไข] บันทึกข้อมูลลงตาราง requests โดยใช้ request_no (ส่วน request_id จะสร้างเลข INT ให้เอง)
+        // 2. บันทึกข้อมูลลงตาราง requests โดยใช้ request_no
         $stmtReq = $pdo->prepare("
             INSERT INTO requests (request_no, user_id, use_date, event_type, event_name, location, purpose, user_note, status) 
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'รออนุมัติ')
         ");
         $stmtReq->execute([$request_no, $user_id, $use_date, $event_type, $event_name, $location, $purpose, $user_note]);
 
-        // 🟢 [แก้ไข] ดึง request_id (INT) ที่เพิ่งสร้างเสร็จหมาดๆ ออกมาใช้งาน
+        // ดึง request_id (INT) ที่เพิ่งสร้างเสร็จหมาดๆ ออกมาใช้งาน
         $new_request_id = $pdo->lastInsertId();
 
-        // 3. บันทึกข้อมูลตะกร้าลงตาราง request_items
-        $stmtItem = $pdo->prepare("
-            INSERT INTO request_items (request_id, item_id, requested_qty) 
-            VALUES (?, ?, ?)
-        ");
-
-        foreach ($items as $item_id => $qty) {
-            $qty = (int)$qty;
-            if ($qty > 0) {
-                // 🟢 [แก้ไข] เปลี่ยนการค้นหา Primary Key ของ items จาก item_id เป็น id
-                $getItem = $pdo->prepare("
-                    SELECT id 
-                    FROM items 
-                    WHERE id = ? AND is_active = 1
-                ");
-                $getItem->execute([$item_id]);
-                
-                if ($getItem->fetch()) {
-                    // ใช้ $new_request_id ที่เป็นตัวเลขผูกข้อมูล
-                    $stmtItem->execute([$new_request_id, $item_id, $qty]);
-                }
+        // 3. 🟢 วนลูปบันทึกรายการสิ่งของจากตะกร้าใหม่ลงตาราง request_items
+        $stmtInsert = $pdo->prepare("INSERT INTO request_items (request_id, item_id, requested_qty) VALUES (?, ?, ?)");
+        
+        for ($i = 0; $i < count($item_ids); $i++) {
+            $i_id = $item_ids[$i];
+            $i_qty = $qtys[$i];
+            
+            // เช็คว่ามี ID จริงและจำนวนมากกว่า 0
+            if (!empty($i_id) && $i_qty > 0) {
+                // ผูกรหัสคำร้อง $new_request_id เข้ากับสิ่งของ
+                $stmtInsert->execute([$new_request_id, $i_id, $i_qty]);
             }
         }
         
@@ -91,5 +84,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $pdo->rollBack();
         die("<div style='color:red; padding: 20px; font-size: 20px;'><b>Database Error:</b> " . $e->getMessage() . "<br><br><a href='../../index.php?page=create_request'>กลับไปหน้าสร้างคำขอ</a></div>");
     }
+} else {
+    header("Location: ../../index.php?page=create_request");
+    exit;
 }
 ?>
