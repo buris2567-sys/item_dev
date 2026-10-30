@@ -31,7 +31,9 @@
                     <div id="view_item_desc" class="p-3 bg-light border border-secondary border-opacity-25 rounded text-dark" style="white-space: pre-wrap; min-height: 80px;">-</div>
                 </div>
 
-                <div class="d-flex justify-content-between align-items-center p-3 bg-white border border-secondary rounded shadow-sm">
+               
+                <!-- 🟢 ส่วนแสดงข้อมูลสต๊อก (ใช้ d-none ซ่อนถ้าไม่ใช่แอดมิน เพื่อป้องกัน JS เออเร่อ) -->
+                <div class="<?= (isset($_SESSION['role']) && strtolower($_SESSION['role']) === 'admin') ? 'd-flex' : 'd-none' ?> justify-content-between align-items-center p-3 bg-white border border-secondary rounded shadow-sm">
                     <span class="fw-bold text-muted">จำนวนปัจจุบันในคลัง:</span>
                     <span class="fs-3 fw-bold text-dark" id="view_item_stock">0</span>
                 </div>

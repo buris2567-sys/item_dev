@@ -105,7 +105,7 @@ $requests = $stmt->fetchAll();
 
                                     <!-- 🟢 ปุ่มแก้ไข (แสดงเฉพาะสถานะ "รออนุมัติ") -->
                                     <?php if ($req['status'] === 'รออนุมัติ'): ?>
-                                        <a href="edit_request.php?id=<?= $req['request_id'] ?>" class="btn btn-sm btn-light text-warning border rounded-circle shadow-sm" style="width: 32px; height: 32px;" title="แก้ไขคำร้อง">
+                                        <a href="index.php?page=create_request&id=<?= $req['request_id'] ?>" class="btn btn-sm btn-light text-warning border rounded-circle shadow-sm" style="width: 32px; height: 32px;" title="แก้ไขคำร้อง">
                                             <i class="bi bi-pencil"></i>
                                         </a>
                                     <?php endif; ?>
@@ -117,7 +117,7 @@ $requests = $stmt->fetchAll();
                                     <?php endif; ?>
                                 </div>
                             </td>
-                            </td>
+                            
                         </tr>
                     <?php endforeach; ?>
                 <?php endif; ?>

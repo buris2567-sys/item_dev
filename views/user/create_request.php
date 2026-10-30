@@ -198,7 +198,9 @@ $items = $pdo->query("
                                         style="aspect-ratio: 4/3; max-height: 120px; cursor: pointer; transition: 0.2s;"
                                         onmouseover="this.style.opacity='0.8'"
                                         onmouseout="this.style.opacity='1'"
-                                        onclick="openGalleryModal('<?= $imgJson ?>', '<?= htmlspecialchars($item['name'], ENT_QUOTES) ?>')"
+                                        data-id="<?= $item['id'] ?>" data-name="<?= htmlspecialchars($item['name']) ?>"
+                                        data-desc="<?= htmlspecialchars($item['description']) ?>" data-stock="<?= $item['current_stock'] ?>"
+                                        data-images="<?= $imgJson ?>" onclick="openViewModal(this)"
                                         title="คลิกเพื่อขยายรูปภาพ">
                                     <span class="position-absolute bottom-0 end-0 bg-dark text-white rounded-start-pill small px-2 py-1 opacity-75" style="font-size: 0.65rem; pointer-events: none;"><i class="bi bi-arrows-angle-expand"></i></span>
                                 </div>
@@ -260,30 +262,7 @@ $items = $pdo->query("
 
 </form>
 
-<!-- Modal Gallery รูปภาพ -->
-<div class="modal fade" id="imageGalleryModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content border-0 rounded-4 shadow-lg bg-light">
-            <div class="modal-header border-bottom-0 px-4 py-3">
-                <h5 class="modal-title fw-bold text-dark" id="galleryTitle">รายละเอียดภาพ</h5>
-                <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body p-0 text-center bg-dark position-relative overflow-hidden" style="border-radius: 0 0 1rem 1rem;">
-                <div id="itemCarousel" class="carousel slide" data-bs-ride="false">
-                    <div class="carousel-inner" id="carouselImagesContainer"></div>
-                    <button class="carousel-control-prev" type="button" data-bs-target="#itemCarousel" data-bs-slide="prev">
-                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                        <span class="visually-hidden">Previous</span>
-                    </button>
-                    <button class="carousel-control-next" type="button" data-bs-target="#itemCarousel" data-bs-slide="next">
-                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                        <span class="visually-hidden">Next</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+
 
 <!-- เรียกใช้ไฟล์ระบบตะกร้า -->
 <script src="assets/js/cart_system.js"></script>
@@ -293,10 +272,10 @@ $items = $pdo->query("
     document.addEventListener("DOMContentLoaded", function() {
         <?php if ($is_edit_mode && $request_items_json != '[]'): ?>
             let oldCartItems = <?= $request_items_json ?>;
-            
+
             if (typeof cart !== 'undefined') {
                 // 1. 🟢 กำหนดให้เป็น Object {} เพื่อให้ตรงกับ cart_system.js
-                cart = {}; 
+                cart = {};
 
                 // 2. วนลูปยัดของใส่ Object โดยใช้ id เป็นคีย์หลัก
                 oldCartItems.forEach(item => {
@@ -309,7 +288,7 @@ $items = $pdo->query("
                         qty: parseInt(item.qty, 10)
                     };
                 });
-                
+
                 // 3. สั่งวาด UI ตะกร้า
                 if (typeof renderCart === 'function') renderCart();
             }
@@ -408,27 +387,6 @@ $items = $pdo->query("
             block: 'start'
         });
     }
-
-    function openGalleryModal(imgJsonStr, itemName) {
-        document.getElementById('galleryTitle').innerText = itemName;
-        let images = [];
-        try {
-            images = JSON.parse(imgJsonStr);
-        } catch (e) {}
-
-        const container = document.getElementById('carouselImagesContainer');
-        container.innerHTML = '';
-
-        if (images.length === 0) {
-            container.innerHTML = `<div class="carousel-item active"><img src="assets/images/placeholder.jpg" class="d-block mx-auto img-fluid p-2" style="max-height: 60vh; object-fit: contain;"></div>`;
-        } else {
-            images.forEach((img, idx) => {
-                const activeClass = idx === 0 ? 'active' : '';
-                container.innerHTML += `<div class="carousel-item ${activeClass}"><img src="assets/uploads/items/${img}" class="d-block mx-auto img-fluid p-2" style="max-height: 60vh; object-fit: contain;"></div>`;
-            });
-        }
-
-        var myModal = new bootstrap.Modal(document.getElementById('imageGalleryModal'));
-        myModal.show();
-    }
 </script>
+
+<?php include 'components/modals/view_item_modal.php'; ?>
