@@ -214,7 +214,7 @@ if ($statusText === 'รออนุมัติ' || $statusText === 'Pending') 
 
         <?php if ($isPending): ?>
             <!-- สถานะรออนุมัติ: แสดงปุ่มบันทึก -->
-            <button type="submit" name="action" value="approve" class="btn btn-warning fw-bolder px-5 py-2 shadow rounded-pill">
+            <button type="submit" name="action" value="approve" class="btn btn-warning fw-bolder px-3 py-2 shadow rounded-pill">
                 <i class="bi bi-save me-2"></i>บันทึกผลพิจารณา
             </button>
         <?php else: ?>

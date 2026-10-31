@@ -55,7 +55,7 @@ $requests = $pdo->query("
                     <?php foreach ($requests as $index => $req):
                         // 🟢 [คงเดิม] โลจิกเช็คสถานะ แต่อัปเดตคลาสให้เป็นป้ายแบบขอบมน (rounded-pill) เข้ากับ Theme
                         $status = $req['status'];
-                        $badgeClass = 'rounded-pill px-4 py-2 fw-bold shadow-sm ';
+                        $badgeClass = 'rounded-pill px-3 py-2 fw-bold shadow-sm ';
 
                         if ($status === 'รออนุมัติ' || $status === 'Pending') {
                             $badgeClass .= 'bg-warning text-dark';
@@ -82,8 +82,8 @@ $requests = $pdo->query("
                             <td class="text-muted"><?= $req['approved_at'] ? date('d/m/Y', strtotime($req['approved_at'])) : '-' ?></td>
                             <td>
                                 <!-- 🟢 [ปรับปรุง] แสดงป้ายสถานะ -->
-                                <span class="badge fs-6 fw-bold px-4 py-2 <?= $badgeClass ?>" style="min-width: 120px;">
-                                    <i class="bi bi-circle-fill small me-1" style="font-size: 0.55rem;"></i> <?= htmlspecialchars($status) ?>
+                                <span class="badge fs-6 fw-bold px-1 py-2 <?= $badgeClass ?>">
+                                     <?= htmlspecialchars($status) ?>
                                 </span>
                             </td>
                             <td>

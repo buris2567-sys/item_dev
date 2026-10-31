@@ -7,12 +7,33 @@ $stmt->execute([':user_id' => $_SESSION['user_id']]);
 $currentUser = $stmt->fetch();
 ?>
 
-<!-- 🟢 [ปรับปรุง] หัวข้อหน้า (Theme ใหม่ ตัดแถบเหลืองเต็มจอออก) -->
-<div class="d-flex justify-content-between align-items-center mb-4 pb-2" style="border-bottom: 2px solid #e9ecef;">
+<!-- ส่วนหัวของหน้า -->
+<div class="d-flex justify-content-between align-items-start mb-4">
     <div>
-        <h3 class="fw-bolder mb-1 text-dark "><i class="bi bi-house text-warning me-2"></i>หน้าหลักผู้ดูแลระบบ</h3> 
-          <!-- <h3 class="fw-bolder mb-1 text-dark"><i class="bi bi-boxes text-warning me-2"></i>จัดการสิ่งของ</h3> -->
+        <h3 class="fw-bolder mb-1 text-dark">
+            <i class="bi bi-house-door text-warning me-2"></i>หน้าหลักผู้ดูแลระบบ
+        </h3>
         <span class="text-muted small">ระบบสิ่งพิมพ์และของที่ระลึก</span>
+    </div>
+
+    <!-- 🟢 โค้ดกระดิ่งแจ้งเตือน เอามาวางตรงนี้ครับ -->
+    <div class="dropdown">
+        <button class="btn btn-white bg-white border-0 position-relative shadow-sm rounded-circle p-2" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="width: 45px; height: 45px;">
+            <i class="bi bi-bell-fill fs-5 text-secondary"></i>
+            <span id="nav-noti-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none" style="font-size: 0.65rem;">
+                0
+            </span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end shadow border-0" id="nav-noti-list" style="width: 300px; border-radius: 12px;">
+            <li>
+                <h6 class="dropdown-header fw-bold text-dark">การแจ้งเตือนใหม่</h6>
+            </li>
+            <!-- รายการจะถูกแทรกตรงนี้ -->
+            <li>
+                <hr class="dropdown-divider">
+            </li>
+            <li><a class="dropdown-item text-center small fw-bold text-primary py-2" href="index.php?page=approve_requests">ดูคำขอทั้งหมด</a></li>
+        </ul>
     </div>
 </div>
 
@@ -42,7 +63,7 @@ $currentUser = $stmt->fetch();
 
 <!-- 🟢 [ปรับปรุง] กล่องครอบเมนูหลัก (Wrapper Container)  -->
 <div class="card border-0 shadow-sm rounded-4 bg-white p-4 p-xl-5 mb-5 border-warning border-top border-4">
-<!-- <div class="card border-0 rounded-4 shadow-sm mb-5 border-warning border-top border-4 bg-white"> -->
+    <!-- <div class="card border-0 rounded-4 shadow-sm mb-5 border-warning border-top border-4 bg-white"> -->
     <div class="d-flex align-items-center mb-4">
         <i class="bi bi-grid-3x3-gap-fill fs-5 text-primary me-2"></i>
         <h5 class="fw-bold mb-0 text-dark">เมนูการจัดการระบบ</h5>
@@ -55,6 +76,7 @@ $currentUser = $stmt->fetch();
         <div class="col-sm-6 col-lg-4">
             <a href="#" class="text-decoration-none">
                 <div class="card border border-light rounded-4 h-100 text-center p-4 hover-shadow transition-all bg-white shadow-sm">
+                    <span class="badge bg-success position-absolute top-0 end-0 mt-3 me-3 rounded-pill px-3 shadow-sm">รายงาน</span>
                     <div class="d-flex justify-content-center mb-3">
                         <div class="bg-primary bg-opacity-10 rounded-circle d-flex justify-content-center align-items-center" style="width: 70px; height: 70px;">
                             <i class="bi bi-person-lines-fill fs-2 text-primary"></i>
@@ -70,12 +92,18 @@ $currentUser = $stmt->fetch();
         <div class="col-sm-6 col-lg-4">
             <a href="index.php?page=request_list" class="text-decoration-none">
                 <div class="card border border-light rounded-4 h-100 text-center p-4 hover-shadow transition-all bg-white shadow-sm">
+                    <!-- ป้ายตัวเลขแจ้งเตือน -->
+
+                    <span id="card-noti-badge" shadow-sm d-none class="badge bg-danger position-absolute top-0 end-0 mt-3 me-3 rounded-pill px-1     ">0</span>
+
+
+                    <!-- <span id="card-noti-badge" class="badge bg-danger shadow-sm d-none" style="font-size: 0.75rem;">0</span> -->
                     <div class="d-flex justify-content-center mb-3">
                         <div class="bg-warning bg-opacity-25 rounded-circle d-flex justify-content-center align-items-center" style="width: 70px; height: 70px;">
                             <i class="bi bi-ui-checks fs-2 text-warning"></i>
                         </div>
                     </div>
-                    <h6 class="fw-bolder text-dark mb-2">อนุมัติคำขอ</h6>
+                    <h6 class="fw-bolder text-dark mb-2">อนุมัติคำขอ </h6>
                     <p class="text-muted small mb-0" style="font-size: 0.85rem;">พิจารณาอนุมัติใบเบิกพัสดุ</p>
                 </div>
             </a>
@@ -130,7 +158,6 @@ $currentUser = $stmt->fetch();
         <div class="col-sm-6 col-lg-4">
             <a href="#" class="text-decoration-none">
                 <div class="card border border-light rounded-4 h-100 text-center p-4 hover-shadow transition-all position-relative bg-white shadow-sm">
-                    <span class="badge bg-success position-absolute top-0 end-0 mt-3 me-3 rounded-pill px-3 shadow-sm">รายงาน</span>
                     <div class="d-flex justify-content-center mb-3">
                         <div class="bg-danger bg-opacity-10 rounded-circle d-flex justify-content-center align-items-center" style="width: 70px; height: 70px;">
                             <i class="bi bi-file-earmark-text fs-2 text-danger"></i>
@@ -156,3 +183,5 @@ $currentUser = $stmt->fetch();
         box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .15) !important;
     }
 </style>
+
+<script src="assets/js/admin_notification.js"></script>
