@@ -1,5 +1,5 @@
 <!-- ไฟล์: includes/pagination.php -->
-<div class="d-flex justify-content-between align-items-center p-3 border-top pagination-wrapper bg-white">
+<div class="d-flex justify-content-between align-items-center p-3 border-top  bg-white">  
     <div class="d-flex align-items-center">
         <span class="small text-muted me-2">รายการต่อหน้า:</span>
         <!-- เปลี่ยนมาใช้คลาส items-per-page-select -->
@@ -113,3 +113,4 @@
         updateTable();
     });
 </script>
+

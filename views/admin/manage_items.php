@@ -74,23 +74,12 @@ $transactions = $pdo->query("
         </div>
     </div>
 
-    <div class="card-body p-0 table-responsive">
-        <!-- 🟢 [คงเดิม] CSS Counter สำหรับรันเลขลำดับอัตโนมัติ -->
-        <style>
-            table#itemsTable { counter-reset: rowNumber; }
-            table#itemsTable tbody tr.item-row:not([style*="display: none"]) { counter-increment: rowNumber; }
-            table#itemsTable tbody tr.item-row:not([style*="display: none"]) .row-number::before { content: counter(rowNumber); }
-        </style>
+    
         <?php include 'components/tables/manage_items_table.php'; ?>
         
-    </div>
+   
 
-    <!-- แถบแบ่งหน้า (Pagination) -->
-    <div class="card-footer bg-white border-0 py-3 px-4 rounded-bottom-4 d-flex justify-content-end">
-        <div id="mainItemsPagination" class="w-100">
-            <?php include 'includes/pagination.php'; ?>
-        </div>
-    </div>
+   
 </div>
 
 <!-- 📦 ส่วนที่ 2: นำเข้าตารางประวัติการเปลี่ยนแปลงล่าสุด (Component แยก) -->
@@ -107,28 +96,3 @@ $transactions = $pdo->query("
 <script src="assets/js/transactions.js"></script>
 <script src="assets/js/table_pagination.js"></script>
 
-<!-- 🟢 สคริปต์สั่งทำงาน Pagination สำหรับตารางรายการสิ่งของ -->
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const catFilter = document.getElementById('categoryFilter');
-        const searchBox = document.getElementById('searchInput');
-
-        if (typeof initTablePagination === 'function') {
-            initTablePagination({
-                rowSelector: '.item-row', 
-                wrapperSelector: '#mainItemsPagination', 
-                noDataSelector: '#noDataRow', 
-                triggerInputs: [catFilter, searchBox], 
-
-                filterLogic: function(row) {
-                    const search = searchBox.value.toLowerCase().trim();
-                    const cat = catFilter.value;
-                    const rowCat = row.getAttribute('data-category');
-                    const rowName = row.querySelector('td:first-child').textContent.toLowerCase();
-
-                    return (cat === 'all' || rowCat === cat) && rowName.includes(search);
-                }
-            });
-        }
-    });
-</script>

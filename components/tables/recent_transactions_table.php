@@ -120,7 +120,7 @@ $transactions = $pdo->query("
                                     <!-- 2. แสดงเลขที่ใบเบิก (จะโชว์เฉพาะเมื่อมีการอ้างอิงเอกสารเท่านั้น) -->
                                     <?php if (!empty($tx['request_no'])): ?>
                                         <div class="text-primary mt-1">
-                                            <i class="bi bi-file-earmark-text"></i> อ้างอิง: <?= htmlspecialchars($tx['request_no']) ?>
+                                            <i class="bi bi-file-earmark-text"></i> อ้างอิง: <a href="index.php?page=request_view&id=<?= $tx['request_id'] ?>"><?= htmlspecialchars($tx['request_no']) ?></a>
                                         </div>
                                     <?php endif; ?>
 
