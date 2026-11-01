@@ -10,8 +10,14 @@ $requests = $stmt->fetchAll();
 
 <?php
 $pageHeader = [
-    'icon'  => 'bi-clock-history',
-    'title' => 'รายการคำขอของฉัน',
+    'icon'   => 'bi-clock-history',
+    'title'  => 'รายการคำขอของฉัน',
+    'action' => [
+        'label'  => 'สร้างคำขอใหม่',
+        'icon'   => 'bi-plus-circle-fill',
+        'type'   => 'link',
+        'target' => 'index.php?page=create_request',
+    ],
 ];
 include 'components/ui/page_header.php';
 ?>
@@ -20,20 +26,10 @@ include 'components/ui/page_header.php';
 <div class="card border-0 rounded-4 shadow-sm mb-5 border-warning border-top border-4 bg-white">
 
 <?php
-// Extra slot: ปุ่มสร้างคำขอใหม่ฝั่งขวา
-ob_start(); ?>
-    <a href="index.php?page=create_request"
-       class="btn btn-warning rounded-pill fw-bold px-4 py-2 shadow-sm border-0 d-flex align-items-center gap-2 ms-auto"
-       style="flex-shrink: 0;">
-        <i class="bi bi-plus-circle-fill fs-5"></i> <span>สร้างคำขอใหม่</span>
-    </a>
-<?php $extraHtml = ob_get_clean();
-
 $cardHeader = [
     'icon'   => 'bi-clock-history',
     'title'  => 'ประวัติคำขอทั้งหมด',
     'search' => ['id' => 'searchRequestInput', 'placeholder' => 'ค้นหาเลขที่, สถานะ...'],
-    'extra'  => $extraHtml,
 ];
 include 'components/ui/card_header.php';
 ?>
