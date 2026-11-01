@@ -18,27 +18,41 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
         background-color: #ffc107 !important;
         border-color: #ffc107 !important;
     }
+
     /* สีสวิตช์ตอนปิด Bootstrap จะทำเป็นสีเทาให้อัตโนมัติ */
 </style>
 
-<div class="container-fluid p-4 bg-light" style="min-height: 100vh;">
-    <!-- ส่วนหัวและปุ่มเพิ่ม -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h4 class="fw-bold mb-0 text-dark">
-            <i class="bi bi-tags me-2 text-warning"></i>ประเภทสิ่งของทั้งหมด
-        </h4>
-        <button class="btn btn-warning fw-bold px-4 rounded-pill shadow-sm text-dark" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
-            <i class="bi bi-plus-lg me-1"></i> เพิ่ม
-        </button>
-    </div>
 
+<!-- Header Section -->
+<div class="d-flex justify-content-between   align-items-center mb-4 pb-2" style="border-bottom: 2px solid #e9ecef;">
+    <div>
+        <h3 class="fw-bolder mb-1 text-dark"><i class="bi bi-boxes text-warning me-2"></i>จัดการประเภทสิ่งของ</h3>
+        <span class="text-muted small">ระบบสิ่งพิมพ์และของที่ระลึก</span>
+    </div>
+    <!-- 🟢 [ปรับปรุง] ปุ่มเพิ่มข้อมูล เปลี่ยนเป็นขอบมน (rounded-pill) -->
+    <button class="btn btn-warning rounded-pill fw-bold px-4 py-2 shadow-sm border-0 d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
+        <i class="bi bi-plus-circle-fill fs-5"></i> <span>เพิ่มรายการใหม่</span>
+    </button>
+</div>
+
+
+<!-- 📦 ส่วนที่ 1: ตารางรายการสิ่งของทั้งหมด -->
+<!-- 🟢 [ปรับปรุง] การ์ดหุ้มตาราง เปลี่ยนเป็นขอบมน (rounded-4), ไร้ขอบดำ, มีขีดสีเหลืองด้านบน -->
+<div class="card border-0 rounded-4 shadow-sm  border-warning border-top border-0 bg-white">
     <!-- กล่อง Card -->
     <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
         <div class="bg-warning" style="height: 4px;"></div>
 
         <!-- แถบตัวกรองและช่องค้นหา -->
-        <div class="card-header bg-white border-bottom p-3 d-flex justify-content-between align-items-center flex-wrap gap-3">
-            <div class="d-flex gap-2">
+        <div class="card-header bg-white py-3 px-4 border-bottom d-flex  align-items-center flex-wrap gap-3 rounded-top-1 justify-content-between">
+            <div class="d-flex gap-2 align-items-center">
+                <h5 class="fw-bold mb-0 text-dark">
+                    <!-- 🟢 [ปรับปรุง] ไอคอนวงกลมหน้าหัวข้อ -->
+                    <div class="bg-warning bg-opacity-25 text-warning rounded-circle d-inline-flex justify-content-center align-items-center me-2" style="width: 35px; height: 35px;">
+                        <i class="bi bi-box-seam"></i>
+                    </div>
+                    รายการประเภทสิ่งของ
+                </h5>
                 <!-- ปุ่มทั้งหมด (สถานะกำลังเลือก) -->
                 <button type="button" class="btn btn-warning text-dark fw-bold px-3 py-1 rounded-pill filter-btn active" data-status="all">
                     ทั้งหมด <span class="badge text-dark ms-1 rounded-pill fs-6"><?= $countAll ?></span>
@@ -59,74 +73,107 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 </span>
                 <input type="text" id="searchInput" class="form-control border-start-0 rounded-end-pill ps-0" placeholder="ค้นหาชื่อประเภท...">
             </div>
-        </div>
 
-        <!-- ตารางข้อมูล -->
-        <div class="card-body p-0 table-responsive">
-            <table class="table table-hover align-middle mb-0 text-center border-white" id="categoryTable">
-                <thead class="bg-light text-muted small fw-normal">
-                    <tr>
-                        <th class="py-3 fw-semibold border-0">ลำดับ</th>
-                        <th class="py-3 text-start fw-semibold border-0">ชื่อประเภท</th>
-                        <th class="py-3 fw-semibold border-0">วันที่สร้าง</th>
-                        <th class="py-3 fw-semibold border-0">สถานะ</th>
-                        <th class="py-3 fw-semibold border-0">การจัดการ</th>
-                    </tr>
-                </thead>
-                <tbody class="border-top-0">
-                    <?php if (count($categories) > 0): ?>
-                        <?php $i = 1; foreach ($categories as $cat): ?>
-                            <tr class="category-row <?= $i % 2 == 0 ? 'bg-light bg-opacity-50' : '' ?>" data-status="<?= $cat['is_active'] ?>">
-                                <td class="text-muted fw-semibold py-3 row-number"><?= $i++ ?></td>
-                                <td class="text-start fw-bold text-dark py-3 category-name"><?= htmlspecialchars($cat['name']) ?></td>
-                                <td class="text-muted small py-3"><?= date('d M Y', strtotime($cat['created_at'])) ?></td>
-                                <td class="py-3">
-                                    <?php if ($cat['is_active'] == 1): ?>
-                                        <span class="badge bg-success text-white px-3 py-2 rounded-pill shadow-sm">
-                                            <i class="bi bi-circle-fill small me-1" style="font-size: 0.4rem;"></i> เปิดใช้งาน
-                                        </span>
-                                    <?php else: ?>
-                                        <span class="badge bg-secondary text-white px-3 py-2 rounded-pill shadow-sm">
-                                            <i class="bi bi-circle-fill small me-1" style="font-size: 0.4rem;"></i> ปิดใช้งาน
-                                        </span>
-                                    <?php endif; ?>
-                                </td>
-                                <td class="py-3">
-                                    <div class="d-flex justify-content-center align-items-center gap-2">
-                                        <div class="form-check form-switch m-0">
-                                            <!-- เอาคลาส bg-warning border-warning ออก เพื่อให้สลับสีเทาได้ -->
-                                            <input class="form-check-input toggle-category-btn"
-                                                type="checkbox" role="switch"
-                                                data-id="<?= $cat['category_id'] ?>"
-                                                <?= $cat['is_active'] == 1 ? 'checked' : '' ?>
-                                                style="width: 35px; height: 18px; cursor: pointer;">
-                                        </div>
-                                        <button type="button"
-                                            class="btn btn-sm btn-light text-primary border rounded-circle shadow-sm edit-category-btn"
-                                            data-id="<?= $cat['category_id'] ?>"
-                                            data-name="<?= htmlspecialchars($cat['name']) ?>"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#editCategoryModal"
-                                            style="width: 32px; height: 32px;">
-                                            <i class="bi bi-pencil"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <tr id="emptyRow">
-                            <td colspan="5" class="text-muted py-4">ยังไม่มีข้อมูลประเภทสิ่งของ</td>
-                        </tr>
-                    <?php endif; ?>
-                    <tr id="noMatchRow" style="display: none;">
-                        <td colspan="5" class="text-muted py-4">ไม่พบข้อมูลที่ค้นหา</td>
-                    </tr>
-                </tbody>
-            </table>
         </div>
     </div>
+
+    <!-- ตารางข้อมูล -->
+    <div class="card-body p-0 table-responsive">
+        <table class="table table-hover align-middle mb-0 text-center border-white" id="categoryTable">
+            <thead class="bg-light text-muted small fw-normal">
+                <tr>
+                    <th class="py-3 fw-semibold border-0">ลำดับ</th>
+                    <th class="py-3 text-start fw-semibold border-0">ชื่อประเภท</th>
+                    <th class="py-3 fw-semibold border-0">วันที่สร้าง</th>
+                    <th class="py-3 fw-semibold border-0">สถานะ</th>
+                    <th class="py-3 fw-semibold border-0">การจัดการ</th>
+                </tr>
+            </thead>
+            <tbody class="border-top-0">
+                <?php if (count($categories) > 0): ?>
+                    <?php $i = 1;
+                    foreach ($categories as $cat): ?>
+                        <tr class="category-row <?= $i % 2 == 0 ? 'bg-light bg-opacity-50' : '' ?>" data-status="<?= $cat['is_active'] ?>">
+                            <td class="text-muted fw-semibold py-3 row-number"><?= $i++ ?></td>
+                            <td class="text-start fw-bold text-dark py-3 category-name"><?= htmlspecialchars($cat['name']) ?></td>
+                            <td class="text-muted small py-3"><?= date('d M Y', strtotime($cat['created_at'])) ?></td>
+                            <td class="py-3">
+                                <?php if ($cat['is_active'] == 1): ?>
+                                    <span class="badge bg-success text-white px-3 py-2 rounded-pill shadow-sm">
+                                        <i class="bi bi-circle-fill small me-1" style="font-size: 0.4rem;"></i> เปิดใช้งาน
+                                    </span>
+                                <?php else: ?>
+                                    <span class="badge bg-secondary text-white px-3 py-2 rounded-pill shadow-sm">
+                                        <i class="bi bi-circle-fill small me-1" style="font-size: 0.4rem;"></i> ปิดใช้งาน
+                                    </span>
+                                <?php endif; ?>
+                            </td>
+                            <td class="py-3">
+                                <div class="d-flex justify-content-center align-items-center gap-2">
+                                    <div class="form-check form-switch m-0">
+                                        <!-- เอาคลาส bg-warning border-warning ออก เพื่อให้สลับสีเทาได้ -->
+                                        <input class="form-check-input toggle-category-btn"
+                                            type="checkbox" role="switch"
+                                            data-id="<?= $cat['category_id'] ?>"
+                                            <?= $cat['is_active'] == 1 ? 'checked' : '' ?>
+                                            style="width: 35px; height: 18px; cursor: pointer;">
+                                    </div>
+                                    <button type="button"
+                                        class="btn btn-sm btn-light text-primary border rounded-circle shadow-sm edit-category-btn"
+                                        data-id="<?= $cat['category_id'] ?>"
+                                        data-name="<?= htmlspecialchars($cat['name']) ?>"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#editCategoryModal"
+                                        style="width: 32px; height: 32px;">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <tr id="emptyRow">
+                        <td colspan="5" class="text-muted py-4">ยังไม่มีข้อมูลประเภทสิ่งของ</td>
+                    </tr>
+                <?php endif; ?>
+                <tr id="noMatchRow" style="display: none;">
+                    <td colspan="5" class="text-muted py-4">ไม่พบข้อมูลที่ค้นหา</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 </div>
+
+<!-- Pagination Wrapper -->
+<div class="card-footer bg-white border-0 py-3 px-4 rounded-bottom-4 d-flex justify-content-center align-items-center">
+    <div id="requestPaginationWrapper" class="w-100">
+        <?php include 'includes/pagination.php'; ?>
+    </div>
+</div>
+
+
+<script src="assets/js/table_pagination.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const searchBox = document.getElementById('searchRequestInput');
+
+        if (typeof initTablePagination === 'function') {
+            initTablePagination({
+                rowSelector: '.req-row',
+                wrapperSelector: '#requestPaginationWrapper',
+                noDataSelector: '#noDataSearchRow',
+                triggerInputs: [searchBox],
+                filterLogic: function(row) {
+                    const search = searchBox.value.toLowerCase().trim();
+                    const reqId = row.getAttribute('data-reqid') || '';
+                    const status = row.getAttribute('data-status') || '';
+                    return reqId.includes(search) || status.includes(search);
+                }
+            });
+        }
+    });
+</script>
+
 
 <!-- Modal Components -->
 <?php include 'components/modals/add_category_modal.php'; ?>
@@ -274,7 +321,7 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     document.querySelectorAll('.filter-btn').forEach(btn => {
         btn.addEventListener('click', function() {
-            
+
             // รีเซ็ตทุกปุ่มให้เป็นพื้นขาว ขอบเทา (สถานะยังไม่ถูกเลือก)
             document.querySelectorAll('.filter-btn').forEach(b => {
                 b.classList.remove('btn-warning', 'text-dark', 'btn-success', 'btn-danger', 'text-white', 'active');
@@ -284,7 +331,7 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
             // ใส่สีให้ปุ่มที่ถูกคลิก
             this.classList.remove('bg-white', 'border', 'text-secondary');
             this.classList.add('active');
-            
+
             currentStatusFilter = this.getAttribute('data-status');
 
             if (currentStatusFilter === 'all') {

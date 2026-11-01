@@ -22,11 +22,22 @@ $requests = $pdo->query("
     </div>
 </div>
 
+
 <!-- 🟢 [ปรับปรุง] Card ตารางรายการคำขอ เปลี่ยนเป็นขอบมน (rounded-4), ไร้ขอบดำ (border-0), มีเงา (shadow-sm) และขอบบนสีเหลือง -->
 <div class="card border-0 rounded-4 shadow-sm mb-5 border-warning border-top border-4 bg-white">
-    <div class="card-header bg-white py-3 px-4 border-bottom d-flex align-items-center rounded-top-4">
+    <div class="card-header bg-white py-3 px-4 border-bottom d-flex align-items-center rounded-top-4 justify-content-between">
         <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-list-task me-2 text-warning"></i>คำขอทั้งหมด</h5>
+
+
+        <!-- ช่องค้นหา -->
+        <div class="input-group shadow-sm" style="width: 250px;">
+            <span class="input-group-text bg-white border-0 rounded-start-pill text-muted"><i class="bi bi-search"></i></span>
+            <input type="text" id="searchRequestInput" class="form-control border-0 rounded-end-pill shadow-none" placeholder="ค้นหาเลขที่, สถานะ...">
+        </div>
+
+        
     </div>
+
 
     <div class="card-body p-0 table-responsive">
         <table class="table table-hover align-middle text-center mb-0">
@@ -70,7 +81,10 @@ $requests = $pdo->query("
                             $badgeClass .= 'bg-secondary text-white';
                         }
                     ?>
-                        <tr style="border-bottom: 1px solid #f8f9fa;">
+                        <tr class="req-row"
+                            data-reqid="<?= htmlspecialchars(strtolower($req['request_id'])) ?>"
+                            data-status="<?= htmlspecialchars(strtolower($status)) ?>"
+                            style="border-bottom: 1px solid #f8f9fa;">
                             <td class="fw-bold text-muted py-3"><?= $index + 1 ?></td>
                             <td class="fw-bold">
                                 <span class="px-2 py-1 bg-light rounded-3 border text-dark">
@@ -83,7 +97,7 @@ $requests = $pdo->query("
                             <td>
                                 <!-- 🟢 [ปรับปรุง] แสดงป้ายสถานะ -->
                                 <span class="badge fs-6 fw-bold px-1 py-2 <?= $badgeClass ?>">
-                                     <?= htmlspecialchars($status) ?>
+                                    <?= htmlspecialchars($status) ?>
                                 </span>
                             </td>
                             <td>
@@ -96,19 +110,55 @@ $requests = $pdo->query("
                                         <a href="actions/export_pdf.php?id=<?= $req['request_id'] ?>" class="btn btn-sm btn-light rounded-circle shadow-sm text-dark d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;" title="พิมพ์เอกสาร">
                                             <i class="bi bi-printer"></i>
                                         </a>
-                                        
+
                                     <?php endif; ?>
                                 </div>
                             </td>
                         </tr>
                     <?php endforeach; ?>
+                    <tr id="noDataSearchRow" style="display: none;">
+                        <td colspan="7" class="text-center py-5 text-muted border-0">
+                            <h6 class="fw-bold mb-0">ไม่พบรายการที่ค้นหา</h6>
+                        </td>
+                    </tr>
                 <?php endif; ?>
             </tbody>
         </table>
     </div>
 
     <!-- 🟢 [ปรับปรุง] Footer ของ Card -->
-    <div class="card-footer bg-white border-0 py-3 px-4 text-muted small fw-bold rounded-bottom-4 d-flex justify-content-end">
+    <!-- <div class="card-footer bg-white border-0 py-3 px-4 text-muted small fw-bold rounded-bottom-4 d-flex justify-content-end">
         แสดง 1-<?= count($requests) ?> จาก <?= count($requests) ?> รายการ
     </div>
+</div> -->
+
+    <!-- Pagination Wrapper -->
+    <div class="card-footer bg-white border-0 py-3 px-4 rounded-bottom-4 d-flex justify-content-center align-items-center">
+        <div id="requestPaginationWrapper" class="w-100">
+            <?php include 'includes/pagination.php'; ?>
+        </div>
+    </div>
 </div>
+
+<script src="assets/js/table_pagination.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const searchBox = document.getElementById('searchRequestInput');
+
+        if (typeof initTablePagination === 'function') {
+            initTablePagination({
+                rowSelector: '.req-row',
+                wrapperSelector: '#requestPaginationWrapper',
+                noDataSelector: '#noDataSearchRow',
+                triggerInputs: searchBox ? [searchBox] : [],
+                filterLogic: function(row) {
+                    if (!searchBox) return true; // ถ้าไม่มีช่องค้นหา ให้แสดงทั้งหมดตามแบ่งหน้า
+                    const search = searchBox.value.toLowerCase().trim();
+                    const reqId = row.getAttribute('data-reqid') || '';
+                    const status = row.getAttribute('data-status') || '';
+                    return reqId.includes(search) || status.includes(search);
+                }
+            });
+        }
+    });
+</script>

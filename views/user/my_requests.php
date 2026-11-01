@@ -133,7 +133,7 @@ $requests = $stmt->fetchAll();
 
     <!-- Pagination Wrapper -->
     <div class="card-footer bg-white border-0 py-3 px-4 rounded-bottom-4 d-flex justify-content-center align-items-center">
-        <div id="requestPaginationWrapper">
+        <div id="requestPaginationWrapper" class="w-100">
             <?php include 'includes/pagination.php'; ?>
         </div>
     </div>
