@@ -1,9 +1,9 @@
 <?php
-// 🟢 [คงเดิม] ป้องกันการเข้าไฟล์โดยตรง และตรวจสอบสิทธิ์ Admin
+// ป้องกันการเข้าไฟล์โดยตรง และตรวจสอบสิทธิ์ Admin
 if (!defined('APP_RUNNING')) exit('Forbidden');
 if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'Admin') exit('Unauthorized');
 
-// 🟢 [คงเดิม] ดึงข้อมูลคำขอทั้งหมดจากฐานข้อมูล
+// ดึงข้อมูลคำขอทั้งหมดจากฐานข้อมูล
 $requests = $pdo->query("
     SELECT r.request_id, u.username as requester_name, r.request_date, r.approved_at, r.status 
     FROM requests r
@@ -12,32 +12,25 @@ $requests = $pdo->query("
 ")->fetchAll();
 ?>
 
-<!-- 🟢 [ปรับปรุง] เริ่มต้นเนื้อหาเลย ตัด div หุ้ม Layout (container, row, col) และ include sidebar ทิ้งไป เพราะ index.php จัดการให้แล้ว -->
+<?php
+$pageHeader = [
+    'icon'  => 'bi-list-task',
+    'title' => 'รายการคำขอ',
+];
+include 'components/ui/page_header.php';
+?>
 
-<!-- หัวข้อ และ ส่วนค้นหา/กรองข้อมูล -->
-<div class="d-flex justify-content-between align-items-center mb-4 pb-2" style="border-bottom: 2px solid #e9ecef;">
-    <div>
-        <h3 class="fw-bolder mb-1 text-dark"><i class="bi bi-boxes text-warning me-2"></i>รายการคำขอ</h3>
-        <span class="text-muted small">ระบบสิ่งพิมพ์และของที่ระลึก</span>
-    </div>
-</div>
-
-
-<!-- 🟢 [ปรับปรุง] Card ตารางรายการคำขอ เปลี่ยนเป็นขอบมน (rounded-4), ไร้ขอบดำ (border-0), มีเงา (shadow-sm) และขอบบนสีเหลือง -->
+<!-- Card ตารางรายการคำขอ -->
 <div class="card border-0 rounded-4 shadow-sm mb-5 border-warning border-top border-4 bg-white">
-    <div class="card-header bg-white py-3 px-4 border-bottom d-flex align-items-center rounded-top-4 justify-content-between">
-        <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-list-task me-2 text-warning"></i>คำขอทั้งหมด</h5>
 
-
-        <!-- ช่องค้นหา -->
-        <div class="input-group shadow-sm" style="width: 250px;">
-            <span class="input-group-text bg-white border-0 rounded-start-pill text-muted"><i class="bi bi-search"></i></span>
-            <input type="text" id="searchRequestInput" class="form-control border-0 rounded-end-pill shadow-none" placeholder="ค้นหาเลขที่, สถานะ...">
-        </div>
-
-        
-    </div>
-
+<?php
+$cardHeader = [
+    'icon'   => 'bi-list-task',
+    'title'  => 'คำขอทั้งหมด',
+    'search' => ['id' => 'searchRequestInput', 'placeholder' => 'ค้นหาเลขที่, สถานะ...'],
+];
+include 'components/ui/card_header.php';
+?>
 
     <div class="card-body p-0 table-responsive">
         <table class="table table-hover align-middle text-center mb-0">
@@ -64,7 +57,6 @@ $requests = $pdo->query("
                     </tr>
                 <?php else: ?>
                     <?php foreach ($requests as $index => $req):
-                        // 🟢 [คงเดิม] โลจิกเช็คสถานะ แต่อัปเดตคลาสให้เป็นป้ายแบบขอบมน (rounded-pill) เข้ากับ Theme
                         $status = $req['status'];
                         $badgeClass = 'rounded-pill px-3 py-2 fw-bold shadow-sm ';
 
@@ -95,22 +87,23 @@ $requests = $pdo->query("
                             <td class="text-muted"><?= date('d/m/Y', strtotime($req['request_date'])) ?></td>
                             <td class="text-muted"><?= $req['approved_at'] ? date('d/m/Y', strtotime($req['approved_at'])) : '-' ?></td>
                             <td>
-                                <!-- 🟢 [ปรับปรุง] แสดงป้ายสถานะ -->
                                 <span class="badge fs-6 fw-bold px-1 py-2 <?= $badgeClass ?>">
                                     <?= htmlspecialchars($status) ?>
                                 </span>
                             </td>
                             <td>
                                 <div class="d-flex justify-content-center gap-2">
-                                    <!-- 🟢 [ปรับปรุง] ปุ่มจัดการ ปรับเป็นปุ่มวงกลมมีเงา ดูสะอาดตาขึ้น -->
-                                    <a href="index.php?page=request_view&id=<?= $req['request_id'] ?>" class="btn btn-sm btn-light rounded-circle shadow-sm text-info d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;" title="พิจารณา/ดูรายละเอียด">
+                                    <a href="index.php?page=request_view&id=<?= $req['request_id'] ?>"
+                                       class="btn btn-sm btn-light rounded-circle shadow-sm text-info d-flex align-items-center justify-content-center"
+                                       style="width: 36px; height: 36px;" title="พิจารณา/ดูรายละเอียด">
                                         <i class="bi bi-search"></i>
                                     </a>
                                     <?php if ($req['status'] === 'อนุมัติ' || $req['status'] === 'อนุมัติบางส่วน'): ?>
-                                        <a href="actions/export_pdf.php?id=<?= $req['request_id'] ?>" class="btn btn-sm btn-light rounded-circle shadow-sm text-dark d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;" title="พิมพ์เอกสาร">
+                                        <a href="actions/export_pdf.php?id=<?= $req['request_id'] ?>"
+                                           class="btn btn-sm btn-light rounded-circle shadow-sm text-dark d-flex align-items-center justify-content-center"
+                                           style="width: 36px; height: 36px;" title="พิมพ์เอกสาร">
                                             <i class="bi bi-printer"></i>
                                         </a>
-
                                     <?php endif; ?>
                                 </div>
                             </td>
@@ -126,18 +119,10 @@ $requests = $pdo->query("
         </table>
     </div>
 
-    <!-- 🟢 [ปรับปรุง] Footer ของ Card -->
-    <!-- <div class="card-footer bg-white border-0 py-3 px-4 text-muted small fw-bold rounded-bottom-4 d-flex justify-content-end">
-        แสดง 1-<?= count($requests) ?> จาก <?= count($requests) ?> รายการ
-    </div>
-</div> -->
-
-    <!-- Pagination Wrapper -->
-    <div class="card-footer bg-white border-0 py-3 px-4 rounded-bottom-4 d-flex justify-content-center align-items-center">
-        <div id="requestPaginationWrapper" class="w-100">
-            <?php include 'includes/pagination.php'; ?>
-        </div>
-    </div>
+<?php
+$paginationWrapperId = 'requestPaginationWrapper';
+include 'components/ui/card_footer_pagination.php';
+?>
 </div>
 
 <script src="assets/js/table_pagination.js"></script>
@@ -152,7 +137,7 @@ $requests = $pdo->query("
                 noDataSelector: '#noDataSearchRow',
                 triggerInputs: searchBox ? [searchBox] : [],
                 filterLogic: function(row) {
-                    if (!searchBox) return true; // ถ้าไม่มีช่องค้นหา ให้แสดงทั้งหมดตามแบ่งหน้า
+                    if (!searchBox) return true;
                     const search = searchBox.value.toLowerCase().trim();
                     const reqId = row.getAttribute('data-reqid') || '';
                     const status = row.getAttribute('data-status') || '';

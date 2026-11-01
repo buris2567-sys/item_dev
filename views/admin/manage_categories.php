@@ -2,80 +2,62 @@
 require_once 'config/db.php';
 
 // ดึงตัวเลขนับสถานะ
-$countAll = $pdo->query("SELECT COUNT(*) FROM categories")->fetchColumn();
-$countActive = $pdo->query("SELECT COUNT(*) FROM categories WHERE is_active = 1")->fetchColumn();
+$countAll      = $pdo->query("SELECT COUNT(*) FROM categories")->fetchColumn();
+$countActive   = $pdo->query("SELECT COUNT(*) FROM categories WHERE is_active = 1")->fetchColumn();
 $countInactive = $pdo->query("SELECT COUNT(*) FROM categories WHERE is_active = 0")->fetchColumn();
 
 // ดึงข้อมูลประเภทสิ่งของทั้งหมด
-$stmt = $pdo->query("SELECT * FROM categories ORDER BY category_id DESC");
+$stmt       = $pdo->query("SELECT * FROM categories ORDER BY category_id DESC");
 $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
-<!-- เพิ่ม CSS ควบคุมสีสวิตช์ไว้ด้านบน -->
+<!-- CSS ควบคุมสีสวิตช์ -->
 <style>
-    /* สีสวิตช์ตอนเปิด (เหลือง) */
     .form-switch .form-check-input:checked {
         background-color: #ffc107 !important;
         border-color: #ffc107 !important;
     }
-
-    /* สีสวิตช์ตอนปิด Bootstrap จะทำเป็นสีเทาให้อัตโนมัติ */
 </style>
 
+<?php
+$pageHeader = [
+    'icon'   => 'bi-tags',
+    'title'  => 'จัดการประเภทสิ่งของ',
+    'action' => [
+        'label'  => 'เพิ่มรายการใหม่',
+        'icon'   => 'bi-plus-circle-fill',
+        'type'   => 'modal',
+        'target' => '#addCategoryModal',
+    ],
+];
+include 'components/ui/page_header.php';
+?>
 
-<!-- Header Section -->
-<div class="d-flex justify-content-between   align-items-center mb-4 pb-2" style="border-bottom: 2px solid #e9ecef;">
-    <div>
-        <h3 class="fw-bolder mb-1 text-dark"><i class="bi bi-boxes text-warning me-2"></i>จัดการประเภทสิ่งของ</h3>
-        <span class="text-muted small">ระบบสิ่งพิมพ์และของที่ระลึก</span>
-    </div>
-    <!-- 🟢 [ปรับปรุง] ปุ่มเพิ่มข้อมูล เปลี่ยนเป็นขอบมน (rounded-pill) -->
-    <button class="btn btn-warning rounded-pill fw-bold px-4 py-2 shadow-sm border-0 d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
-        <i class="bi bi-plus-circle-fill fs-5"></i> <span>เพิ่มรายการใหม่</span>
+<!-- Card ตารางประเภทสิ่งของ -->
+<div class="card border-0 rounded-4 shadow-sm mb-5 border-warning border-top border-4 bg-white">
+
+<?php
+// Extra slot: filter buttons (ทั้งหมด / เปิดใช้งาน / ปิดใช้งาน)
+ob_start(); ?>
+    <button type="button" class="btn btn-warning text-dark fw-bold px-3 py-1 rounded-pill filter-btn active" data-status="all">
+        ทั้งหมด <span class="badge text-dark ms-1 rounded-pill fs-6"><?= $countAll ?></span>
     </button>
-</div>
+    <button type="button" class="btn bg-white border text-secondary fw-bold px-3 py-1 rounded-pill filter-btn" data-status="1">
+        เปิดใช้งาน <span class="badge bg-success bg-opacity-25 text-success ms-1 rounded-pill fs-6"><?= $countActive ?></span>
+    </button>
+    <button type="button" class="btn bg-white border text-secondary fw-bold px-3 py-1 rounded-pill filter-btn" data-status="0">
+        ปิดใช้งาน <span class="badge bg-danger bg-opacity-25 text-danger ms-1 rounded-pill fs-6"><?= $countInactive ?></span>
+    </button>
+<?php $extraHtml = ob_get_clean();
 
-
-<!-- 📦 ส่วนที่ 1: ตารางรายการสิ่งของทั้งหมด -->
-<!-- 🟢 [ปรับปรุง] การ์ดหุ้มตาราง เปลี่ยนเป็นขอบมน (rounded-4), ไร้ขอบดำ, มีขีดสีเหลืองด้านบน -->
-<div class="card border-0 rounded-4 shadow-sm  border-warning border-top border-0 bg-white">
-    <!-- กล่อง Card -->
-    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
-        <div class="bg-warning" style="height: 4px;"></div>
-
-        <!-- แถบตัวกรองและช่องค้นหา -->
-        <div class="card-header bg-white py-3 px-4 border-bottom d-flex  align-items-center flex-wrap gap-3 rounded-top-1 justify-content-between">
-            <div class="d-flex gap-2 align-items-center">
-                <h5 class="fw-bold mb-0 text-dark">
-                    <!-- 🟢 [ปรับปรุง] ไอคอนวงกลมหน้าหัวข้อ -->
-                    <div class="bg-warning bg-opacity-25 text-warning rounded-circle d-inline-flex justify-content-center align-items-center me-2" style="width: 35px; height: 35px;">
-                        <i class="bi bi-box-seam"></i>
-                    </div>
-                    รายการประเภทสิ่งของ
-                </h5>
-                <!-- ปุ่มทั้งหมด (สถานะกำลังเลือก) -->
-                <button type="button" class="btn btn-warning text-dark fw-bold px-3 py-1 rounded-pill filter-btn active" data-status="all">
-                    ทั้งหมด <span class="badge text-dark ms-1 rounded-pill fs-6"><?= $countAll ?></span>
-                </button>
-                <!-- ปุ่มเปิดใช้งาน (สถานะไม่ได้เลือก: พื้นขาว ขอบเทา) -->
-                <button type="button" class="btn bg-white border text-secondary fw-bold px-3 py-1 rounded-pill filter-btn" data-status="1">
-                    เปิดใช้งาน <span class="badge bg-success bg-opacity-25 text-success ms-1 rounded-pill fs-6"><?= $countActive ?></span>
-                </button>
-                <!-- ปุ่มปิดใช้งาน (สถานะไม่ได้เลือก: พื้นขาว ขอบเทา) -->
-                <button type="button" class="btn bg-white border text-secondary fw-bold px-3 py-1 rounded-pill filter-btn" data-status="0">
-                    ปิดใช้งาน <span class="badge bg-danger bg-opacity-25 text-danger ms-1 rounded-pill fs-6"><?= $countInactive ?></span>
-                </button>
-            </div>
-
-            <div class="input-group" style="max-width: 280px;">
-                <span class="input-group-text bg-white border-end-0 rounded-start-pill text-muted">
-                    <i class="bi bi-search"></i>
-                </span>
-                <input type="text" id="searchInput" class="form-control border-start-0 rounded-end-pill ps-0" placeholder="ค้นหาชื่อประเภท...">
-            </div>
-
-        </div>
-    </div>
+$cardHeader = [
+    'icon'   => 'bi-box-seam',
+    'title'  => 'รายการประเภทสิ่งของ',
+    'search' => ['id' => 'searchInput', 'placeholder' => 'ค้นหาชื่อประเภท...'],
+    'extra'  => $extraHtml,
+];
+include 'components/ui/card_header.php';
+?>
 
     <!-- ตารางข้อมูล -->
     <div class="card-body p-0 table-responsive">
@@ -111,20 +93,19 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <td class="py-3">
                                 <div class="d-flex justify-content-center align-items-center gap-2">
                                     <div class="form-check form-switch m-0">
-                                        <!-- เอาคลาส bg-warning border-warning ออก เพื่อให้สลับสีเทาได้ -->
                                         <input class="form-check-input toggle-category-btn"
-                                            type="checkbox" role="switch"
-                                            data-id="<?= $cat['category_id'] ?>"
-                                            <?= $cat['is_active'] == 1 ? 'checked' : '' ?>
-                                            style="width: 35px; height: 18px; cursor: pointer;">
+                                               type="checkbox" role="switch"
+                                               data-id="<?= $cat['category_id'] ?>"
+                                               <?= $cat['is_active'] == 1 ? 'checked' : '' ?>
+                                               style="width: 35px; height: 18px; cursor: pointer;">
                                     </div>
                                     <button type="button"
-                                        class="btn btn-sm btn-light text-primary border rounded-circle shadow-sm edit-category-btn"
-                                        data-id="<?= $cat['category_id'] ?>"
-                                        data-name="<?= htmlspecialchars($cat['name']) ?>"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#editCategoryModal"
-                                        style="width: 32px; height: 32px;">
+                                            class="btn btn-sm btn-light text-primary border rounded-circle shadow-sm edit-category-btn"
+                                            data-id="<?= $cat['category_id'] ?>"
+                                            data-name="<?= htmlspecialchars($cat['name']) ?>"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#editCategoryModal"
+                                            style="width: 32px; height: 32px;">
                                         <i class="bi bi-pencil"></i>
                                     </button>
                                 </div>
@@ -142,54 +123,48 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
             </tbody>
         </table>
     </div>
+
+<?php
+$paginationWrapperId = 'categoryPaginationWrapper';
+include 'components/ui/card_footer_pagination.php';
+?>
 </div>
-
-<!-- Pagination Wrapper -->
-<div class="card-footer bg-white border-0 py-3 px-4 rounded-bottom-4 d-flex justify-content-center align-items-center">
-    <div id="requestPaginationWrapper" class="w-100">
-        <?php include 'includes/pagination.php'; ?>
-    </div>
-</div>
-
-
-<script src="assets/js/table_pagination.js"></script>
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const searchBox = document.getElementById('searchRequestInput');
-
-        if (typeof initTablePagination === 'function') {
-            initTablePagination({
-                rowSelector: '.req-row',
-                wrapperSelector: '#requestPaginationWrapper',
-                noDataSelector: '#noDataSearchRow',
-                triggerInputs: [searchBox],
-                filterLogic: function(row) {
-                    const search = searchBox.value.toLowerCase().trim();
-                    const reqId = row.getAttribute('data-reqid') || '';
-                    const status = row.getAttribute('data-status') || '';
-                    return reqId.includes(search) || status.includes(search);
-                }
-            });
-        }
-    });
-</script>
-
 
 <!-- Modal Components -->
 <?php include 'components/modals/add_category_modal.php'; ?>
 <?php include 'components/modals/edit_category_modal.php'; ?>
 
+<script src="assets/js/table_pagination.js"></script>
 <script>
-    // 1. ตรวจสอบชื่อซ้ำ & บันทึกเพิ่มหมวดหมู่
+    // 1. Pagination สำหรับตารางประเภทสิ่งของ
+    document.addEventListener("DOMContentLoaded", function() {
+        const searchBox = document.getElementById('searchInput');
+
+        if (typeof initTablePagination === 'function') {
+            initTablePagination({
+                rowSelector: '.category-row',
+                wrapperSelector: '#categoryPaginationWrapper',
+                noDataSelector: '#noMatchRow',
+                triggerInputs: searchBox ? [searchBox] : [],
+                filterLogic: function(row) {
+                    const keyword = searchBox ? searchBox.value.toLowerCase().trim() : '';
+                    const rowStatus = row.getAttribute('data-status');
+                    const rowName = row.querySelector('.category-name')?.textContent.toLowerCase() || '';
+                    const matchStatus = (currentStatusFilter === 'all' || rowStatus === currentStatusFilter);
+                    const matchKeyword = rowName.includes(keyword);
+                    return matchStatus && matchKeyword;
+                }
+            });
+        }
+    });
+
+    // 2. ตรวจสอบชื่อซ้ำ & บันทึกเพิ่มหมวดหมู่
     document.getElementById('saveAddCategoryBtn')?.addEventListener('click', function() {
         const form = document.getElementById('addCategoryForm');
         const nameInput = document.getElementById('addCategoryName');
         const name = nameInput.value.trim();
 
-        if (!form.checkValidity()) {
-            form.reportValidity();
-            return;
-        }
+        if (!form.checkValidity()) { form.reportValidity(); return; }
 
         const btn = this;
         const originalText = btn.innerHTML;
@@ -201,20 +176,12 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
             .then(data => {
                 if (data.exists) {
                     alert('❌ ไม่สามารถเพิ่มได้: มีประเภทสิ่งของชื่อ "' + name + '" ในระบบอยู่แล้ว (หรือถูกปิดใช้งานอยู่)');
-                    btn.disabled = false;
-                    btn.innerHTML = originalText;
-                    nameInput.focus();
-                } else {
-                    form.submit();
-                }
-            }).catch(err => {
-                alert('เกิดข้อผิดพลาดในการตรวจสอบชื่อซ้ำ');
-                btn.disabled = false;
-                btn.innerHTML = originalText;
-            });
+                    btn.disabled = false; btn.innerHTML = originalText; nameInput.focus();
+                } else { form.submit(); }
+            }).catch(() => { alert('เกิดข้อผิดพลาดในการตรวจสอบชื่อซ้ำ'); btn.disabled = false; btn.innerHTML = originalText; });
     });
 
-    // 2. ดึงข้อมูลใส่ Modal แก้ไข (แก้ปัญหาคลิกโดนไอคอนแล้วข้อมูลไม่มา)
+    // 3. ดึงข้อมูลใส่ Modal แก้ไข
     document.querySelectorAll('.edit-category-btn').forEach(btn => {
         btn.addEventListener('click', function(e) {
             const targetBtn = e.target.closest('.edit-category-btn');
@@ -223,19 +190,15 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
         });
     });
 
-    // 3. ตรวจสอบชื่อซ้ำ & บันทึกแก้ไขหมวดหมู่
+    // 4. ตรวจสอบชื่อซ้ำ & บันทึกแก้ไขหมวดหมู่
     document.getElementById('saveEditCategoryBtn')?.addEventListener('click', function() {
         const form = document.getElementById('editCategoryForm');
         const nameInput = document.getElementById('editCategoryName');
         const idInput = document.getElementById('editCategoryId');
-
         const name = nameInput.value.trim();
         const id = idInput.value;
 
-        if (!form.checkValidity()) {
-            form.reportValidity();
-            return;
-        }
+        if (!form.checkValidity()) { form.reportValidity(); return; }
 
         const btn = this;
         const originalText = btn.innerHTML;
@@ -247,40 +210,29 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
             .then(data => {
                 if (data.exists) {
                     alert('❌ ไม่สามารถเปลี่ยนชื่อได้: มีประเภทสิ่งของชื่อ "' + name + '" ในระบบอยู่แล้ว');
-                    btn.disabled = false;
-                    btn.innerHTML = originalText;
-                    nameInput.focus();
-                } else {
-                    form.submit();
-                }
-            }).catch(err => {
-                alert('เกิดข้อผิดพลาดในการตรวจสอบชื่อซ้ำ');
-                btn.disabled = false;
-                btn.innerHTML = originalText;
-            });
+                    btn.disabled = false; btn.innerHTML = originalText; nameInput.focus();
+                } else { form.submit(); }
+            }).catch(() => { alert('เกิดข้อผิดพลาดในการตรวจสอบชื่อซ้ำ'); btn.disabled = false; btn.innerHTML = originalText; });
     });
 
-    // 4. สวิตช์ Toggle เปิด/ปิด สถานะ
+    // 5. สวิตช์ Toggle เปิด/ปิด สถานะ
     document.querySelectorAll('.toggle-category-btn').forEach(btn => {
         btn.addEventListener('change', function() {
             const catId = this.getAttribute('data-id');
             const status = this.checked ? 1 : 0;
             const switchElement = this;
-
             switchElement.disabled = true;
 
             fetch('actions/admin/category_toggle_status.php?id=' + encodeURIComponent(catId) + '&status=' + encodeURIComponent(status))
                 .then(res => res.json())
                 .then(data => {
-                    if (data.success) {
-                        window.location.reload();
-                    } else {
+                    if (data.success) { window.location.reload(); }
+                    else {
                         alert('❌ เกิดข้อผิดพลาด: ' + (data.message || 'ไม่สามารถเปลี่ยนสถานะได้'));
                         switchElement.checked = !switchElement.checked;
                         switchElement.disabled = false;
                     }
-                })
-                .catch(err => {
+                }).catch(() => {
                     alert('ไม่สามารถติดต่อเซิร์ฟเวอร์ได้');
                     switchElement.checked = !switchElement.checked;
                     switchElement.disabled = false;
@@ -288,7 +240,7 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
         });
     });
 
-    // 5. ค้นหาแบบเรียลไทม์ & ตัวกรองสถานะ (ปรับสีปุ่มเวลากดสลับให้มีกรอบชัดเจน)
+    // 6. ค้นหา & ตัวกรองสถานะ (ต้องเป็น let เพราะ filterLogic ของ pagination อ่านค่านี้ด้วย)
     let currentStatusFilter = 'all';
 
     function applyFilterAndSearch() {
@@ -299,48 +251,32 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
         rows.forEach(row => {
             const rowStatus = row.getAttribute('data-status');
             const rowName = row.querySelector('.category-name').textContent.toLowerCase();
-
             const matchStatus = (currentStatusFilter === 'all' || rowStatus === currentStatusFilter);
             const matchKeyword = rowName.includes(keyword);
 
-            if (matchStatus && matchKeyword) {
-                row.style.display = '';
-                visibleCount++;
-            } else {
-                row.style.display = 'none';
-            }
+            if (matchStatus && matchKeyword) { row.style.display = ''; visibleCount++; }
+            else { row.style.display = 'none'; }
         });
 
         const noMatchRow = document.getElementById('noMatchRow');
-        if (noMatchRow) {
-            noMatchRow.style.display = (visibleCount === 0 && rows.length > 0) ? '' : 'none';
-        }
+        if (noMatchRow) noMatchRow.style.display = (visibleCount === 0 && rows.length > 0) ? '' : 'none';
     }
 
     document.getElementById('searchInput')?.addEventListener('input', applyFilterAndSearch);
 
     document.querySelectorAll('.filter-btn').forEach(btn => {
         btn.addEventListener('click', function() {
-
-            // รีเซ็ตทุกปุ่มให้เป็นพื้นขาว ขอบเทา (สถานะยังไม่ถูกเลือก)
             document.querySelectorAll('.filter-btn').forEach(b => {
                 b.classList.remove('btn-warning', 'text-dark', 'btn-success', 'btn-danger', 'text-white', 'active');
                 b.classList.add('bg-white', 'border', 'text-secondary');
             });
-
-            // ใส่สีให้ปุ่มที่ถูกคลิก
             this.classList.remove('bg-white', 'border', 'text-secondary');
             this.classList.add('active');
-
             currentStatusFilter = this.getAttribute('data-status');
 
-            if (currentStatusFilter === 'all') {
-                this.classList.add('btn-warning', 'text-dark');
-            } else if (currentStatusFilter === '1') {
-                this.classList.add('btn-success', 'text-white');
-            } else {
-                this.classList.add('btn-danger', 'text-white');
-            }
+            if (currentStatusFilter === 'all') this.classList.add('btn-warning', 'text-dark');
+            else if (currentStatusFilter === '1') this.classList.add('btn-success', 'text-white');
+            else this.classList.add('btn-danger', 'text-white');
 
             applyFilterAndSearch();
         });
