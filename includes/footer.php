@@ -6,9 +6,12 @@
 <!-- 1. เรียกใช้ไลบรารี SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<!-- 2. เรียกใช้สคริปต์แจ้งเตือนของ Admin -->
-<script src="assets/js/admin_notification.js?v=1"></script>
-
+<!-- 2. เรียกใช้สคริปต์แจ้งเตือนตามสิทธิ์การใช้งาน (Admin / User) -->
+<?php if (isset($_SESSION['role']) && strtolower($_SESSION['role']) === 'admin'): ?>
+    <script src="assets/js/admin_notification.js?v=1"></script>
+<?php elseif (isset($_SESSION['user_id'])): ?>
+    <script src="assets/js/user_notification.js?v=1"></script>
+<?php endif; ?>
 
 </body>
 
