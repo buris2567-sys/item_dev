@@ -184,4 +184,3 @@ $currentUser = $stmt->fetch();
     }
 </style>
 
-<script src="assets/js/admin_notification.js"></script>

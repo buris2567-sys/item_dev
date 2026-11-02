@@ -71,7 +71,7 @@ include 'components/ui/card_header.php';
                             $badgeClass .= 'bg-warning text-dark';
                             $status = 'รออนุมัติ';
                         } elseif (strpos($status, 'อนุมัติบางส่วน') !== false) {
-                            $badgeClass .= 'bg-warning text-dark';
+                            $badgeClass .= 'bg-primary text-white';
                         } elseif (strpos($status, 'ไม่อนุมัติ') !== false) {
                             $badgeClass .= 'bg-danger text-white';
                         } elseif (strpos($status, 'อนุมัติ') !== false) {
