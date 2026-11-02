@@ -13,26 +13,27 @@ function fetchUserNotifications() {
             const notiList = document.getElementById('nav-noti-list');
             const sidebarBadge = document.getElementById('sidebar-noti-badge');
 
+            // 1. จัดการตัวเลขแจ้งเตือน (นับเฉพาะที่ยังไม่ได้เปิดอ่าน)
             if (data.count > 0) {
-                // 1. อัปเดตตัวเลขแจ้งเตือนบน Navbar (กระดิ่ง)
+                // อัปเดตตัวเลขแจ้งเตือนบน Navbar (กระดิ่ง)
                 if (navBadge) {
                     navBadge.innerText = data.count > 99 ? '99+' : data.count;
                     navBadge.classList.remove('d-none');
                 }
                 
-                // 2. อัปเดตตัวเลขแจ้งเตือนบนการ์ดเมนู
+                // อัปเดตตัวเลขแจ้งเตือนบนการ์ดเมนู
                 if (cardBadge) {
-                    cardBadge.innerText = data.count + ' รายการ';
+                    cardBadge.innerText = data.count + ' รายการใหม่';
                     cardBadge.classList.remove('d-none');
                 }
 
-                // 3. อัปเดตตัวเลขแจ้งเตือนบน Sidebar
+                // อัปเดตตัวเลขแจ้งเตือนบน Sidebar
                 if (sidebarBadge) {
                     sidebarBadge.innerText = data.count > 99 ? '99+' : data.count;
                     sidebarBadge.classList.remove('d-none');
                 }
 
-                // 4. แจ้งเตือนเด้งมุมจอ (SweetAlert2) เมื่อมีการอัปเดตสถานะใหม่
+                // แจ้งเตือนเด้งมุมจอ (SweetAlert2) เมื่อมีการอัปเดตสถานะใหม่
                 if (data.count > previousUserNotiCount && previousUserNotiCount !== 0 && typeof Swal !== 'undefined') {
                     let newItems = data.count - previousUserNotiCount; 
                     const Toast = Swal.mixin({
@@ -44,13 +45,22 @@ function fetchUserNotifications() {
                     });
                     Toast.fire({
                         icon: "info",
-                        title: `มีรายการคำขออัปเดตสถานะ ${newItems} รายการ!`
+                        title: `มีรายการคำขออัปเดตสถานะใหม่ ${newItems} รายการ!`
                     });
                 }
+            } else {
+                // ถ้าไม่มีรายการใหม่ที่ค้างอ่าน ให้ซ่อนป้ายแดงทั้งหมด
+                if (navBadge) navBadge.classList.add('d-none');
+                if (cardBadge) cardBadge.classList.add('d-none');
+                if (sidebarBadge) sidebarBadge.classList.add('d-none');
+            }
 
-                // 5. วาดรายการคำขอลงใน Dropdown ของกระดิ่ง
-                if (notiList) {
-                    document.querySelectorAll('.user-noti-item').forEach(el => el.remove());
+            // 2. แสดงรายการใน Dropdown ของกระดิ่ง
+            if (notiList) {
+                document.querySelectorAll('.user-noti-item').forEach(el => el.remove());
+                const header = notiList.querySelector('.dropdown-header').parentElement;
+
+                if (data.items && data.items.length > 0) {
                     let htmlString = '';
                     data.items.forEach(item => {
                         let badgeClass = 'bg-secondary text-white';
@@ -64,11 +74,18 @@ function fetchUserNotifications() {
                             badgeClass = 'bg-dark text-white';
                         }
 
+                        // ถ้ายังไม่ได้อ่าน ให้มีพื้นหลังไฮไลต์และป้าย "ใหม่"
+                        const isUnread = item.is_read === 0;
+                        const unreadTag = isUnread ? '<span class="badge bg-danger rounded-pill me-1" style="font-size: 0.6rem;">ใหม่</span>' : '';
+                        const bgStyle = isUnread ? 'style="background-color: rgba(255, 193, 7, 0.08);"' : '';
+
                         htmlString += `
                             <li class="user-noti-item">
-                                <a class="dropdown-item py-2 border-bottom" href="index.php?page=request_view&id=${item.request_id}">
+                                <a class="dropdown-item py-2 border-bottom" href="index.php?page=request_view&id=${item.request_id}" ${bgStyle}>
                                     <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <span class="fw-bold text-dark small"><i class="bi bi-file-earmark-text text-warning me-1"></i> ${item.request_no}</span>
+                                        <span class="fw-bold text-dark small">
+                                            ${unreadTag}<i class="bi bi-file-earmark-text text-warning me-1"></i> ${item.request_no}
+                                        </span>
                                         <span class="badge ${badgeClass} rounded-pill" style="font-size: 0.65rem;">${item.status}</span>
                                     </div>
                                     <div class="text-muted" style="font-size: 0.7rem;">
@@ -78,18 +95,8 @@ function fetchUserNotifications() {
                             </li>
                         `;
                     });
-                    const header = notiList.querySelector('.dropdown-header').parentElement;
                     header.insertAdjacentHTML('afterend', htmlString);
-                }
-            } else {
-                // ถ้าไม่มีรายการ ให้ซ่อนป้ายแดงทั้งหมด
-                if (navBadge) navBadge.classList.add('d-none');
-                if (cardBadge) cardBadge.classList.add('d-none');
-                if (sidebarBadge) sidebarBadge.classList.add('d-none');
-                
-                if (notiList) {
-                    document.querySelectorAll('.user-noti-item').forEach(el => el.remove());
-                    const header = notiList.querySelector('.dropdown-header').parentElement;
+                } else {
                     header.insertAdjacentHTML('afterend', '<li class="user-noti-item"><span class="dropdown-item text-muted small text-center py-3">ไม่มีรายการแจ้งเตือน</span></li>');
                 }
             }
@@ -104,4 +111,3 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchUserNotifications();
     setInterval(fetchUserNotifications, 30000);
 });
-

@@ -20,6 +20,13 @@ if (!$request) {
     exit;
 }
 
+// [Refactored] แบบที่ 1: เมื่อผู้ใช้เปิดดูคำขอที่ได้รับการตัดสินแล้ว ให้ปรับสถานะเป็นอ่านแล้ว (is_read_user = 1) เพื่อให้ตัวเลขแจ้งเตือนลดลง
+$currentStatus = trim($request['status'] ?? '');
+if ($currentStatus !== 'รออนุมัติ' && strtolower($currentStatus) !== 'pending' && empty($request['is_read_user'])) {
+    $pdo->prepare('UPDATE requests SET is_read_user = 1 WHERE request_id = ? AND user_id = ?')->execute([$request_id, $user_id]);
+    $request['is_read_user'] = 1;
+}
+
 // 🟢 2. [อัปเดต] ดึงรายการสิ่งของด้วย LEFT JOIN เพื่อเอา item_name, category_name และ images มาแสดง
 $itemStmt = $pdo->prepare("
     SELECT 

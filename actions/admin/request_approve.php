@@ -65,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             // ปรับยอดอนุมัติให้เป็น 0 และอัปเดตสถานะใบเบิก
             $pdo->prepare("UPDATE request_items SET approved_qty = 0, item_status = 'ยกเลิก' WHERE request_id = ?")->execute([$request_id]);
-            $stmtUpdateReq = $pdo->prepare("UPDATE requests SET status = 'ยกเลิก', admin_comment = ?, approved_by = ?, approved_at = NOW() WHERE request_id = ?");
+            $stmtUpdateReq = $pdo->prepare("UPDATE requests SET status = 'ยกเลิก', admin_comment = ?, approved_by = ?, approved_at = NOW(), is_read_user = 0 WHERE request_id = ?");
             $stmtUpdateReq->execute([$admin_comment, $admin_id, $request_id]);
             
             $_SESSION['success'] = 'ยกเลิกคำร้องและคืนสต็อกสำเร็จ';
@@ -128,7 +128,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($all_zero) $final_status = 'ไม่อนุมัติ';
             elseif ($all_full) $final_status = 'อนุมัติ';
 
-            $stmtUpdateReq = $pdo->prepare("UPDATE requests SET status = ?, admin_comment = ?, approved_by = ?, approved_at = NOW() WHERE request_id = ?");
+            $stmtUpdateReq = $pdo->prepare("UPDATE requests SET status = ?, admin_comment = ?, approved_by = ?, approved_at = NOW(), is_read_user = 0 WHERE request_id = ?");
             $stmtUpdateReq->execute([$final_status, $admin_comment, $admin_id, $request_id]);
             
             $_SESSION['success'] = 'บันทึกผลการพิจารณาสำเร็จ';
