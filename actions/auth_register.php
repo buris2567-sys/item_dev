@@ -1,0 +1,75 @@
+<?php
+require_once '../config/db.php';
+
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    header('Location: ../register.php');
+    exit;
+}
+
+$fields = ['full_name', 'username', 'phone_number', 'position', 'department_id', 'sub_department_id', 'employment_type_id'];
+$old = [];
+foreach ($fields as $field) {
+    $old[$field] = trim((string) ($_POST[$field] ?? ''));
+}
+$_SESSION['register_old'] = $old;
+
+function backWithRegisterError(string $message): void {
+    $_SESSION['register_error'] = $message;
+    header('Location: ../register.php');
+    exit;
+}
+
+if (!hash_equals($_SESSION['form_token'] ?? '', $_POST['form_token'] ?? '')) {
+    backWithRegisterError('ไม่สามารถส่งแบบฟอร์มได้ กรุณาลองใหม่อีกครั้ง');
+}
+
+$password = $_POST['password'] ?? '';
+$confirmPassword = $_POST['confirm_password'] ?? '';
+if (in_array('', $old, true) || $password === '' || $confirmPassword === '') {
+    backWithRegisterError('กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน');
+}
+if (mb_strlen($old['full_name']) > 100 || mb_strlen($old['username']) > 50 || mb_strlen($old['phone_number']) > 20 || mb_strlen($old['position']) > 100) {
+    backWithRegisterError('ข้อมูลบางรายการมีความยาวเกินกำหนด');
+}
+if (strlen($password) < 8) {
+    backWithRegisterError('รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร');
+}
+if ($password !== $confirmPassword) {
+    backWithRegisterError('ยืนยันรหัสผ่านไม่ตรงกัน');
+}
+if (!ctype_digit($old['department_id']) || !ctype_digit($old['sub_department_id']) || !ctype_digit($old['employment_type_id'])) {
+    backWithRegisterError('ข้อมูลหน่วยงานไม่ถูกต้อง');
+}
+
+try {
+    $stmt = $pdo->prepare('SELECT user_id FROM users WHERE username = ? LIMIT 1');
+    $stmt->execute([$old['username']]);
+    if ($stmt->fetch()) {
+        backWithRegisterError('ชื่อผู้ใช้งานนี้ถูกใช้แล้ว');
+    }
+
+    $stmt = $pdo->prepare('SELECT sub_department_id FROM sub_departments WHERE sub_department_id = ? AND department_id = ?');
+    $stmt->execute([(int) $old['sub_department_id'], (int) $old['department_id']]);
+    if (!$stmt->fetch()) {
+        backWithRegisterError('กลุ่มที่เลือกไม่อยู่ในกองที่เลือก');
+    }
+
+    $stmt = $pdo->prepare('SELECT employment_type_id FROM employment_types WHERE employment_type_id = ?');
+    $stmt->execute([(int) $old['employment_type_id']]);
+    if (!$stmt->fetch()) {
+        backWithRegisterError('ประเภทบุคลากรไม่ถูกต้อง');
+    }
+
+    $stmt = $pdo->prepare('INSERT INTO users (username, password, full_name, department_id, sub_department_id, employment_type_id, phone_number, position, role) VALUES (?, ?, ?, ?, ?, ?, ?, ?, "User")');
+    $stmt->execute([
+        $old['username'], password_hash($password, PASSWORD_DEFAULT), $old['full_name'],
+        (int) $old['department_id'], (int) $old['sub_department_id'], (int) $old['employment_type_id'],
+        $old['phone_number'], $old['position']
+    ]);
+
+    unset($_SESSION['register_old'], $_SESSION['form_token']);
+    $_SESSION['success'] = 'ลงทะเบียนสำเร็จ กรุณาเข้าสู่ระบบด้วยบัญชีที่สร้างไว้';
+    header('Location: ../login.php');
+} catch (PDOException $exception) {
+    backWithRegisterError('ไม่สามารถลงทะเบียนได้ในขณะนี้ กรุณาลองใหม่อีกครั้ง');
+}

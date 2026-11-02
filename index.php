@@ -56,6 +56,7 @@ if ($role === 'Admin') {
 } else {
     $routes = [
         'home'           => ['file' => 'views/user/home.php', 'title' => 'หน้าหลัก'],
+        'profile'        => ['file' => 'views/user/profile.php', 'title' => 'แก้ไขข้อมูลส่วนตัว'],
         'create_request' => ['file' => 'views/user/create_request.php', 'title' => 'สร้างคำขอเบิกสิ่งของ'],
         'my_requests'    => ['file' => 'views/user/my_requests.php', 'title' => 'ติดตามสถานะคำขอ'],
         'request_view'   => ['file' => 'views/user/request_view.php', 'title' => 'รายละเอียดคำขอเบิกสิ่งของ']

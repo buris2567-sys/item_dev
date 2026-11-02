@@ -417,6 +417,7 @@ CREATE TABLE `users` (
   `department_id` int(11) DEFAULT NULL,
   `sub_department_id` int(11) DEFAULT NULL,
   `employment_type_id` int(11) DEFAULT NULL,
+  `position` varchar(100) DEFAULT NULL,
   `phone_number` varchar(20) DEFAULT NULL,
   `role` varchar(20) DEFAULT 'User'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
