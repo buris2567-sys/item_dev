@@ -51,7 +51,8 @@ if ($role === 'Admin') {
         'manage_items'   => ['file' => 'views/admin/manage_items.php', 'title' => 'จัดการสิ่งของ'],
         'request_list'   => ['file' => 'views/admin/request_list.php', 'title' => 'รายการคำขอเบิกสิ่งของ'],
         'request_view'   => ['file' => 'views/admin/request_view.php', 'title' => 'รายละเอียดคำขอเบิกสิ่งของ'],
-        'manage_categories'   => ['file' => 'views/admin/manage_categories.php', 'title' => 'จัดการหมวดหมู่สิ่งของ']
+        'manage_categories'   => ['file' => 'views/admin/manage_categories.php', 'title' => 'จัดการหมวดหมู่สิ่งของ'],
+        'inventory_report'    => ['file' => 'views/admin/inventory_report.php', 'title' => 'สรุปรายงานการเบิกจ่าย']
     ];
 } else {
     $routes = [
