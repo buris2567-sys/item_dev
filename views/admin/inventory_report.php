@@ -2,14 +2,43 @@
 if (!defined('APP_RUNNING')) exit('Forbidden');
 if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'Admin') exit('Unauthorized');
 
-$reportMode = ($_GET['report_mode'] ?? 'monthly') === 'fiscal' ? 'fiscal' : 'monthly';
-$currentThaiYear = (int)date('Y') + 543;
-$selectedYear = (int)($_GET['year'] ?? $currentThaiYear);
-$selectedMonth = (int)($_GET['month'] ?? date('n'));
-if ($selectedMonth < 1 || $selectedMonth > 12) $selectedMonth = (int)date('n');
-if ($selectedYear < 2500 || $selectedYear > 2700) $selectedYear = $currentThaiYear;
-$gregorianYear = $selectedYear - 543;
 $thaiMonths = [1 => 'มกราคม', 2 => 'กุมภาพันธ์', 3 => 'มีนาคม', 4 => 'เมษายน', 5 => 'พฤษภาคม', 6 => 'มิถุนายน', 7 => 'กรกฎาคม', 8 => 'สิงหาคม', 9 => 'กันยายน', 10 => 'ตุลาคม', 11 => 'พฤศจิกายน', 12 => 'ธันวาคม'];
+$reportMode = ($_GET['report_mode'] ?? 'monthly') === 'fiscal' ? 'fiscal' : 'monthly';
+
+// จำกัดช่วงเวลาตามวันที่เริ่มมีพัสดุหรือมีการเคลื่อนไหวจริงในระบบ
+$availability = $pdo->query("SELECT MIN(activity_at) AS first_at, MAX(activity_at) AS last_at FROM (
+    SELECT created_at AS activity_at FROM items WHERE created_at IS NOT NULL
+    UNION ALL
+    SELECT created_at AS activity_at FROM inventory_transactions WHERE created_at IS NOT NULL
+) AS inventory_dates")->fetch(PDO::FETCH_ASSOC);
+$firstDataTimestamp = strtotime($availability['first_at'] ?? 'now');
+$lastDataTimestamp = strtotime($availability['last_at'] ?? 'now');
+$firstCalendarYear = (int)date('Y', $firstDataTimestamp) + 543;
+$lastCalendarYear = (int)date('Y', $lastDataTimestamp) + 543;
+$firstMonth = (int)date('n', $firstDataTimestamp);
+$lastMonth = (int)date('n', $lastDataTimestamp);
+$fiscalYearFor = static fn(int $timestamp): int => (int)date('Y', $timestamp) + 543 + ((int)date('n', $timestamp) >= 10 ? 1 : 0);
+$firstFiscalYear = $fiscalYearFor($firstDataTimestamp);
+$lastFiscalYear = $fiscalYearFor($lastDataTimestamp);
+
+$minYear = $reportMode === 'fiscal' ? $firstFiscalYear : $firstCalendarYear;
+$maxYear = $reportMode === 'fiscal' ? $lastFiscalYear : $lastCalendarYear;
+$defaultYear = $maxYear;
+$defaultMonth = $lastMonth;
+$selectedYear = (int)($_GET['year'] ?? $defaultYear);
+if ($selectedYear < $minYear || $selectedYear > $maxYear) $selectedYear = $defaultYear;
+$selectedMonth = (int)($_GET['month'] ?? $defaultMonth);
+if ($selectedMonth < 1 || $selectedMonth > 12) $selectedMonth = $defaultMonth;
+if ($reportMode === 'monthly') {
+    if ($selectedYear === $firstCalendarYear && $selectedMonth < $firstMonth) $selectedMonth = $firstMonth;
+    if ($selectedYear === $lastCalendarYear && $selectedMonth > $lastMonth) $selectedMonth = $lastMonth;
+}
+$monthOptions = array_filter($thaiMonths, static function ($number) use ($selectedYear, $firstCalendarYear, $lastCalendarYear, $firstMonth, $lastMonth) {
+    return !($selectedYear === $firstCalendarYear && $number < $firstMonth)
+        && !($selectedYear === $lastCalendarYear && $number > $lastMonth);
+}, ARRAY_FILTER_USE_KEY);
+$yearOptions = range($maxYear, $minYear);
+$gregorianYear = $selectedYear - 543;
 
 if ($reportMode === 'fiscal') {
     $periodStart = sprintf('%04d-10-01 00:00:00', $gregorianYear - 1);
@@ -52,12 +81,12 @@ $lowStockCount = count(array_filter($ledger, static fn($item) => $item['closing_
 
 <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
  <div><h3 class="fw-bolder mb-1 text-dark"><i class="bi bi-clipboard-data-fill text-warning me-2"></i>สรุปรายงานการเบิกจ่าย</h3><p class="mb-0 text-muted small">ภาพรวมการเคลื่อนไหวและยอดคงเหลือของคลังพัสดุ</p></div>
- <span class="badge text-bg-light border text-secondary rounded-pill px-3 py-2"><i class="bi bi-calendar3 me-1"></i>ข้อมูล ณ <?= htmlspecialchars($periodLabel) ?></span>
+ <div class="d-flex flex-column align-items-md-end gap-1"><span class="badge text-bg-light border text-secondary rounded-pill px-3 py-2"><i class="bi bi-calendar3 me-1"></i>ข้อมูล ณ <?= htmlspecialchars($periodLabel) ?></span><small class="text-muted">เริ่มมีข้อมูลตั้งแต่ <?= date('d', $firstDataTimestamp) . ' ' . $thaiMonths[(int)date('n', $firstDataTimestamp)] . ' ' . ((int)date('Y', $firstDataTimestamp) + 543) ?></small></div>
 </div>
 
 <div class="card border-0 rounded-4 shadow-sm mb-4 report-toolbar"><div class="card-body p-3 d-flex flex-wrap align-items-center gap-2">
  <div class="btn-group report-tabs"><a href="index.php?page=inventory_report&report_mode=monthly&month=<?= $selectedMonth ?>&year=<?= $selectedYear ?>" class="btn btn-outline-dark btn-sm fw-semibold <?= $reportMode === 'monthly' ? 'active' : '' ?>">สรุปรายเดือน</a><a href="index.php?page=inventory_report&report_mode=fiscal&year=<?= $selectedYear ?>" class="btn btn-outline-dark btn-sm fw-semibold <?= $reportMode === 'fiscal' ? 'active' : '' ?>">สรุปปีงบประมาณ</a></div>
- <form method="get" class="d-flex flex-wrap align-items-center gap-2 ms-lg-2"><input type="hidden" name="page" value="inventory_report"><input type="hidden" name="report_mode" value="<?= $reportMode ?>"><?php if ($reportMode === 'monthly'): ?><select name="month" class="form-select form-select-sm" style="width:142px"><?php foreach ($thaiMonths as $number => $name): ?><option value="<?= $number ?>" <?= $selectedMonth === $number ? 'selected' : '' ?>><?= $name ?></option><?php endforeach; ?></select><?php endif; ?><select name="year" class="form-select form-select-sm" style="width:125px"><?php for ($year = $currentThaiYear; $year >= $currentThaiYear - 4; $year--): ?><option value="<?= $year ?>" <?= $selectedYear === $year ? 'selected' : '' ?>>พ.ศ. <?= $year ?></option><?php endfor; ?></select><button class="btn btn-warning btn-sm fw-bold px-3"><i class="bi bi-search me-1"></i>ค้นหา</button></form>
+ <form method="get" class="d-flex flex-wrap align-items-center gap-2 ms-lg-2"><input type="hidden" name="page" value="inventory_report"><input type="hidden" name="report_mode" value="<?= $reportMode ?>"><?php if ($reportMode === 'monthly'): ?><select name="month" class="form-select form-select-sm" style="width:142px"><?php foreach ($monthOptions as $number => $name): ?><option value="<?= $number ?>" <?= $selectedMonth === $number ? 'selected' : '' ?>><?= $name ?></option><?php endforeach; ?></select><?php endif; ?><select name="year" class="form-select form-select-sm" style="width:125px"><?php foreach ($yearOptions as $year): ?><option value="<?= $year ?>" <?= $selectedYear === $year ? 'selected' : '' ?>>พ.ศ. <?= $year ?></option><?php endforeach; ?></select><button class="btn btn-warning btn-sm fw-bold px-3"><i class="bi bi-search me-1"></i>ค้นหา</button></form>
  <div class="ms-lg-auto d-flex gap-2 report-actions"><button type="button" class="btn btn-outline-danger btn-sm fw-semibold" onclick="window.print()"><i class="bi bi-file-earmark-pdf me-1"></i>Export PDF</button><button type="button" class="btn btn-outline-success btn-sm fw-semibold" id="exportExcel"><i class="bi bi-file-earmark-spreadsheet me-1"></i>Export Excel</button></div>
 </div></div>
 
