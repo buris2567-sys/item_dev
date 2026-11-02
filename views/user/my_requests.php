@@ -3,7 +3,7 @@ if (!defined('APP_RUNNING')) exit('Forbidden');
 $user_id = $_SESSION['user_id'] ?? 0;
 
 // ดึงข้อมูลคำร้องทั้งหมดของ User นี้
-$stmt = $pdo->prepare("SELECT request_id, request_date, approved_at, status FROM requests WHERE user_id = ? ORDER BY request_date DESC");
+$stmt = $pdo->prepare("SELECT request_id, request_no, request_date, approved_at, status FROM requests WHERE user_id = ? ORDER BY request_date DESC");
 $stmt->execute([$user_id]);
 $requests = $stmt->fetchAll();
 ?>
@@ -87,7 +87,7 @@ include 'components/ui/card_header.php';
                                 <span class="row-number bg-light rounded-circle d-inline-flex justify-content-center align-items-center" style="width: 30px; height: 30px;"></span>
                             </td>
                             <td class="fw-bold border-light">
-                                <span class="px-3 py-2 bg-light rounded-3 border text-dark"><?= htmlspecialchars($req['request_id']) ?></span>
+                                <span class="px-3 py-2 bg-light rounded-3 border text-dark"><?= htmlspecialchars($req['request_no']) ?></span>
                             </td>
                             <td class="border-light text-muted"><?= date('d/m/Y', strtotime($req['request_date'])) ?></td>
                             <td class="border-light text-muted"><?= $req['approved_at'] ? date('d/m/Y', strtotime($req['approved_at'])) : '-' ?></td>

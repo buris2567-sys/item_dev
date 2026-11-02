@@ -95,13 +95,14 @@ $mpdf = new \Mpdf\Mpdf([
     'format' => 'A4',
 ]);
 
-// 5. ออกแบบหน้าตา HTML ของ PDF ให้มีเส้นจุดไข่ปลาตามแบบที่ 1
+// 5. ออกแบบหน้าตา HTML ของ PDF
 $html = '
 <style>
     body { 
         font-family: "thsarabunnew"; 
         font-size: 16pt; 
         line-height: 1.25; 
+        position: relative; /* ให้สามารถวางตำแหน่งสัมบูรณ์ด้านในได้ */
     }
     .title { 
         text-align: center; 
@@ -127,7 +128,10 @@ $html = '
     }
 </style>
 
+
+
 <div class="title">แบบฟอร์มเบิกเอกสารเผยแพร่และของที่ระลึก</div>
+
 
 <!-- 1. ส่วนวันที่ด้านบน จัดวางกึ่งกลางค่อนขวา -->
 <table style="width: 70%; margin: 0 auto 15px auto; border-collapse: separate; border-spacing: 0;">
@@ -147,6 +151,14 @@ $html = '
         <td style="padding-left: 45px; vertical-align: bottom;">
             <b>เรียน</b> หัวหน้ากลุ่มส่งเสริมฝึกอบรมและเผยแพร่ประชาสัมพันธ์
         </td>
+    </tr>
+</table>
+
+<!-- 🟢 แทรกใหม่: เลขที่คำขอจัดรูปแบบฟอร์มให้อยู่เหนือผู้เบิก -->
+<table style="width: 100%; margin-bottom: 6px; border-collapse: separate; border-spacing: 0;">
+    <tr>
+        <td style="width: 75px; font-weight: bold; white-space: nowrap; vertical-align: bottom;">เลขที่คำขอ:</td>
+        <td style="border-bottom: 1px dotted #000; padding-left: 12px; vertical-align: bottom;">' . htmlspecialchars($request['request_no']) . '</td>
     </tr>
 </table>
 

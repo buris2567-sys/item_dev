@@ -5,7 +5,7 @@ if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'Admin') exit(
 
 // ดึงข้อมูลคำขอทั้งหมดจากฐานข้อมูล
 $requests = $pdo->query("
-    SELECT r.request_id, u.username as requester_name, r.request_date, r.approved_at, r.status 
+    SELECT r.request_id, r.request_no, u.username as requester_name, r.request_date, r.approved_at, r.status 
     FROM requests r
     LEFT JOIN users u ON r.user_id = u.user_id
     ORDER BY r.request_date DESC
@@ -80,7 +80,7 @@ include 'components/ui/card_header.php';
                             <td class="fw-bold text-muted py-3"><?= $index + 1 ?></td>
                             <td class="fw-bold">
                                 <span class="px-2 py-1 bg-light rounded-3 border text-dark">
-                                    <?= htmlspecialchars($req['request_id']) ?>
+                                    <?= htmlspecialchars($req['request_no']) ?>
                                 </span>
                             </td>
                             <td class="text-dark fw-semibold"><?= htmlspecialchars($req['requester_name']) ?></td>
