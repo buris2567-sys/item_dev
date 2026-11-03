@@ -34,31 +34,18 @@ unset($_SESSION['profile_success']);
             <div class="profile-avatar"><i class="bi bi-person"></i></div>
             <div>
                 <h3 class="fw-bolder text-dark mb-1"><?= htmlspecialchars($user['full_name'] ?? 'ไม่ทราบชื่อ') ?></h3>
-                <span class="badge bg-dark rounded-pill px-3 py-1 mb-2 shadow-sm"><?= htmlspecialchars($user['role'] ?? 'User') ?></span>
-                <div class="text-muted small fw-semibold"><i class="bi bi-building me-1"></i><?= htmlspecialchars($user['department_name'] ?? '-') ?></div>
+                <span class="badge bg-dark rounded-pill px-3 py-1 shadow-sm"><?= htmlspecialchars($user['role'] ?? 'User') ?></span>
+                <div class="profile-summary mt-2">
+                    <span><i class="bi bi-envelope"></i><?= htmlspecialchars($user['email'] ?? '-') ?></span>
+                    <span><i class="bi bi-briefcase"></i><?= htmlspecialchars($user['position'] ?? '-') ?></span>
+                    <span><i class="bi bi-building"></i><?= htmlspecialchars($user['department_name'] ?? '-') ?></span>
+                    <span><i class="bi bi-diagram-3"></i><?= htmlspecialchars($user['sub_department_name'] ?? '-') ?></span>
+                </div>
             </div>
         </div>
         <a href="index.php?page=profile" class="btn btn-outline-dark fw-bold rounded-pill px-4 py-2 shadow-sm">
             <i class="bi bi-pencil-square me-1"></i> แก้ไขข้อมูลส่วนตัว
         </a>
-    </div>
-</section>
-
-<section class="card border-0 rounded-4 shadow-sm mb-5 bg-white overflow-hidden">
-    <div class="card-header bg-light border-bottom px-4 py-3">
-        <h5 class="fw-bold mb-0"><i class="bi bi-person-lines-fill text-warning me-2"></i>ประวัติส่วนตัว</h5>
-    </div>
-    <div class="card-body p-0">
-        <div class="row g-0 profile-detail-grid">
-            <div class="col-md-6 profile-detail-item"><span>ชื่อ-นามสกุล</span><strong><?= htmlspecialchars($user['full_name'] ?? '-') ?></strong></div>
-            <div class="col-md-6 profile-detail-item"><span>ประเภทบุคลากร</span><strong><?= htmlspecialchars($user['type_name'] ?? '-') ?></strong></div>
-            <div class="col-md-6 profile-detail-item"><span>ชื่อผู้ใช้งาน</span><strong><?= htmlspecialchars($user['username'] ?? '-') ?></strong></div>
-            <div class="col-md-6 profile-detail-item"><span>เบอร์ติดต่อ</span><strong><?= htmlspecialchars($user['phone_number'] ?? '-') ?></strong></div>
-            <div class="col-md-6 profile-detail-item"><span>กอง</span><strong><?= htmlspecialchars($user['department_name'] ?? '-') ?></strong></div>
-            <div class="col-md-6 profile-detail-item"><span>กลุ่ม</span><strong><?= htmlspecialchars($user['sub_department_name'] ?? '-') ?></strong></div>
-            <div class="col-md-6 profile-detail-item"><span>ตำแหน่ง</span><strong><?= htmlspecialchars($user['position'] ?? '-') ?></strong></div>
-            <div class="col-md-6 profile-detail-item"><span>สิทธิ์การใช้งาน</span><strong><?= htmlspecialchars($user['role'] ?? 'User') ?></strong></div>
-        </div>
     </div>
 </section>
 
@@ -91,12 +78,9 @@ unset($_SESSION['profile_success']);
 
 <style>
 .profile-avatar { width: 80px; height: 80px; display: grid; place-items: center; border: 1px solid #dce1e6; border-radius: 1.25rem; background: #f8f9fa; color: #6c757d; font-size: 2.15rem; box-shadow: 0 .125rem .25rem rgba(0,0,0,.075); }
-.profile-detail-item { min-height: 88px; display: flex; flex-direction: column; justify-content: center; gap: .35rem; padding: 1.15rem 2rem; border-bottom: 1px solid #edf0f2; }
-.profile-detail-item:nth-last-child(-n+2) { border-bottom: 0; }
-.profile-detail-item:nth-child(odd) { border-right: 1px solid #edf0f2; }
-.profile-detail-item span { color: #6c757d; font-size: .8rem; font-weight: 600; }
-.profile-detail-item strong { color: #252a30; font-size: .98rem; font-weight: 600; }
-@media (max-width: 767.98px) { .profile-detail-item:nth-child(odd) { border-right: 0; } .profile-detail-item:nth-last-child(2) { border-bottom: 1px solid #edf0f2; } }
+.profile-summary { display: flex; flex-wrap: wrap; gap: .45rem 1rem; color: #5f6770; font-size: .83rem; font-weight: 500; }
+.profile-summary span { white-space: nowrap; }
+.profile-summary i { margin-right: .35rem; color: #6c757d; }
 .hover-shadow { transition: transform .2s ease-in-out, box-shadow .2s ease-in-out; }
 .hover-shadow:hover { transform: translateY(-5px); box-shadow: 0 .5rem 1rem rgba(0,0,0,.15) !important; }
 </style>

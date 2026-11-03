@@ -22,8 +22,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         $pdo->beginTransaction();
 
+        // Quick actions from the request list can only be applied while a request is pending.
+        if (in_array($action, ['approve_all', 'reject'], true)) {
+            $stmtPending = $pdo->prepare("SELECT status FROM requests WHERE request_id = ? FOR UPDATE");
+            $stmtPending->execute([$request_id]);
+            $currentStatus = $stmtPending->fetchColumn();
+            if ($currentStatus !== 'รออนุมัติ' && $currentStatus !== 'Pending') {
+                throw new Exception('คำขอนี้ถูกพิจารณาไปแล้ว');
+            }
+        }
+
+        // Approve every requested item. The existing approval flow below still validates stock and records transactions.
+        if ($action === 'approve_all') {
+            $stmtQuickItems = $pdo->prepare("SELECT request_item_id, requested_qty FROM request_items WHERE request_id = ?");
+            $stmtQuickItems->execute([$request_id]);
+            foreach ($stmtQuickItems->fetchAll() as $quickItem) {
+                $approved_qty[$quickItem['request_item_id']] = (int) $quickItem['requested_qty'];
+            }
+            if (empty($approved_qty)) {
+                throw new Exception('ไม่พบรายการสิ่งของในคำขอนี้');
+            }
+            $action = 'approve';
+        }
+
         // 🔴 กรณีที่ 1: ยกเลิกคำร้อง (Cancel) 
-        if ($action === 'cancel') {
+        if ($action === 'reject') {
+            $pdo->prepare("UPDATE request_items SET approved_qty = 0, item_status = 'ไม่อนุมัติ' WHERE request_id = ?")->execute([$request_id]);
+            $stmtUpdateReq = $pdo->prepare("UPDATE requests SET status = 'ไม่อนุมัติ', admin_comment = ?, approved_by = ?, approved_at = NOW() WHERE request_id = ?");
+            $stmtUpdateReq->execute([$admin_comment, $admin_id, $request_id]);
+            $_SESSION['success'] = 'ไม่อนุมัติคำขอเรียบร้อยแล้ว';
+
+        } elseif ($action === 'cancel') {
             
             $stmtCheck = $pdo->prepare("SELECT status FROM requests WHERE request_id = ?");
             $stmtCheck->execute([$request_id]);
@@ -135,7 +164,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         $pdo->commit();
-        header("Location: ../../index.php?page=request_view&id=" . $request_id);
+        $returnToList = !empty($_POST['return_to_list']);
+        header("Location: ../../index.php?page=" . ($returnToList ? 'request_list' : 'request_view&id=' . urlencode($request_id)));
         exit;
 
     } catch (Exception $e) {

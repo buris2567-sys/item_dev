@@ -6,7 +6,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-$fields = ['full_name', 'username', 'phone_number', 'position', 'department_id', 'sub_department_id', 'employment_type_id'];
+$fields = ['full_name', 'username', 'email', 'phone_number', 'position', 'department_id', 'sub_department_id', 'employment_type_id'];
 $old = [];
 foreach ($fields as $field) {
     $old[$field] = trim((string) ($_POST[$field] ?? ''));
@@ -28,8 +28,11 @@ $confirmPassword = $_POST['confirm_password'] ?? '';
 if (in_array('', $old, true) || $password === '' || $confirmPassword === '') {
     backWithRegisterError('กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน');
 }
-if (mb_strlen($old['full_name']) > 100 || mb_strlen($old['username']) > 50 || mb_strlen($old['phone_number']) > 20 || mb_strlen($old['position']) > 100) {
+if (mb_strlen($old['full_name']) > 100 || mb_strlen($old['username']) > 50 || mb_strlen($old['email']) > 150 || mb_strlen($old['phone_number']) > 20 || mb_strlen($old['position']) > 100) {
     backWithRegisterError('ข้อมูลบางรายการมีความยาวเกินกำหนด');
+}
+if (!filter_var($old['email'], FILTER_VALIDATE_EMAIL)) {
+    backWithRegisterError('รูปแบบอีเมลไม่ถูกต้อง');
 }
 if (strlen($password) < 8) {
     backWithRegisterError('รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร');
@@ -47,6 +50,11 @@ try {
     if ($stmt->fetch()) {
         backWithRegisterError('ชื่อผู้ใช้งานนี้ถูกใช้แล้ว');
     }
+    $stmt = $pdo->prepare('SELECT user_id FROM users WHERE email = ? LIMIT 1');
+    $stmt->execute([$old['email']]);
+    if ($stmt->fetch()) {
+        backWithRegisterError('อีเมลนี้ถูกใช้แล้ว');
+    }
 
     $stmt = $pdo->prepare('SELECT sub_department_id FROM sub_departments WHERE sub_department_id = ? AND department_id = ?');
     $stmt->execute([(int) $old['sub_department_id'], (int) $old['department_id']]);
@@ -60,9 +68,9 @@ try {
         backWithRegisterError('ประเภทบุคลากรไม่ถูกต้อง');
     }
 
-    $stmt = $pdo->prepare('INSERT INTO users (username, password, full_name, department_id, sub_department_id, employment_type_id, phone_number, position, role) VALUES (?, ?, ?, ?, ?, ?, ?, ?, "User")');
+    $stmt = $pdo->prepare('INSERT INTO users (username, password, full_name, email, department_id, sub_department_id, employment_type_id, phone_number, position, role) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, "User")');
     $stmt->execute([
-        $old['username'], password_hash($password, PASSWORD_DEFAULT), $old['full_name'],
+        $old['username'], password_hash($password, PASSWORD_DEFAULT), $old['full_name'], $old['email'],
         (int) $old['department_id'], (int) $old['sub_department_id'], (int) $old['employment_type_id'],
         $old['phone_number'], $old['position']
     ]);

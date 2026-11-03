@@ -414,6 +414,7 @@ CREATE TABLE `users` (
   `username` varchar(50) NOT NULL,
   `password` varchar(255) NOT NULL,
   `full_name` varchar(100) DEFAULT NULL,
+  `email` varchar(150) DEFAULT NULL,
   `department_id` int(11) DEFAULT NULL,
   `sub_department_id` int(11) DEFAULT NULL,
   `employment_type_id` int(11) DEFAULT NULL,
@@ -508,6 +509,7 @@ ALTER TABLE `sub_departments`
 --
 ALTER TABLE `users`
   ADD PRIMARY KEY (`user_id`),
+  ADD UNIQUE KEY `users_email_unique` (`email`),
   ADD KEY `fk_users_department` (`department_id`),
   ADD KEY `fk_users_sub_department` (`sub_department_id`),
   ADD KEY `fk_users_employment_type` (`employment_type_id`);

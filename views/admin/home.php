@@ -2,7 +2,7 @@
 // 🟢 [คงเดิม] ป้องกันการเข้าถึงไฟล์โดยตรง และดึงข้อมูลผู้ใช้งาน
 if (!defined('APP_RUNNING')) exit('Forbidden');
 
-$stmt = $pdo->prepare("SELECT u.*, d.department_name FROM users u LEFT JOIN departments d ON u.department_id = d.department_id WHERE u.user_id = :user_id LIMIT 1");
+$stmt = $pdo->prepare("SELECT u.*, d.department_name, sd.sub_department_name FROM users u LEFT JOIN departments d ON u.department_id = d.department_id LEFT JOIN sub_departments sd ON u.sub_department_id = sd.sub_department_id WHERE u.user_id = :user_id LIMIT 1");
 $stmt->execute([':user_id' => $_SESSION['user_id']]);
 $currentUser = $stmt->fetch();
 ?>
@@ -47,19 +47,26 @@ $currentUser = $stmt->fetch();
             </div>
             <div>
                 <h3 class="fw-bolder mb-1 text-dark"><?= mb_strtoupper(htmlspecialchars($currentUser['full_name'] ?? 'BURIS S.')) ?></h3>
-                <div class="mb-2">
-                    <span class="badge bg-dark fw-bold px-3 py-1 rounded-pill shadow-sm">Admin</span>
+                <span class="badge bg-dark fw-bold px-3 py-1 rounded-pill shadow-sm">Admin</span>
+                <div class="profile-summary mt-2">
+                    <span><i class="bi bi-envelope"></i><?= htmlspecialchars($currentUser['email'] ?? '-') ?></span>
+                    <span><i class="bi bi-briefcase"></i><?= htmlspecialchars($currentUser['position'] ?? '-') ?></span>
+                    <span><i class="bi bi-building"></i><?= htmlspecialchars($currentUser['department_name'] ?? '-') ?></span>
+                    <span><i class="bi bi-diagram-3"></i><?= htmlspecialchars($currentUser['sub_department_name'] ?? '-') ?></span>
                 </div>
-                <p class="mb-0 text-muted small fw-bold">
-                    <i class="bi bi-building me-1"></i> Department: <?= htmlspecialchars($currentUser['department_name'] ?? 'กองเทคโนโลยี') ?>
-                </p>
             </div>
         </div>
         <div>
-            <button class="btn btn-outline-dark fw-bold px-4 py-2 rounded-pill shadow-sm">แก้ไขข้อมูลส่วนตัว</button>
+            <a href="index.php?page=profile" class="btn btn-outline-dark fw-bold px-4 py-2 rounded-pill shadow-sm"><i class="bi bi-pencil-square me-1"></i>แก้ไขข้อมูลส่วนตัว</a>
         </div>
     </div>
 </div>
+
+<style>
+.profile-summary { display: flex; flex-wrap: wrap; gap: .45rem 1rem; color: #5f6770; font-size: .83rem; font-weight: 500; }
+.profile-summary span { white-space: nowrap; }
+.profile-summary i { margin-right: .35rem; color: #6c757d; }
+</style>
 
 <!-- 🟢 [ปรับปรุง] กล่องครอบเมนูหลัก (Wrapper Container)  -->
 <div class="card border-0 shadow-sm rounded-4 bg-white p-4 p-xl-5 mb-5 border-warning border-top border-4">

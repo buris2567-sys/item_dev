@@ -107,6 +107,10 @@ include 'includes/header.php';
                                 <label class="form-label" for="position">ตำแหน่ง <span class="text-danger">*</span></label>
                                 <input class="form-control" id="position" name="position" maxlength="100" value="<?= htmlspecialchars($old['position'] ?? '') ?>" placeholder="ระบุชื่อตำแหน่ง" required>
                             </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="email">อีเมล <span class="text-danger">*</span></label>
+                                <input class="form-control" id="email" type="email" name="email" maxlength="150" value="<?= htmlspecialchars($old['email'] ?? '') ?>" placeholder="name@oap.go.th" required>
+                            </div>
                         </div>
                         <div class="form-note mt-4 d-flex align-items-center gap-2">
                             <i class="bi bi-info-circle-fill text-warning fs-6"></i>

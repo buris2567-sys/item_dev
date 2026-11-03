@@ -48,6 +48,7 @@ $routes = [];
 if ($role === 'Admin') {
     $routes = [
         'home'           => ['file' => 'views/admin/home.php', 'title' => 'หน้าหลักผู้ดูแลระบบ'],
+        'profile'        => ['file' => 'views/user/profile.php', 'title' => 'แก้ไขข้อมูลส่วนตัว'],
         'manage_items'   => ['file' => 'views/admin/manage_items.php', 'title' => 'จัดการสิ่งของ'],
         'request_list'   => ['file' => 'views/admin/request_list.php', 'title' => 'รายการคำขอเบิกสิ่งของ'],
         'request_view'   => ['file' => 'views/admin/request_view.php', 'title' => 'รายละเอียดคำขอเบิกสิ่งของ'],

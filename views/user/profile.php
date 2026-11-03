@@ -47,6 +47,10 @@ if (empty($_SESSION['profile_form_token'])) {
                 <div class="form-text">ชื่อผู้ใช้งานไม่สามารถเปลี่ยนได้</div>
             </div>
             <div class="mb-3">
+                <label class="form-label" for="email">อีเมล <span class="text-danger">*</span></label>
+                <input class="form-control" id="email" type="email" name="email" maxlength="150" value="<?= htmlspecialchars($old['email'] ?? $user['email']) ?>" required>
+            </div>
+            <div class="mb-3">
                 <label class="form-label" for="phone_number">เบอร์ติดต่อ <span class="text-danger">*</span></label>
                 <input class="form-control" id="phone_number" name="phone_number" maxlength="20" value="<?= htmlspecialchars($old['phone_number'] ?? $user['phone_number']) ?>" required>
             </div>
