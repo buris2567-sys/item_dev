@@ -22,24 +22,31 @@ include 'includes/header.php';
 
 <main class="register-shell py-4 py-lg-5">
     <section class="register-card">
-        <div class="register-heading">
-            <div class="register-mark"><i class="bi bi-box-seam-fill"></i></div>
-            <div>
-                <p class="auth-kicker mb-1">OAP INVENTORY SYSTEM</p>
-                <h1>ลงทะเบียนผู้ใช้งานระบบ</h1>
-                <p class="mb-0 text-secondary">กรอกข้อมูลเพื่อสร้างบัญชีสำหรับใช้งานระบบ</p>
+        <div class="register-heading d-flex flex-column flex-sm-row align-items-start align-items-sm-center justify-content-between pb-4 mb-4 border-bottom">
+            <div class="d-flex align-items-center gap-3">
+                <div class="register-mark">
+                    <i class="bi bi-person-plus-fill"></i>
+                </div>
+                <div>
+                    
+                    <h1 class="fw-bold fs-3 text-dark mb-1">ลงทะเบียนผู้ใช้งานระบบ</h1>
+                    <p class="mb-0 text-muted small">กรอกข้อมูลเพื่อสร้างบัญชีสำหรับขอเบิกสิ่งพิมพ์และของที่ระลึก</p>
+                </div>
             </div>
+            <a href="login.php" class="btn btn-light rounded-pill border px-3 py-1 text-secondary small fw-semibold mt-2 mt-sm-0 d-inline-flex align-items-center gap-1 shadow-sm">
+                <i class="bi bi-arrow-left"></i> กลับไปเข้าสู่ระบบ
+            </a>
         </div>
 
         <?php if ($error): ?>
-            <div class="alert alert-danger border-0 rounded-3 mb-4" role="alert"><?= htmlspecialchars($error) ?></div>
+            <div class="alert alert-danger border-0 rounded-3 mb-4 shadow-sm" role="alert"><?= htmlspecialchars($error) ?></div>
         <?php endif; ?>
 
         <form action="actions/auth_register.php" method="POST" class="row g-4">
             <input type="hidden" name="form_token" value="<?= htmlspecialchars($_SESSION['form_token']) ?>">
             <div class="col-lg-5">
                 <div class="form-section h-100">
-                    <h2><i class="bi bi-person-vcard"></i> ข้อมูลส่วนตัวและบัญชี</h2>
+                    <h2 class="fw-bold fs-6 text-dark mb-3"><i class="bi bi-person-vcard text-warning fs-5"></i> ข้อมูลส่วนตัวและบัญชี</h2>
                     <div class="mb-3">
                         <label class="form-label" for="full_name">ชื่อ-นามสกุล <span class="text-danger">*</span></label>
                         <input class="form-control" id="full_name" name="full_name" maxlength="100" value="<?= htmlspecialchars($old['full_name'] ?? '') ?>" placeholder="ระบุชื่อ-นามสกุล" required>
@@ -47,7 +54,7 @@ include 'includes/header.php';
                     <div class="mb-3">
                         <label class="form-label" for="register_username">ชื่อผู้ใช้งาน <span class="text-danger">*</span></label>
                         <input class="form-control" id="register_username" name="username" maxlength="50" value="<?= htmlspecialchars($old['username'] ?? '') ?>" placeholder="เช่น name.s" required>
-                        <div class="form-text">ใช้สำหรับเข้าสู่ระบบ</div>
+                        <div class="form-text small text-muted">ใช้สำหรับเข้าสู่ระบบ</div>
                     </div>
                     <div class="mb-3">
                         <label class="form-label" for="phone_number">เบอร์ติดต่อ <span class="text-danger">*</span></label>
@@ -65,48 +72,55 @@ include 'includes/header.php';
             </div>
 
             <div class="col-lg-7">
-                <div class="form-section h-100">
-                    <h2><i class="bi bi-briefcase"></i> ตำแหน่งและหน่วยงาน</h2>
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label class="form-label" for="employment_type_id">ประเภทบุคลากร <span class="text-danger">*</span></label>
-                            <select class="form-select" id="employment_type_id" name="employment_type_id" required>
-                                <option value="">เลือกประเภทบุคลากร</option>
-                                <?php foreach ($employmentTypes as $type): ?>
-                                    <option value="<?= (int) $type['employment_type_id'] ?>" <?= (($old['employment_type_id'] ?? '') == $type['employment_type_id']) ? 'selected' : '' ?>><?= htmlspecialchars($type['type_name']) ?></option>
-                                <?php endforeach; ?>
-                            </select>
+                <div class="form-section h-100 d-flex flex-column justify-content-between">
+                    <div>
+                        <h2 class="fw-bold fs-6 text-dark mb-3"><i class="bi bi-briefcase text-warning fs-5"></i> ตำแหน่งและหน่วยงาน</h2>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label" for="employment_type_id">ประเภทบุคลากร <span class="text-danger">*</span></label>
+                                <select class="form-select" id="employment_type_id" name="employment_type_id" required>
+                                    <option value="">เลือกประเภทบุคลากร</option>
+                                    <?php foreach ($employmentTypes as $type): ?>
+                                        <option value="<?= (int) $type['employment_type_id'] ?>" <?= (($old['employment_type_id'] ?? '') == $type['employment_type_id']) ? 'selected' : '' ?>><?= htmlspecialchars($type['type_name']) ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="department_id">กอง <span class="text-danger">*</span></label>
+                                <select class="form-select" id="department_id" name="department_id" required>
+                                    <option value="">เลือกกอง</option>
+                                    <?php foreach ($departments as $department): ?>
+                                        <option value="<?= (int) $department['department_id'] ?>" <?= (($old['department_id'] ?? '') == $department['department_id']) ? 'selected' : '' ?>><?= htmlspecialchars($department['department_name']) ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="sub_department_id">กลุ่ม <span class="text-danger">*</span></label>
+                                <select class="form-select" id="sub_department_id" name="sub_department_id" required>
+                                    <option value="">เลือกกลุ่ม</option>
+                                    <?php foreach ($subDepartments as $subDepartment): ?>
+                                        <option value="<?= (int) $subDepartment['sub_department_id'] ?>" data-department="<?= (int) $subDepartment['department_id'] ?>" <?= (($old['sub_department_id'] ?? '') == $subDepartment['sub_department_id']) ? 'selected' : '' ?>><?= htmlspecialchars($subDepartment['sub_department_name']) ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="position">ตำแหน่ง <span class="text-danger">*</span></label>
+                                <input class="form-control" id="position" name="position" maxlength="100" value="<?= htmlspecialchars($old['position'] ?? '') ?>" placeholder="ระบุชื่อตำแหน่ง" required>
+                            </div>
                         </div>
-                        <div class="col-md-6">
-                            <label class="form-label" for="department_id">กอง <span class="text-danger">*</span></label>
-                            <select class="form-select" id="department_id" name="department_id" required>
-                                <option value="">เลือกกอง</option>
-                                <?php foreach ($departments as $department): ?>
-                                    <option value="<?= (int) $department['department_id'] ?>" <?= (($old['department_id'] ?? '') == $department['department_id']) ? 'selected' : '' ?>><?= htmlspecialchars($department['department_name']) ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label" for="sub_department_id">กลุ่ม <span class="text-danger">*</span></label>
-                            <select class="form-select" id="sub_department_id" name="sub_department_id" required>
-                                <option value="">เลือกกลุ่ม</option>
-                                <?php foreach ($subDepartments as $subDepartment): ?>
-                                    <option value="<?= (int) $subDepartment['sub_department_id'] ?>" data-department="<?= (int) $subDepartment['department_id'] ?>" <?= (($old['sub_department_id'] ?? '') == $subDepartment['sub_department_id']) ? 'selected' : '' ?>><?= htmlspecialchars($subDepartment['sub_department_name']) ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label" for="position">ตำแหน่ง <span class="text-danger">*</span></label>
-                            <input class="form-control" id="position" name="position" maxlength="100" value="<?= htmlspecialchars($old['position'] ?? '') ?>" placeholder="ระบุชื่อตำแหน่ง" required>
+                        <div class="form-note mt-4 d-flex align-items-center gap-2">
+                            <i class="bi bi-info-circle-fill text-warning fs-6"></i>
+                            <span>กรุณาตรวจสอบกอง กลุ่ม และตำแหน่งให้ถูกต้องก่อนลงทะเบียน เพื่อความรวดเร็วในการอนุมัติคำขอ</span>
                         </div>
                     </div>
-                    <div class="form-note mt-4"><i class="bi bi-info-circle"></i> กรุณาตรวจสอบกอง กลุ่ม และตำแหน่งให้ถูกต้องก่อนลงทะเบียน</div>
-                </div>
-            </div>
 
-            <div class="col-12 d-flex flex-column-reverse flex-sm-row justify-content-end gap-2 pt-2">
-                <a href="login.php" class="btn btn-light border px-4 py-2"><i class="bi bi-arrow-left me-1"></i> กลับหน้าเข้าสู่ระบบ</a>
-                <button class="btn btn-dark px-4 py-2" type="submit">ส่งข้อมูลลงทะเบียน <i class="bi bi-arrow-right ms-1"></i></button>
+                    <div class="d-flex flex-column-reverse flex-sm-row justify-content-end gap-2 pt-4 mt-4 border-top">
+                        <a href="login.php" class="btn btn-light rounded-pill border px-4 py-2 text-secondary fw-semibold">ยกเลิก</a>
+                        <button class="btn btn-warning rounded-pill px-4 py-2 fw-bold shadow-sm d-flex align-items-center justify-content-center gap-2" type="submit">
+                            <span>ยืนยันการลงทะเบียน</span> <i class="bi bi-check-circle-fill"></i>
+                        </button>
+                    </div>
+                </div>
             </div>
         </form>
     </section>
