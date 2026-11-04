@@ -17,6 +17,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // ตรวจสอบ Hashing Password
         if ($user && password_verify($password, $user['password'])) {
+            
+            // 🔴 เพิ่มบล็อกนี้เพื่อตรวจสอบสถานะการอนุมัติ
+            if ((int)$user['approve_user'] === 0) {
+                $_SESSION['error'] = 'บัญชีของคุณกำลังอยู่ระหว่างรอการอนุมัติ';
+                header("Location: ../login.php");
+                exit;
+            } elseif ((int)$user['approve_user'] === 2) {
+                $_SESSION['error'] = 'บัญชีของคุณถูกปฏิเสธหรือระงับการเข้าใช้งาน';
+                header("Location: ../login.php");
+                exit;
+            }
+            // 🔴 จบบล็อกที่เพิ่มใหม่
+
             $_SESSION['user_id']       = $user['user_id'];
             $_SESSION['full_name']     = $user['full_name'];
             $_SESSION['role']          = $user['role'];

@@ -35,13 +35,42 @@ unset($_SESSION['profile_success']);
             <div>
                 <h3 class="fw-bolder text-dark mb-1"><?= htmlspecialchars($user['full_name'] ?? 'ไม่ทราบชื่อ') ?></h3>
                 <span class="badge bg-dark rounded-pill px-3 py-1 shadow-sm"><?= htmlspecialchars($user['role'] ?? 'User') ?></span>
-                <div class="profile-summary mt-2 fs-6">
+                <!-- <div class="profile-summary mt-2 fs-6">
                     <span><i class="bi bi-envelope"></i><?= htmlspecialchars($user['email'] ?? '-') ?></span>
                     <span><i class="bi bi-briefcase"></i><?= htmlspecialchars($user['position'] ?? '-') ?></span>
                     <span><i class="bi bi-building"></i><?= htmlspecialchars($user['department_name'] ?? '-') ?></span>
                     <span><i class="bi bi-diagram-3"></i><?= htmlspecialchars($user['sub_department_name'] ?? '-') ?></span>
+                </div> -->
+                <!-- แบ่งเป็น 2 คอลัมน์กว้างเท่ากัน 50/50 ตรงกันทุกบรรทัด -->
+                <div class="row g-2 text-muted small mt-2" style="max-width: 620px;">
+                    <!-- บรรทัดที่ 1: ฝั่งซ้าย (กอง) -->
+                    <div class="col-6 d-flex align-items-center">
+                        <i class="bi bi-building text-primary me-2 flex-shrink-0"></i>
+                        <span><strong class="text-secondary">กอง:</strong> <?= htmlspecialchars($user['department_name'] ?? '-') ?></span>
+                    </div>
+
+                    <!-- บรรทัดที่ 1: ฝั่งขวา (กลุ่ม) -->
+                    <div class="col-6 d-flex align-items-center">
+                        <i class="bi bi-diagram-3 text-info me-2 flex-shrink-0"></i>
+                        <span><strong class="text-secondary">กลุ่ม:</strong> <?= htmlspecialchars($user['sub_department_name'] ?? '-') ?></span>
+                    </div>
+
+                    <!-- บรรทัดที่ 2: ฝั่งซ้าย (ตำแหน่ง) -->
+                    <div class="col-6 d-flex align-items-center">
+                        <i class="bi bi-briefcase text-secondary me-2 flex-shrink-0"></i>
+                        <span><strong class="text-secondary">ตำแหน่ง:</strong> <?= htmlspecialchars($user['position'] ?? '-') ?></span>
+                    </div>
+
+                    <!-- บรรทัดที่ 2: ฝั่งขวา (อีเมล) -->
+                    <div class="col-6 d-flex align-items-center">
+                        <i class="bi bi-envelope text-secondary me-2 flex-shrink-0"></i>
+                        <span><?= htmlspecialchars($user['email'] ?? '-') ?></span>
+                    </div>
                 </div>
+
             </div>
+
+
         </div>
         <a href="index.php?page=profile" class="btn btn-outline-dark fw-bold rounded-pill px-4 py-2 shadow-sm">
             <i class="bi bi-pencil-square me-1"></i> แก้ไขข้อมูลส่วนตัว
@@ -58,7 +87,9 @@ unset($_SESSION['profile_success']);
         <div class="col-sm-6 col-lg-5">
             <a href="index.php?page=create_request" class="text-decoration-none">
                 <div class="card border border-light rounded-4 h-100 text-center p-5 hover-shadow transition-all bg-white shadow-sm">
-                    <div class="d-flex justify-content-center mb-3"><div class="bg-warning bg-opacity-25 rounded-circle d-flex justify-content-center align-items-center" style="width: 80px; height: 80px;"><i class="bi bi-cart-plus fs-1 text-warning"></i></div></div>
+                    <div class="d-flex justify-content-center mb-3">
+                        <div class="bg-warning bg-opacity-25 rounded-circle d-flex justify-content-center align-items-center" style="width: 80px; height: 80px;"><i class="bi bi-cart-plus fs-1 text-warning"></i></div>
+                    </div>
                     <h5 class="fw-bolder text-dark mb-2">สร้างคำขอเบิกสิ่งของ</h5>
                     <p class="text-muted small mb-0">ทำรายการเบิกพัสดุเข้าคลังย่อยของแผนก</p>
                 </div>
@@ -67,7 +98,9 @@ unset($_SESSION['profile_success']);
         <div class="col-sm-6 col-lg-5">
             <a href="index.php?page=my_requests" class="text-decoration-none">
                 <div class="card border border-light rounded-4 h-100 text-center p-5 hover-shadow transition-all bg-white shadow-sm">
-                    <div class="d-flex justify-content-center mb-3"><div class="bg-success bg-opacity-10 rounded-circle d-flex justify-content-center align-items-center" style="width: 80px; height: 80px;"><i class="bi bi-printer fs-1 text-success"></i></div></div>
+                    <div class="d-flex justify-content-center mb-3">
+                        <div class="bg-success bg-opacity-10 rounded-circle d-flex justify-content-center align-items-center" style="width: 80px; height: 80px;"><i class="bi bi-printer fs-1 text-success"></i></div>
+                    </div>
                     <h5 class="fw-bolder text-dark mb-2">ติดตามสถานะคำขอ</h5>
                     <p class="text-muted small mb-0">ตรวจสอบประวัติคำร้องและพิมพ์แบบฟอร์ม</p>
                 </div>
@@ -77,10 +110,43 @@ unset($_SESSION['profile_success']);
 </section>
 
 <style>
-.profile-avatar { width: 80px; height: 80px; display: grid; place-items: center; border: 1px solid #dce1e6; border-radius: 1.25rem; background: #f8f9fa; color: #6c757d; font-size: 2.15rem; box-shadow: 0 .125rem .25rem rgba(0,0,0,.075); }
-.profile-summary { display: flex; flex-wrap: wrap; gap: .45rem 1rem; color: #5f6770; font-size: .83rem; font-weight: 500; }
-.profile-summary span { white-space: nowrap; }
-.profile-summary i { margin-right: .35rem; color: #6c757d; }
-.hover-shadow { transition: transform .2s ease-in-out, box-shadow .2s ease-in-out; }
-.hover-shadow:hover { transform: translateY(-5px); box-shadow: 0 .5rem 1rem rgba(0,0,0,.15) !important; }
+    .profile-avatar {
+        width: 80px;
+        height: 80px;
+        display: grid;
+        place-items: center;
+        border: 1px solid #dce1e6;
+        border-radius: 1.25rem;
+        background: #f8f9fa;
+        color: #6c757d;
+        font-size: 2.15rem;
+        box-shadow: 0 .125rem .25rem rgba(0, 0, 0, .075);
+    }
+
+    .profile-summary {
+        display: flex;
+        flex-wrap: wrap;
+        gap: .45rem 1rem;
+        color: #5f6770;
+        font-size: .83rem;
+        font-weight: 500;
+    }
+
+    .profile-summary span {
+        white-space: nowrap;
+    }
+
+    .profile-summary i {
+        margin-right: .35rem;
+        color: #6c757d;
+    }
+
+    .hover-shadow {
+        transition: transform .2s ease-in-out, box-shadow .2s ease-in-out;
+    }
+
+    .hover-shadow:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .15) !important;
+    }
 </style>

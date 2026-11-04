@@ -1,4 +1,12 @@
 <?php
+// ตรวจสอบสิทธิ์การเข้าถึง และดึงข้อมูลจากฐานข้อมูล
+if (!defined('APP_RUNNING')) exit('Forbidden');
+
+if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'Admin') {
+    $_SESSION['error'] = 'เฉพาะผู้ดูแลระบบเท่านั้นที่สามารถเข้าถึงหน้านี้ได้';
+    header("Location: index.php");
+    exit;
+}
 require_once 'config/db.php';
 
 // ดึงตัวเลขนับสถานะ
@@ -9,7 +17,11 @@ $countInactive = $pdo->query("SELECT COUNT(*) FROM categories WHERE is_active = 
 // ดึงข้อมูลประเภทสิ่งของทั้งหมด
 $stmt       = $pdo->query("SELECT * FROM categories ORDER BY category_id DESC");
 $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+$success = $_SESSION['success'] ?? '';
+unset($_SESSION['success']);
 ?>
+
 
 <!-- CSS ควบคุมสีสวิตช์ -->
 <style>
@@ -32,13 +44,18 @@ $pageHeader = [
 ];
 include 'components/ui/page_header.php';
 ?>
+<?php if ($success): ?>
+    <div class="alert alert-success border-0 shadow-sm rounded-3 mb-4" role="alert">
+        <i class="bi bi-check-circle me-1"></i><?= htmlspecialchars($success) ?>
+    </div>
+<?php endif; ?>
 
 <!-- Card ตารางประเภทสิ่งของ -->
 <div class="card border-0 rounded-4 shadow-sm mb-5 border-warning border-top border-4 bg-white">
 
-<?php
-// Extra slot: filter buttons (ทั้งหมด / เปิดใช้งาน / ปิดใช้งาน)
-ob_start(); ?>
+    <?php
+    // Extra slot: filter buttons (ทั้งหมด / เปิดใช้งาน / ปิดใช้งาน)
+    ob_start(); ?>
     <button type="button" class="btn btn-warning text-dark fw-bold px-3 py-1 rounded-pill filter-btn active" data-status="all">
         ทั้งหมด <span class="badge text-dark ms-1 rounded-pill fs-6"><?= $countAll ?></span>
     </button>
@@ -48,86 +65,99 @@ ob_start(); ?>
     <button type="button" class="btn bg-white border text-secondary fw-bold px-3 py-1 rounded-pill filter-btn" data-status="0">
         ปิดใช้งาน <span class="badge bg-danger bg-opacity-25 text-danger ms-1 rounded-pill fs-6"><?= $countInactive ?></span>
     </button>
-<?php $extraHtml = ob_get_clean();
+    <?php $extraHtml = ob_get_clean();
 
-$cardHeader = [
-    'icon'   => 'bi-box-seam',
-    'title'  => 'รายการประเภทสิ่งของ',
-    'search' => ['id' => 'searchInput', 'placeholder' => 'ค้นหาชื่อประเภท...'],
-    'extra'  => $extraHtml,
-];
-include 'components/ui/card_header.php';
-?>
+    $cardHeader = [
+        'icon'   => 'bi-box-seam',
+        'title'  => 'รายการประเภทสิ่งของ',
+        'search' => ['id' => 'searchInput', 'placeholder' => 'ค้นหาชื่อประเภท...'],
+        'extra'  => $extraHtml,
+    ];
+    include 'components/ui/card_header.php';
+    ?>
 
     <!-- ตารางข้อมูล -->
     <div class="card-body p-0 table-responsive">
         <table class="table table-hover align-middle mb-0 text-center border-white" id="categoryTable">
-            <thead class="bg-light text-muted small fw-normal">
+            <thead class="table-light text-muted">
                 <tr>
-                    <th class="py-3 fw-semibold border-0">ลำดับ</th>
-                    <th class="py-3 text-start fw-semibold border-0">ชื่อประเภท</th>
-                    <th class="py-3 fw-semibold border-0">วันที่สร้าง</th>
-                    <th class="py-3 fw-semibold border-0">สถานะ</th>
-                    <th class="py-3 fw-semibold border-0">การจัดการ</th>
+                    <th class="fw-bold py-3 border-0">ลำดับ</th>
+                    <th class="fw-bold py-3 border-0 text-start">ชื่อประเภท</th>
+                    <th class="fw-bold py-3 border-0">วันที่สร้าง</th>
+                    <th class="fw-bold py-3 border-0">สถานะ</th>
+                    <th class="fw-bold py-3 border-0" style="width: 180px;">การจัดการ</th>
                 </tr>
             </thead>
             <tbody class="border-top-0">
                 <?php if (count($categories) > 0): ?>
                     <?php $i = 1;
                     foreach ($categories as $cat): ?>
-                        <tr class="category-row <?= $i % 2 == 0 ? 'bg-light bg-opacity-50' : '' ?>" data-status="<?= $cat['is_active'] ?>">
-                            <td class="text-muted fw-semibold py-3 row-number"><?= $i++ ?></td>
-                            <td class="text-start fw-bold text-dark py-3 category-name"><?= htmlspecialchars($cat['name']) ?></td>
-                            <td class="text-muted small py-3"><?= date('d M Y', strtotime($cat['created_at'])) ?></td>
-                            <td class="py-3">
+                        <tr class="category-row" data-status="<?= $cat['is_active'] ?>" style="border-bottom: 1px solid #f8f9fa;">
+                            <td class="fw-bold text-muted py-3 row-number"><?= $i++ ?></td>
+                            <td class="text-dark fw-semibold text-start py-3 category-name"><?= htmlspecialchars($cat['name']) ?></td>
+                            <td class="text-muted py-3"><?= date('d/m/Y H:i', strtotime($cat['created_at'])) ?></td>
+                            <td>
                                 <?php if ($cat['is_active'] == 1): ?>
-                                    <span class="badge bg-success text-white px-3 py-2 rounded-pill shadow-sm">
+                                    <span class="badge bg-success text-white px-3 py-2 rounded-pill shadow-sm" style="min-width: 100px;">
                                         <i class="bi bi-circle-fill small me-1" style="font-size: 0.4rem;"></i> เปิดใช้งาน
                                     </span>
                                 <?php else: ?>
-                                    <span class="badge bg-secondary text-white px-3 py-2 rounded-pill shadow-sm">
+                                    <span class="badge bg-secondary text-white px-3 py-2 rounded-pill shadow-sm" style="min-width: 100px;">
                                         <i class="bi bi-circle-fill small me-1" style="font-size: 0.4rem;"></i> ปิดใช้งาน
                                     </span>
                                 <?php endif; ?>
                             </td>
-                            <td class="py-3">
-                                <div class="d-flex justify-content-center align-items-center gap-2">
-                                    <div class="form-check form-switch m-0">
-                                        <input class="form-check-input toggle-category-btn"
-                                               type="checkbox" role="switch"
-                                               data-id="<?= $cat['category_id'] ?>"
-                                               <?= $cat['is_active'] == 1 ? 'checked' : '' ?>
-                                               style="width: 35px; height: 18px; cursor: pointer;">
+                            <td>
+                                <!-- ใช้ Grid เพื่อให้พื้นที่การจัดการกว้างเท่ากัน -->
+                                <div class="row g-2 justify-content-center align-items-center">
+                                    <div class="col-6 d-flex justify-content-end">
+                                        <div class="form-check form-switch m-0">
+                                            <input class="form-check-input toggle-category-btn shadow-sm"
+                                                type="checkbox" role="switch"
+                                                data-id="<?= $cat['category_id'] ?>"
+                                                <?= $cat['is_active'] == 1 ? 'checked' : '' ?>
+                                                style="width: 38px; height: 20px; cursor: pointer;">
+                                        </div>
                                     </div>
-                                    <button type="button"
-                                            class="btn btn-sm btn-light text-primary border rounded-circle shadow-sm edit-category-btn"
+                                    <div class="col-6 d-flex justify-content-start">
+                                        <button type="button"
+                                            class="btn btn-sm  fw-bold shadow-sm edit-category-btn w-100"
                                             data-id="<?= $cat['category_id'] ?>"
                                             data-name="<?= htmlspecialchars($cat['name']) ?>"
                                             data-bs-toggle="modal"
                                             data-bs-target="#editCategoryModal"
-                                            style="width: 32px; height: 32px;">
-                                        <i class="bi bi-pencil"></i>
-                                    </button>
+                                            title="แก้ไขข้อมูล">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                    </div>
                                 </div>
                             </td>
                         </tr>
                     <?php endforeach; ?>
                 <?php else: ?>
                     <tr id="emptyRow">
-                        <td colspan="5" class="text-muted py-4">ยังไม่มีข้อมูลประเภทสิ่งของ</td>
+                        <td colspan="5" class="text-center py-5 text-muted border-0">
+                            <div class="bg-light rounded-circle d-inline-flex justify-content-center align-items-center mb-3 shadow-sm" style="width: 70px; height: 70px;">
+                                <i class="bi bi-tags fs-2 text-secondary opacity-50"></i>
+                            </div>
+                            <h6 class="fw-bold mb-0">ยังไม่มีข้อมูลประเภทสิ่งของ</h6>
+                        </td>
                     </tr>
                 <?php endif; ?>
+                
                 <tr id="noMatchRow" style="display: none;">
-                    <td colspan="5" class="text-muted py-4">ไม่พบข้อมูลที่ค้นหา</td>
+                    <td colspan="5" class="text-center py-5 text-muted border-0">
+                        <h6 class="fw-bold mb-0">ไม่พบข้อมูลที่ค้นหา</h6>
+                    </td>
                 </tr>
             </tbody>
         </table>
     </div>
 
-<?php
-$paginationWrapperId = 'categoryPaginationWrapper';
-include 'components/ui/card_footer_pagination.php';
-?>
+    <?php
+    $paginationWrapperId = 'categoryPaginationWrapper';
+    include 'components/ui/card_footer_pagination.php';
+    ?>
 </div>
 
 <!-- Modal Components -->
@@ -164,7 +194,10 @@ include 'components/ui/card_footer_pagination.php';
         const nameInput = document.getElementById('addCategoryName');
         const name = nameInput.value.trim();
 
-        if (!form.checkValidity()) { form.reportValidity(); return; }
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
 
         const btn = this;
         const originalText = btn.innerHTML;
@@ -176,9 +209,17 @@ include 'components/ui/card_footer_pagination.php';
             .then(data => {
                 if (data.exists) {
                     alert('❌ ไม่สามารถเพิ่มได้: มีประเภทสิ่งของชื่อ "' + name + '" ในระบบอยู่แล้ว (หรือถูกปิดใช้งานอยู่)');
-                    btn.disabled = false; btn.innerHTML = originalText; nameInput.focus();
-                } else { form.submit(); }
-            }).catch(() => { alert('เกิดข้อผิดพลาดในการตรวจสอบชื่อซ้ำ'); btn.disabled = false; btn.innerHTML = originalText; });
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                    nameInput.focus();
+                } else {
+                    form.submit();
+                }
+            }).catch(() => {
+                alert('เกิดข้อผิดพลาดในการตรวจสอบชื่อซ้ำ');
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            });
     });
 
     // 3. ดึงข้อมูลใส่ Modal แก้ไข
@@ -198,7 +239,10 @@ include 'components/ui/card_footer_pagination.php';
         const name = nameInput.value.trim();
         const id = idInput.value;
 
-        if (!form.checkValidity()) { form.reportValidity(); return; }
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
 
         const btn = this;
         const originalText = btn.innerHTML;
@@ -210,9 +254,17 @@ include 'components/ui/card_footer_pagination.php';
             .then(data => {
                 if (data.exists) {
                     alert('❌ ไม่สามารถเปลี่ยนชื่อได้: มีประเภทสิ่งของชื่อ "' + name + '" ในระบบอยู่แล้ว');
-                    btn.disabled = false; btn.innerHTML = originalText; nameInput.focus();
-                } else { form.submit(); }
-            }).catch(() => { alert('เกิดข้อผิดพลาดในการตรวจสอบชื่อซ้ำ'); btn.disabled = false; btn.innerHTML = originalText; });
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                    nameInput.focus();
+                } else {
+                    form.submit();
+                }
+            }).catch(() => {
+                alert('เกิดข้อผิดพลาดในการตรวจสอบชื่อซ้ำ');
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            });
     });
 
     // 5. สวิตช์ Toggle เปิด/ปิด สถานะ
@@ -226,8 +278,9 @@ include 'components/ui/card_footer_pagination.php';
             fetch('actions/admin/category_toggle_status.php?id=' + encodeURIComponent(catId) + '&status=' + encodeURIComponent(status))
                 .then(res => res.json())
                 .then(data => {
-                    if (data.success) { window.location.reload(); }
-                    else {
+                    if (data.success) {
+                        window.location.reload();
+                    } else {
                         alert('❌ เกิดข้อผิดพลาด: ' + (data.message || 'ไม่สามารถเปลี่ยนสถานะได้'));
                         switchElement.checked = !switchElement.checked;
                         switchElement.disabled = false;
@@ -254,8 +307,12 @@ include 'components/ui/card_footer_pagination.php';
             const matchStatus = (currentStatusFilter === 'all' || rowStatus === currentStatusFilter);
             const matchKeyword = rowName.includes(keyword);
 
-            if (matchStatus && matchKeyword) { row.style.display = ''; visibleCount++; }
-            else { row.style.display = 'none'; }
+            if (matchStatus && matchKeyword) {
+                row.style.display = '';
+                visibleCount++;
+            } else {
+                row.style.display = 'none';
+            }
         });
 
         const noMatchRow = document.getElementById('noMatchRow');
