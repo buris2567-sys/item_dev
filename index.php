@@ -48,16 +48,17 @@ $routes = [];
 if ($role === 'Admin') {
     $routes = [
         'home'           => ['file' => 'views/admin/home.php', 'title' => 'หน้าหลักผู้ดูแลระบบ'],
-        'profile'        => ['file' => 'views/user/profile.php', 'title' => 'แก้ไขข้อมูลส่วนตัว'],
+        'profile'        => ['file' => 'profile.php', 'title' => 'แก้ไขข้อมูลส่วนตัว'],
         'manage_items'   => ['file' => 'views/admin/manage_items.php', 'title' => 'จัดการสิ่งของ'],
         'request_list'   => ['file' => 'views/admin/request_list.php', 'title' => 'รายการคำขอเบิกสิ่งของ'],
         'request_view'   => ['file' => 'views/admin/request_view.php', 'title' => 'รายละเอียดคำขอเบิกสิ่งของ'],
-        'manage_categories'   => ['file' => 'views/admin/manage_categories.php', 'title' => 'จัดการหมวดหมู่สิ่งของ']
+        'manage_categories'   => ['file' => 'views/admin/manage_categories.php', 'title' => 'จัดการหมวดหมู่สิ่งของ'],
+        'request_register'   => ['file' => 'views/admin/request_register.php', 'title' => 'รายการลงทะเบียนบัญชีผู้ใช้'],
     ];
 } else {
     $routes = [
         'home'           => ['file' => 'views/user/home.php', 'title' => 'หน้าหลัก'],
-        'profile'        => ['file' => 'views/user/profile.php', 'title' => 'แก้ไขข้อมูลส่วนตัว'],
+        'profile'        => ['file' => 'profile.php', 'title' => 'แก้ไขข้อมูลส่วนตัว'],
         'create_request' => ['file' => 'views/user/create_request.php', 'title' => 'สร้างคำขอเบิกสิ่งของ'],
         'my_requests'    => ['file' => 'views/user/my_requests.php', 'title' => 'ติดตามสถานะคำขอ'],
         'request_view'   => ['file' => 'views/user/request_view.php', 'title' => 'รายละเอียดคำขอเบิกสิ่งของ']

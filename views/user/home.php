@@ -35,7 +35,7 @@ unset($_SESSION['profile_success']);
             <div>
                 <h3 class="fw-bolder text-dark mb-1"><?= htmlspecialchars($user['full_name'] ?? 'ไม่ทราบชื่อ') ?></h3>
                 <span class="badge bg-dark rounded-pill px-3 py-1 shadow-sm"><?= htmlspecialchars($user['role'] ?? 'User') ?></span>
-                <div class="profile-summary mt-2">
+                <div class="profile-summary mt-2 fs-6">
                     <span><i class="bi bi-envelope"></i><?= htmlspecialchars($user['email'] ?? '-') ?></span>
                     <span><i class="bi bi-briefcase"></i><?= htmlspecialchars($user['position'] ?? '-') ?></span>
                     <span><i class="bi bi-building"></i><?= htmlspecialchars($user['department_name'] ?? '-') ?></span>

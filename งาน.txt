@@ -47,3 +47,6 @@ trasaction --comit  prepare execute
 ขั้นdev  1.ปะติปะต่อจาก chat gemin pro (เพื่อเรียนรู้โค้ด + มีเวลาทำ)
         2. ปรับ รีเฟคเตอร์  ใช้ agent เข้าถึงโปรเจค (ทำได้ด่วนๆ + ใช้ที่จำเป็น)
         3. เทคนิคการใช้ รัน ubuto + container + agent ai หลายเจ้า เพื่อแยกหน้าที่
+
+
+        git restore --source=HEAD~1 views\admin\request_list.php    

@@ -7,7 +7,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 $fields = ['full_name', 'username', 'email', 'phone_number', 'position', 'department_id', 'sub_department_id', 'employment_type_id'];
-$old = [];
+$old = []; 
 foreach ($fields as $field) {
     $old[$field] = trim((string) ($_POST[$field] ?? ''));
 }
@@ -18,7 +18,7 @@ function backWithRegisterError(string $message): void {
     header('Location: ../register.php');
     exit;
 }
-
+// CSRF Token เพื่อตรวจสอบว่าข้อมูลฟอร์มที่ส่งมานั้น ถูกส่งมาจากหน้าเว็บของเราจริงๆ ไม่ใช่ถูกแฮกเกอร์เขียนสคริปต์ยิงข้อมูลมาจากเว็บอื่น
 if (!hash_equals($_SESSION['form_token'] ?? '', $_POST['form_token'] ?? '')) {
     backWithRegisterError('ไม่สามารถส่งแบบฟอร์มได้ กรุณาลองใหม่อีกครั้ง');
 }
@@ -76,8 +76,19 @@ try {
     ]);
 
     unset($_SESSION['register_old'], $_SESSION['form_token']);
-    $_SESSION['success'] = 'ลงทะเบียนสำเร็จ กรุณาเข้าสู่ระบบด้วยบัญชีที่สร้างไว้';
+    $_SESSION['success'] = 'ลงทะเบียนสำเร็จ ';
     header('Location: ../login.php');
 } catch (PDOException $exception) {
     backWithRegisterError('ไม่สามารถลงทะเบียนได้ในขณะนี้ กรุณาลองใหม่อีกครั้ง');
 }
+
+
+// ป้องกัน SQL Injection ได้อย่างเด็ดขาดเพราะใช้เทคนิค Prepared Statement ซึ่งมีหัวใจสำคัญคือการ "แยกโครงสร้างคำสั่ง SQL ออกจากข้อมูลของผู้ใช้" ครับ
+
+// เตรียมโครงสร้าง (Prepare): ครงสร้างคำสั่ง SQL ไปให้ฐานข้อมูลตรวจสอบและคอมไพล์ (Compile) ไว้ล่วงหน้า โดยใส่เครื่องหมาย ? (Placeholder) แทนที่ข้อมูลที่ยังไม่รู้
+// ณ จุดนี้ฐานข้อมูลจะล็อกโครงสร้างไว้แล้วว่า "นี่คือคำสั่งดึงข้อมูล (SELECT) ด้วยเงื่อนไข username
+
+// เติมข้อมูล (Execute): ในบรรทัด $stmt->execute(...) ระบบถึงจะส่งข้อมูลที่ผู้ใช้พิมพ์จริงๆ (
+    // $old['username']) ตามไปเติมในช่อง ?
+
+    // ctype_digit คือฟังก์ชันใน PHP ที่ใช้ตรวจสอบว่าตัวอักษรทั้งหมดในสตริงที่กำหนดเป็นตัวเลข (0-9) หรือไม่ โดยจะคืนค่า TRUE หากทุกตัวอักษรเป็นตัวเลข และ FALSE หากมีตัวอักษรใดที่ไม่ใช่ตัวเลข

@@ -114,7 +114,7 @@ include 'includes/header.php';
                         </div>
                         <div class="form-note mt-4 d-flex align-items-center gap-2">
                             <i class="bi bi-info-circle-fill text-warning fs-6"></i>
-                            <span>กรุณาตรวจสอบกอง กลุ่ม และตำแหน่งให้ถูกต้องก่อนลงทะเบียน เพื่อความรวดเร็วในการอนุมัติคำขอ</span>
+                            <span>กรุณาตรวจสอบกอง กลุ่ม และตำแหน่งให้ถูกต้องก่อนลงทะเบียน เพราะจะแก้ไขข้อมูลไม่ได้ในภายหลัง</span>
                         </div>
                     </div>
 

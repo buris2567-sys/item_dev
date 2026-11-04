@@ -32,7 +32,7 @@ if (empty($_SESSION['profile_form_token'])) {
     <div class="alert alert-danger border-0 shadow-sm rounded-3 mb-4" role="alert"><?= htmlspecialchars($error) ?></div>
 <?php endif; ?>
 
-<form action="actions/user/update_profile.php" method="POST" class="row g-4">
+<form action="actions/update_profile.php" method="POST" class="row g-4">
     <input type="hidden" name="form_token" value="<?= htmlspecialchars($_SESSION['profile_form_token']) ?>">
     <div class="col-lg-5">
         <div class="form-section h-100 bg-white shadow-sm">

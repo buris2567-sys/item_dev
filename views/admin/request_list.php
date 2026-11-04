@@ -10,8 +10,6 @@ $requests = $pdo->query("
     LEFT JOIN users u ON r.user_id = u.user_id
     ORDER BY r.request_date DESC
 ")->fetchAll();
-$success = $_SESSION['success'] ?? '';
-unset($_SESSION['success']);
 ?>
 
 <?php
@@ -21,12 +19,6 @@ $pageHeader = [
 ];
 include 'components/ui/page_header.php';
 ?>
-
-<?php if ($success): ?>
-    <div class="alert alert-success border-0 shadow-sm rounded-3 mb-4" role="alert">
-        <i class="bi bi-check-circle me-1"></i><?= htmlspecialchars($success) ?>
-    </div>
-<?php endif; ?>
 
 <!-- Card ตารางรายการคำขอ -->
 <div class="card border-0 rounded-4 shadow-sm mb-5 border-warning border-top border-4 bg-white">
@@ -106,20 +98,6 @@ include 'components/ui/card_header.php';
                                        style="width: 36px; height: 36px;" title="พิจารณา/ดูรายละเอียด">
                                         <i class="bi bi-search"></i>
                                     </a>
-                                    <?php if ($req['status'] === 'รออนุมัติ' || $req['status'] === 'Pending'): ?>
-                                        <form action="actions/admin/request_approve.php" method="POST" class="d-inline" onsubmit="return confirm('ยืนยันการอนุมัติคำขอนี้และตัดสต็อกตามจำนวนที่ขอ?');">
-                                            <input type="hidden" name="request_id" value="<?= htmlspecialchars($req['request_id']) ?>">
-                                            <input type="hidden" name="action" value="approve_all">
-                                            <input type="hidden" name="return_to_list" value="1">
-                                            <button type="submit" class="btn btn-sm btn-success fw-bold px-3 shadow-sm">อนุมัติ</button>
-                                        </form>
-                                        <form action="actions/admin/request_approve.php" method="POST" class="d-inline" onsubmit="return confirm('ยืนยันการไม่อนุมัติคำขอนี้?');">
-                                            <input type="hidden" name="request_id" value="<?= htmlspecialchars($req['request_id']) ?>">
-                                            <input type="hidden" name="action" value="reject">
-                                            <input type="hidden" name="return_to_list" value="1">
-                                            <button type="submit" class="btn btn-sm btn-danger fw-bold px-3 shadow-sm">ไม่อนุมัติ</button>
-                                        </form>
-                                    <?php endif; ?>
                                     <?php if ($req['status'] === 'อนุมัติ' || $req['status'] === 'อนุมัติบางส่วน'): ?>
                                         <a href="actions/export_pdf.php?id=<?= $req['request_id'] ?>"
                                            class="btn btn-sm btn-light rounded-circle shadow-sm text-dark d-flex align-items-center justify-content-center"

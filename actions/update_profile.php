@@ -1,14 +1,14 @@
 <?php
-require_once '../../config/db.php';
+require_once '../config/db.php';
 
 if (!isset($_SESSION['user_id']) || $_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header('Location: ../../login.php');
+    header('Location: ../login.php');
     exit;
 }
 
 function backWithProfileError(string $message): void {
     $_SESSION['profile_error'] = $message;
-    header('Location: ../../index.php?page=profile');
+    header('Location: ../index.php?page=profile');
     exit;
 }
 
@@ -56,7 +56,7 @@ try {
     $_SESSION['full_name'] = $fullName;
     unset($_SESSION['profile_old'], $_SESSION['profile_form_token']);
     $_SESSION['profile_success'] = 'บันทึกข้อมูลส่วนตัวเรียบร้อยแล้ว';
-    header('Location: ../../index.php?page=home');
+    header('Location: ../index.php?page=home');
 } catch (PDOException $exception) {
     backWithProfileError('ไม่สามารถบันทึกข้อมูลได้ในขณะนี้ กรุณาลองใหม่อีกครั้ง');
 }
