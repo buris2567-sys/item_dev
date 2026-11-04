@@ -212,7 +212,7 @@ $currentUser = $stmt->fetch();
 
         <!-- เมนู 6 -->
         <div class="col-sm-6 col-lg-4">
-            <a href="#" class="text-decoration-none">
+            <a href="index.php?page=inventory_report" class="text-decoration-none">
                 <div class="card border border-light rounded-4 h-100 text-center p-4 hover-shadow transition-all position-relative bg-white shadow-sm">
                     <div class="d-flex justify-content-center mb-3">
                         <div class="bg-danger bg-opacity-10 rounded-circle d-flex justify-content-center align-items-center" style="width: 70px; height: 70px;">

@@ -71,6 +71,10 @@ $currentPage = $_GET['page'] ?? 'home';
         <a href="index.php?page=manage_items" class="sidebar-link mb-2 <?= $currentPage === 'manage_items' ? 'active' : '' ?>">
             <i class="bi bi-box me-3"></i> เพิ่มสิ่งของ
         </a>
+
+        <a href="index.php?page=inventory_report" class="sidebar-link mb-2 <?= $currentPage === 'inventory_report' ? 'active' : '' ?>">
+            <i class="bi bi-clipboard-data me-3"></i> สรุปรายงานเบิกจ่าย
+        </a>
     </div>
 
     <!-- ปุ่ม Logout -->
