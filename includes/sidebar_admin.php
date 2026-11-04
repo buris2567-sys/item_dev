@@ -57,7 +57,7 @@ $currentPage = $_GET['page'] ?? 'home';
         <a href="index.php?page=home" class="sidebar-link mb-2 <?= $currentPage === 'home' ? 'active' : '' ?>">
             <i class="bi bi-house-door me-3"></i> หน้าหลัก
         </a>
-        <a href="index.php?page=request_register" class="sidebar-link mb-2 <?= ($currentPage === 'request_register' || $currentPage === 'profile') ? 'active' : '' ?>">
+        <a href="index.php?page=request_register" class="sidebar-link mb-2 <?= ($currentPage === 'request_register' || $currentPage === 'request_view_user') ? 'active' : '' ?>">
             <i class="bi bi-people me-3"></i> รายการลงทะบียนบัญชีผู้ใช้
         </a>
         <a href="index.php?page=request_list" class="sidebar-link mb-2 <?= ($currentPage === 'request_list' || $currentPage === 'request_view') ? 'active' : '' ?>">

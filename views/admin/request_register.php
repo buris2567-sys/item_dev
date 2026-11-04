@@ -124,7 +124,7 @@ include 'components/ui/page_header.php';
                             <td>
                                 <div class="row g-2 justify-content-center">
                                     <div class="col-2">
-                                        <a href="index.php?page=request_view&id=<?= $user['user_id'] ?>" class="btn btn-sm  fw-bold w-100 shadow-sm" title="ดูรายละเอียด">
+                                        <a href="index.php?page=request_view_user&id=<?= $user['user_id'] ?>" class="btn btn-sm  fw-bold w-100 shadow-sm" title="ดูรายละเอียด">
                                             <i class="bi bi-eye"></i>
                                         </a>
                                     </div>

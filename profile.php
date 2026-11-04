@@ -55,7 +55,7 @@ if (empty($_SESSION['profile_form_token'])) {
                 <input class="form-control" id="phone_number" name="phone_number" maxlength="20" value="<?= htmlspecialchars($old['phone_number'] ?? $user['phone_number']) ?>" required>
             </div>
             <div class="mb-3">
-                <label class="form-label" for="new_password">รหัสผ่านใหม่</label>
+                <label class="form-label" for="new_password">รหัสผ่านใหม่ (เว้นว่างหากไม่ต้องการเปลี่ยน)</label>
                 <input class="form-control" id="new_password" type="password" name="new_password" minlength="8" placeholder="เว้นว่างหากไม่ต้องการเปลี่ยน">
             </div>
             <div>

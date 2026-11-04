@@ -54,6 +54,7 @@ if ($role === 'Admin') {
         'request_view'   => ['file' => 'views/admin/request_view.php', 'title' => 'รายละเอียดคำขอเบิกสิ่งของ'],
         'manage_categories'   => ['file' => 'views/admin/manage_categories.php', 'title' => 'จัดการหมวดหมู่สิ่งของ'],
         'request_register'   => ['file' => 'views/admin/request_register.php', 'title' => 'รายการลงทะเบียนบัญชีผู้ใช้'],
+        'request_view_user'   => ['file' => 'views/admin/request_view_user.php', 'title' => 'รายละเอียดคำร้องลงทะเบียน']
     ];
 } else {
     $routes = [

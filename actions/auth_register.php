@@ -68,7 +68,7 @@ try {
         backWithRegisterError('ประเภทบุคลากรไม่ถูกต้อง');
     }
 
-    $stmt = $pdo->prepare('INSERT INTO users (username, password, full_name, email, department_id, sub_department_id, employment_type_id, phone_number, position, role) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, "User")');
+    $stmt = $pdo->prepare('INSERT INTO users (username, password, full_name, email, department_id, sub_department_id, employment_type_id, phone_number, position, role, approve_user, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, "User", 0, NOW())');
     $stmt->execute([
         $old['username'], password_hash($password, PASSWORD_DEFAULT), $old['full_name'], $old['email'],
         (int) $old['department_id'], (int) $old['sub_department_id'], (int) $old['employment_type_id'],
