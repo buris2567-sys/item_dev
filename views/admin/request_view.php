@@ -171,7 +171,10 @@ if ($statusText === 'รออนุมัติ' || $statusText === 'Pending') 
                             <button type="button" class="btn  btn-light border-secondary border-opacity-25 fw-bold px-2 text-dark" onclick="adjustApprove(<?= $index ?>, -1)" <?= !$isPending ? 'disabled' : '' ?>>-</button>
                             <input type="text" name="approved_qty[<?= $item['request_item_id'] ?>]" id="approve_input_<?= $index ?>"
                                 class="form-control text-center fw-bolder fs-6 approve-input border-secondary border-opacity-25"
-                                value="<?= $appQty ?>" data-req="<?= $reqQty ?>" data-stock="<?= $curStock ?>"
+                                value="<?= $appQty ?>"
+                                data-req="<?= $reqQty ?>"
+                                data-stock="<?= $curStock ?>"
+                                data-name="<?= htmlspecialchars($item['item_name'] ?? 'ไม่ทราบชื่อ') ?>"
                                 oninput="validateInput(this)"
                                 <?= !$isPending ? 'readonly' : '' ?>>
                             <button type="button" class="btn btn-light border-secondary border-opacity-25 fw-bold px-2 text-dark" onclick="adjustApprove(<?= $index ?>, 1)" <?= !$isPending ? 'disabled' : '' ?>>+</button>
@@ -187,6 +190,34 @@ if ($statusText === 'รออนุมัติ' || $statusText === 'Pending') 
             </div>
         <?php endforeach; ?>
     </div>
+
+    <!-- ===== Quick-Action Buttons: Approve All / Reject All ===== -->
+    <?php if ($isPending): ?>
+    <div class="d-flex align-items-center gap-2 mb-3 flex-wrap justify-content-end">
+
+        <!-- Label -->
+        <span class="fw-bold text-muted small mx-2 d-flex align-items-center gap-2">
+            <h4>ดำเนินการทั้งหมด:</h4>
+        </span>
+
+        <!-- Approve All -->
+        <button type="button"
+                onclick="approveAll()"
+                class="btn btn-outline-success fw-bold px-4 py-2 rounded-pill shadow-sm d-inline-flex align-items-center gap-2">
+            <i class="bi bi-check-circle-fill"></i>
+            อนุมัติทั้งหมด
+        </button>
+
+        <!-- Reject All -->
+        <button type="button"
+                onclick="rejectAll()"
+                class="btn btn-outline-danger fw-bold px-4 py-2 rounded-pill shadow-sm d-inline-flex align-items-center gap-2">
+            <i class="bi bi-x-circle-fill"></i>
+            ไม่อนุมัติทั้งหมด
+        </button>
+
+    </div>
+    <?php endif; ?>
 
     <!-- 📦 ส่วนที่ 3: สรุปผล -->
     <div class="card border-0 rounded-4 shadow-sm mb-5 bg-warning bg-opacity-10">
@@ -234,6 +265,58 @@ if ($statusText === 'รออนุมัติ' || $statusText === 'Pending') 
         <?php endif; ?>
     </div>
 </form>
+
+<!-- ===== Modal: Insufficient Stock Warning ===== -->
+<div class="modal fade" id="insufficientStockModal" tabindex="-1" aria-labelledby="insufficientStockModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 460px;">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 16px; overflow: hidden;">
+
+            <!-- Header -->
+            <div class="modal-header border-0 py-3 px-4" style="background: #dc3545;">
+                <h6 class="modal-title fw-bold text-white d-flex align-items-center gap-2 mb-0" id="insufficientStockModalLabel">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    สินค้าในสต็อกไม่เพียงพอ
+                </h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <!-- Body -->
+            <div class="modal-body px-4 pt-3 pb-2">
+                <p class="text-muted small mb-3">รายการด้านล่างมีของในสต็อก<strong>ไม่เพียงพอ</strong>ตามจำนวนที่ขอ</p>
+
+                <div class="table-responsive rounded-3 border">
+                    <table class="table table-sm table-hover align-middle mb-0" style="font-size:.875rem;">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="text-center text-muted fw-semibold py-2 ps-3" style="width:36px;">#</th>
+                                <th class="text-muted fw-semibold py-2">ชื่อสิ่งของ</th>
+                                <th class="text-center text-muted fw-semibold py-2" style="width:90px;">คงเหลือ</th>
+                                <th class="text-center text-muted fw-semibold py-2 pe-3" style="width:90px;">จำนวนที่ขอ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="insufficientStockBody">
+                            <!-- Rows injected by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="modal-footer border-0 px-4 pb-4 pt-3 justify-content-end">
+                <button type="button"
+                        class="btn fw-bold px-4 rounded-pill text-white"
+                        style="background:#dc3545;"
+                        data-bs-dismiss="modal">
+                    <i class="bi bi-check-lg me-1"></i>รับทราบ
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Load admin request view JS (approve-all / reject-all logic) -->
+<script src="assets/js/request_view_admin.js"></script>
 
 <script>
     document.addEventListener("DOMContentLoaded", calculateAllStatuses);
