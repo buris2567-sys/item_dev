@@ -220,6 +220,9 @@ if ($statusText === 'รออนุมัติ' || $statusText === 'Pending') 
         <?php else: ?>
 
             <!-- อนุมัติไปแล้ว หรือ ยกเลิกไปแล้ว: แสดงปุ่ม Export PDF -->
+            <a href="actions/export_excel.php?id=<?= $request['request_id'] ?>" class="btn btn-success text-white fw-bolder px-4 py-2 rounded-pill shadow-sm">
+                <i class="bi bi-file-earmark-excel-fill me-2"></i>Export Excel
+            </a>
             <a href="actions/export_pdf.php?id=<?= $request['request_id'] ?>" target="_blank" class="btn btn-info text-white fw-bolder px-4 py-2 rounded-pill shadow-sm">
                 <i class="bi bi-file-earmark-pdf me-2"></i>Export PDF
             </a>
