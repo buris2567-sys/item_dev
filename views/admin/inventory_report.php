@@ -11,6 +11,86 @@ extract($reportData);
 <!-- //css -->
 <link rel="stylesheet" href="assets/css/inventory_report.css">
 
+<style>
+    .report-tabs .btn {
+        border-radius: .65rem;
+    }
+    .report-tabs .btn.active {
+        background: #ffc107;
+        border-color: #ffc107;
+        color: #212529;
+    }
+    .report-stat-card,
+    .report-chart-card {
+        border: 0;
+        border-radius: 1rem;
+    }
+    .report-stat-card {
+        min-height: 142px;
+    }
+    .stat-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: .75rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+    }
+    .stat-number {
+        font-size: clamp(1.55rem, 2.2vw, 2.15rem);
+        letter-spacing: -.04em;
+    }
+    .top-item-label {
+        max-width: 70%;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+    .top-item-bar {
+        height: 9px;
+        border-radius: 999px;
+        background: #f1f3f5;
+        overflow: hidden;
+    }
+    .top-item-bar span {
+        display: block;
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, #fb8b8b, #e85d5d);
+    }
+    .report-table th {
+        white-space: nowrap;
+        font-size: .85rem;
+    }
+    .row-low-stock td {
+        background-color: #fff8e8 !important;
+    }
+    @media print {
+        .sidebar-wrapper,
+        .report-toolbar,
+        .report-actions,
+        #reportSearch,
+        #categoryReportFilter,
+        #inventoryReportPaginationWrapper {
+            display: none !important;
+        }
+        .container-fluid, body {
+            background: #fff !important;
+        }
+        .col.p-4 {
+            padding: 0 !important;
+        }
+        .card {
+            box-shadow: none !important;
+            break-inside: avoid;
+        }
+        .report-table {
+            font-size: 9pt;
+        }
+    }
+</style>
+
 <!-- ส่วนหัวเรื่องหน้า -->
 <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4 pb-2" style="border-bottom: 2px solid #e9ecef;">
     <div>
