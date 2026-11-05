@@ -23,73 +23,68 @@ $periodLabel = $data['periodLabel'];
 $totals      = $data['totals'];
 $ledger      = $data['ledger'];
 
-$fileName = 'inventory_report_' . ($reportMode === 'fiscal' ? 'fiscal_' . $selectedYear : 'monthly_' . $selectedYear . '_' . str_pad((string)$selectedMonth, 2, '0', STR_PAD_LEFT)) . '.csv';
+$fileName = 'inventory_report_' . ($reportMode === 'fiscal' ? 'fiscal_' . $selectedYear : 'monthly_' . $selectedYear . '_' . str_pad((string)$selectedMonth, 2, '0', STR_PAD_LEFT)) . '.xls';
 
-// ตั้งค่า Header สำหรับดาวน์โหลดไฟล์ CSV
-header('Content-Type: text/csv; charset=UTF-8');
+// CSV ไม่สามารถกำหนดฟอนต์หรือรูปแบบตารางได้ จึงส่งออกเป็น Excel-compatible HTML
+// เพื่อให้ Excel เปิดเป็นรายงานที่ใช้ TH Sarabun New และรูปแบบเดียวกับ PDF
+header('Content-Type: application/vnd.ms-excel; charset=UTF-8');
 header('Content-Disposition: attachment; filename="' . $fileName . '"');
 header('Pragma: no-cache');
 header('Expires: 0');
 
-$output = fopen('php://output', 'w');
-
-// ใส่ UTF-8 BOM เพื่อให้โปรแกรม Microsoft Excel เปิดภาษาไทยได้โดยไม่เพี้ยน
-fprintf($output, chr(0xEF).chr(0xBB).chr(0xBF));
-
-// 1. หัวเรื่องรายงาน
-fputcsv($output, ['รายงานสรุปการเบิกจ่ายพัสดุและยอดคงเหลือ']);
-fputcsv($output, ['ระบบบริหารจัดการสิ่งพิมพ์และของที่ระลึก (OAP Inventory System)']);
-fputcsv($output, ['ช่วงเวลา:', $periodLabel]);
-$printDate = date('d/m/') . (date('Y') + 543) . ' ' . date('H:i') . ' น.';
-fputcsv($output, ['ข้อมูล ณ วันที่:', $printDate, 'จำนวนรายการทั้งหมด:', count($ledger) . ' รายการ']);
-fputcsv($output, []); // บรรทัดว่าง
-
-// 2. สรุปยอดรวม 4 กล่อง
-fputcsv($output, ['สรุปภาพรวมยอดพัสดุ']);
-fputcsv($output, ['จำนวนเดิมที่มี (ต้นงวด)', 'รับเพิ่ม (+) ระหว่างงวด', 'จ่ายออก (-) ระหว่างงวด', 'คงเหลือสุทธิ (ปลายงวด)']);
-fputcsv($output, [$totals['opening'], $totals['in'], $totals['out'], $totals['closing']]);
-fputcsv($output, []); // บรรทัดว่าง
-
-// 3. หัวคอลัมน์ตาราง
-fputcsv($output, [
-    'ลำดับ',
-    'รหัสพัสดุ',
-    'รายการสิ่งของ',
-    'หมวดหมู่',
-    'จำนวนเดิมที่มี (ต้นงวด)',
-    'รับเพิ่ม (+)',
-    'จ่ายออก (-)',
-    'คงเหลือสุทธิ (ปลายงวด)'
-]);
-
-// 4. ข้อมูลพัสดุทั้งหมด 100%
-if (!empty($ledger)) {
-    foreach ($ledger as $index => $item) {
-        fputcsv($output, [
-            $index + 1,
-            $item['item_code'],
-            $item['name'],
-            $item['category_name'],
-            $item['opening_stock'],
-            $item['qty_in'],
-            $item['qty_out'],
-            $item['closing_stock']
-        ]);
-    }
-}
-
-// 5. แถวรวมยอดทั้งสิ้น
-fputcsv($output, [
-    'รวมยอดทั้งสิ้น',
-    '',
-    count($ledger) . ' รายการ',
-    '',
-    $totals['opening'],
-    $totals['in'],
-    $totals['out'],
-    $totals['closing']
-]);
-
-fclose($output);
+$escape = static fn($value): string => htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8');
+$printDate = date('d/m/') . (date('Y') + 543) . ' เวลา ' . date('H:i') . ' น.';
+?>
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body, table, td, th { font-family: "TH Sarabun New", "THSarabunNew", sans-serif; color: #212529; }
+        body { font-size: 16pt; }
+        .title { text-align: center; font-size: 22pt; font-weight: bold; }
+        .subtitle { text-align: center; font-size: 16pt; color: #555; }
+        .meta { margin: 12px 0; width: 100%; }
+        .meta td { border: 0; padding: 2px 0; }
+        .summary, .report-table { width: 100%; border-collapse: collapse; }
+        .summary { margin: 10px 0 15px; }
+        .summary td { border: 1px solid #adb5bd; padding: 8px; text-align: center; }
+        .summary-label { font-size: 14pt; }
+        .summary-value { font-size: 20pt; font-weight: bold; }
+        .opening { background: #e7f1ff; color: #084298; }
+        .incoming { background: #d1e7dd; color: #0f5132; }
+        .outgoing { background: #f8d7da; color: #842029; }
+        .closing { background: #fff3cd; color: #664d03; border: 2px solid #ffc107 !important; }
+        .report-table th { background: #e9ecef; border: 1px solid #6c757d; padding: 6px; text-align: center; font-weight: bold; }
+        .report-table td { border: 1px solid #adb5bd; padding: 5px 7px; }
+        .right { text-align: right; } .center { text-align: center; }
+        .in { color: #0f5132; font-weight: bold; } .out { color: #842029; font-weight: bold; }
+        .total td { background: #fff3cd; font-weight: bold; border-top: 2px solid #b8860b; }
+    </style>
+</head>
+<body>
+    <div class="title">รายงานสรุปการเบิกจ่ายพัสดุและยอดคงเหลือ</div>
+    <div class="subtitle">ระบบบริหารจัดการสิ่งพิมพ์และของที่ระลึก (OAP Inventory System)</div>
+    <table class="meta">
+        <tr><td><strong>ช่วงเวลา:</strong> <?= $escape($periodLabel) ?></td><td style="text-align:right">ข้อมูล ณ วันที่ <?= $escape($printDate) ?> | ทั้งหมด <?= count($ledger) ?> รายการ</td></tr>
+    </table>
+    <table class="summary"><tr>
+        <td class="opening"><div class="summary-label">ยอดยกมา (ต้นงวด)</div><div class="summary-value"><?= number_format($totals['opening']) ?></div></td>
+        <td class="incoming"><div class="summary-label">รับเพิ่ม (+)</div><div class="summary-value">+<?= number_format($totals['in']) ?></div></td>
+        <td class="outgoing"><div class="summary-label">จ่ายออก (-)</div><div class="summary-value">-<?= number_format($totals['out']) ?></div></td>
+        <td class="closing"><div class="summary-label">คงเหลือสุทธิ</div><div class="summary-value"><?= number_format($totals['closing']) ?></div></td>
+    </tr></table>
+    <table class="report-table">
+        <thead><tr><th>#</th><th>รหัสพัสดุ</th><th>รายการสิ่งของ</th><th>หมวดหมู่</th><th>ยอดยกมา</th><th>รับเพิ่ม (+)</th><th>จ่ายออก (-)</th><th>คงเหลือ</th></tr></thead>
+        <tbody>
+        <?php foreach ($ledger as $index => $item): ?>
+            <tr><td class="center"><?= $index + 1 ?></td><td class="center"><?= $escape($item['item_code']) ?></td><td><?= $escape($item['name']) ?></td><td><?= $escape($item['category_name']) ?></td><td class="right"><?= number_format($item['opening_stock']) ?></td><td class="right in"><?= $item['qty_in'] ? '+' . number_format($item['qty_in']) : '-' ?></td><td class="right out"><?= $item['qty_out'] ? '-' . number_format($item['qty_out']) : '-' ?></td><td class="right"><strong><?= number_format($item['closing_stock']) ?></strong></td></tr>
+        <?php endforeach; ?>
+        </tbody>
+        <tfoot><tr class="total"><td colspan="4">รวมยอดทั้งสิ้น (<?= count($ledger) ?> รายการ)</td><td class="right"><?= number_format($totals['opening']) ?></td><td class="right in">+<?= number_format($totals['in']) ?></td><td class="right out">-<?= number_format($totals['out']) ?></td><td class="right"><?= number_format($totals['closing']) ?></td></tr></tfoot>
+    </table>
+</body>
+</html>
+<?php
 exit;
 

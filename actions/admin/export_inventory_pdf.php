@@ -51,6 +51,13 @@ $mpdf = new \Mpdf\Mpdf([
     'margin_bottom'=> 12,
 ]);
 
+$mpdf->SetTitle('รายงานสรุปการเบิกจ่ายพัสดุ');
+$mpdf->SetHTMLFooter('
+    <div style="font-family: thsarabunnew; font-size: 11pt; color: #555; border-top: 0.4pt solid #999; padding-top: 3pt;">
+        รายงานสรุปการเบิกจ่ายพัสดุ <span style="float: right;">หน้า {PAGENO} / {nbpg}</span>
+    </div>
+');
+
 $printDate = date('d/m/') . (date('Y') + 543) . ' เวลา ' . date('H:i') . ' น.';
 
 // ตกแต่งสไตล์ CSS ของเอกสาร PDF
@@ -58,7 +65,7 @@ $html = '
 <style>
     body {
         font-family: "thsarabunnew";
-        font-size: 14pt;
+        font-size: 15pt;
         color: #212529;
         line-height: 1.2;
     }
@@ -110,6 +117,8 @@ $html = '
         padding: 5px 7px;
         font-size: 13pt;
     }
+    table.data-table thead { display: table-header-group; }
+    table.data-table tr { page-break-inside: avoid; }
     table.data-table th {
         background-color: #f1f3f5;
         font-weight: bold;
@@ -124,12 +133,15 @@ $html = '
     .text-left   { text-align: left; }
     .text-success{ color: #198754; font-weight: bold; }
     .text-danger { color: #dc3545; font-weight: bold; }
+    .document-rule { border-top: 1px solid #333; margin: 8px 0 10px; }
 </style>
 
 <div class="header-box">
     <div class="main-title">รายงานสรุปการเบิกจ่ายพัสดุและยอดคงเหลือ</div>
     <div class="sub-title">ระบบบริหารจัดการสิ่งพิมพ์และของที่ระลึก (OAP Inventory System)</div>
 </div>
+
+<div class="document-rule"></div>
 
 <table style="width: 100%;" class="meta-box">
     <tr>

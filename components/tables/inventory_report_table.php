@@ -15,7 +15,7 @@
             <h6 class="fw-bold mb-1">
                 <i class="bi bi-table text-primary me-2"></i>รายละเอียดรายการคงคลัง
             </h6>
-            <span class="small text-muted">Stock Items Ledger — <?= htmlspecialchars($periodLabel) ?></span>
+            <span class="small text-muted">ข้อมูลรอบของ  <?= htmlspecialchars($periodLabel) ?></span>
         </div>
         
         <div class="d-flex flex-wrap gap-2 align-items-center">
