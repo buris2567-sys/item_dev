@@ -59,7 +59,7 @@ include 'components/ui/page_header.php';
     $cardHeader = [
         'icon'   => 'bi-person-plus',
         'title'  => 'รายการคำร้องลงทะเบียนทั้งหมด',
-        'search' => ['id' => 'searchUserInput', 'placeholder' => 'ค้นหาชื่อ-นามสกุล...'],
+        'search' => ['id' => 'searchUserInput', 'placeholder' => 'ชื่อ-นามสกุล ชื่อบัญชี...'],
         'extra'  => $extraHtml,
     ];
     include 'components/ui/card_header.php';
@@ -254,8 +254,9 @@ document.addEventListener("DOMContentLoaded", function() {
 
                 const matchStatus = (currentStatusFilter === 'all' || rowStatus === currentStatusFilter);
                 const matchKeyword = rowName.includes(keyword);
+                const matchAccount = rowAccount.includes(keyword);
                 
-                return matchStatus && matchKeyword;
+                return matchStatus && (matchKeyword || matchAccount);
             }
         });
     }

@@ -132,7 +132,9 @@ $currentUser = $stmt->fetch();
         <div class="col-sm-6 col-lg-4">
             <a href="#" class="text-decoration-none">
                 <div class="card border border-light rounded-4 h-100 text-center p-4 hover-shadow transition-all bg-white shadow-sm">
-                    <span class="badge bg-success position-absolute top-0 end-0 mt-3 me-3 rounded-pill px-3 shadow-sm">รายงาน</span>
+                   <!-- ป้ายตัวเลขแจ้งเตือน -->
+                <span id="card-noti-badge-1" shadow-sm d-none class="badge bg-danger position-absolute top-0 end-0 mt-3 me-3 rounded-pill px-1     ">0</span>
+
                     <div class="d-flex justify-content-center mb-3">
                         <div class="bg-primary bg-opacity-10 rounded-circle d-flex justify-content-center align-items-center" style="width: 70px; height: 70px;">
                             <i class="bi bi-person-lines-fill fs-2 text-primary"></i>
@@ -150,7 +152,14 @@ $currentUser = $stmt->fetch();
                 <div class="card border border-light rounded-4 h-100 text-center p-4 hover-shadow transition-all bg-white shadow-sm">
                     <!-- ป้ายตัวเลขแจ้งเตือน -->
                     <span id="card-noti-badge" shadow-sm d-none class="badge bg-danger position-absolute top-0 end-0 mt-3 me-3 rounded-pill px-1     ">0</span>
-          
+
+
+                    <!-- <span id="card-noti-badge" class="badge bg-danger shadow-sm d-none" style="font-size: 0.75rem;">0</span> -->
+                    <div class="d-flex justify-content-center mb-3">
+                        <div class="bg-warning bg-opacity-25 rounded-circle d-flex justify-content-center align-items-center" style="width: 70px; height: 70px;">
+                            <i class="bi bi-ui-checks fs-2 text-warning"></i>
+                        </div>
+                    </div>
                     <h6 class="fw-bolder text-dark mb-2">อนุมัติคำขอ </h6>
                     <p class="text-muted small mb-0" style="font-size: 0.85rem;">พิจารณาอนุมัติใบเบิกพัสดุ</p>
                 </div>
@@ -232,7 +241,4 @@ $currentUser = $stmt->fetch();
     }
 </style>
 
-<<<<<<< HEAD
 <script src="assets/js/admin_notification.js"></script>
-=======
->>>>>>> dev-sum-ui-norti
