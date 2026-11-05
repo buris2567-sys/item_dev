@@ -13,7 +13,7 @@ $countInactive = $pdo->query("SELECT COUNT(*) FROM users WHERE role = 'User' AND
 
 // ดึงข้อมูลผู้ใช้งาน
 $users = $pdo->query("
-    SELECT user_id, full_name, created_at, approve_user, role 
+    SELECT user_id, username, full_name, created_at, approve_user, role 
     FROM users 
     WHERE role = 'User' 
     ORDER BY created_at DESC 
@@ -71,6 +71,7 @@ include 'components/ui/page_header.php';
                 <tr>
                     <th class="fw-bold py-3 border-0">ลำดับ</th>
                     <th class="fw-bold py-3 border-0 text-start">ชื่อ-นามสกุล</th>
+                    <th class="fw-bold py-3 border-0">ชื่อบัญชี</th>
                     <th class="fw-bold py-3 border-0">วันที่สมัคร</th>
                     <th class="fw-bold py-3 border-0">สถานะ</th>
                     <th class="fw-bold py-3 border-0" style="width: 280px;">การจัดการ</th>
@@ -112,7 +113,11 @@ include 'components/ui/page_header.php';
                             <td class="text-dark fw-semibold text-start user-fullname">
                                 <?= htmlspecialchars($user['full_name'] ?? '') ?>
                             </td>
-                            
+
+                            <td class="text-dark fw-semibold user-username">
+                                <?= htmlspecialchars($user['username'] ?? '') ?>
+                            </td>
+
                             <td class="text-muted"><?= date('d/m/Y H:i', strtotime($user['created_at'])) ?></td>
                             
                             <td>
@@ -133,14 +138,14 @@ include 'components/ui/page_header.php';
                                             <form action="actions/admin/request_register_backend.php" method="POST" class="d-inline" onsubmit="return confirm('ยืนยันการอนุมัติผู้ใช้งานนี้?');">
                                                 <input type="hidden" name="user_id" value="<?= htmlspecialchars($user['user_id']) ?>">
                                                 <input type="hidden" name="action" value="approve">
-                                                <button type="submit" class="btn btn-sm  fw-bold w-100 shadow-sm"> <i class="bi bi-check2"></i>  อนุมัติ</button>
+                                                <button type="submit" class="btn btn-sm bg-success bg-opacity-25 fw-bold w-100 shadow-sm"> <i class="bi bi-check2"></i>  อนุมัติ</button>
                                             </form>
                                         </div>
                                         <div class="col-5">
                                             <form action="actions/admin/request_register_backend.php" method="POST" class="d-inline" onsubmit="return confirm('ยืนยันการไม่อนุมัติผู้ใช้งานนี้?');">
                                                 <input type="hidden" name="user_id" value="<?= htmlspecialchars($user['user_id']) ?>">
                                                 <input type="hidden" name="action" value="reject">
-                                                <button type="submit" class="btn btn-sm  fw-bold w-100 shadow-sm"> <i class="bi bi-x"></i>  ไม่อนุมัติ</button>
+                                                <button type="submit" class="btn btn-sm bg-danger bg-opacity-25  fw-bold w-100 shadow-sm"> <i class="bi bi-x"></i>  ไม่อนุมัติ</button>
                                             </form>
                                         </div>
                                     <?php else: ?>
@@ -185,9 +190,10 @@ document.addEventListener("DOMContentLoaded", function() {
         rows.forEach(row => {
             const rowStatus = row.getAttribute('data-status');
             const rowName = row.querySelector('.user-fullname').textContent.toLowerCase();
-            
+            const rowAccount = row.querySelector('.user-username').textContent.toLowerCase();
+
             const matchStatus = (currentStatusFilter === 'all' || rowStatus === currentStatusFilter);
-            const matchKeyword = rowName.includes(keyword);
+            const matchKeyword = rowName.includes(keyword) || rowAccount.includes(keyword);
 
             if (matchStatus && matchKeyword) {
                 row.style.display = '';
@@ -244,7 +250,8 @@ document.addEventListener("DOMContentLoaded", function() {
                 const keyword = searchBox.value.toLowerCase().trim();
                 const rowStatus = row.getAttribute('data-status');
                 const rowName = row.querySelector('.user-fullname').textContent.toLowerCase();
-                
+                const rowAccount = row.querySelector('.user-username').textContent.toLowerCase();
+
                 const matchStatus = (currentStatusFilter === 'all' || rowStatus === currentStatusFilter);
                 const matchKeyword = rowName.includes(keyword);
                 

@@ -15,10 +15,33 @@ $success = $_SESSION['profile_success'] ?? '';
 unset($_SESSION['profile_success']);
 ?>
 
+<!-- 🟢 [ปรับปรุง] หัวข้อหน้า (Theme ใหม่) พร้อมกระดิ่งแจ้งเตือนสไตล์เดียวกับ Admin -->
 <div class="d-flex justify-content-between align-items-center mb-4 pb-2" style="border-bottom: 2px solid #e9ecef;">
     <div>
-        <h3 class="fw-bolder mb-1 text-dark">หน้าหลัก</h3>
-        <span class="text-muted small">ระบบเบิกสิ่งพิมพ์และของที่ระลึก</span>
+        <h3 class="fw-bolder mb-1 text-dark">
+            <i class="bi bi-house-door text-warning me-2"></i>หน้าหลัก
+        </h3>
+        <span class="text-muted small">ระบบสิ่งพิมพ์และของที่ระลึก</span>
+    </div>
+
+    <!-- 🟢 [เพิ่ม] กระดิ่งแจ้งเตือนฝั่งผู้ใช้ รูปแบบเดียวกับฝั่งแอดมิน -->
+    <div class="dropdown">
+        <button class="btn btn-white bg-white border-0 position-relative shadow-sm rounded-circle p-2" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="width: 45px; height: 45px;">
+            <i class="bi bi-bell-fill fs-5 text-secondary"></i>
+            <span id="nav-noti-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none" style="font-size: 0.65rem;">
+                0
+            </span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end shadow border-0" id="nav-noti-list" style="width: 320px; border-radius: 12px;">
+            <li>
+                <h6 class="dropdown-header fw-bold text-dark">การแจ้งเตือนสถานะคำขอ</h6>
+            </li>
+            <!-- รายการจะถูกแทรกตรงนี้ -->
+            <li>
+                <hr class="dropdown-divider">
+            </li>
+            <li><a class="dropdown-item text-center small fw-bold text-primary py-2" href="index.php?page=my_requests">ดูคำขอทั้งหมด</a></li>
+        </ul>
     </div>
 </div>
 
@@ -97,7 +120,11 @@ unset($_SESSION['profile_success']);
         </div>
         <div class="col-sm-6 col-lg-5">
             <a href="index.php?page=my_requests" class="text-decoration-none">
-                <div class="card border border-light rounded-4 h-100 text-center p-5 hover-shadow transition-all bg-white shadow-sm">
+                <div class="card border border-light rounded-4 h-100 text-center p-5 hover-shadow transition-all bg-white shadow-sm position-relative">
+                   
+                    <!-- 🟢 [ปรับปรุง] ป้ายตัวเลขแจ้งเตือน รูปแบบเดียวกับฝั่งแอดมิน -->
+                    <span id="card-noti-badge" class="badge bg-danger position-absolute top-0 end-0 mt-3 me-3 rounded-pill px-2 py-1 shadow-sm d-none">0</span>
+
                     <div class="d-flex justify-content-center mb-3">
                         <div class="bg-success bg-opacity-10 rounded-circle d-flex justify-content-center align-items-center" style="width: 80px; height: 80px;"><i class="bi bi-printer fs-1 text-success"></i></div>
                     </div>

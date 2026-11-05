@@ -70,7 +70,12 @@ $currentPage = $_GET['page'] ?? 'home';
         
         <!-- 🟢 ผูก request_view เข้ากับเมนูติดตามคำขอด้วย เพื่อให้แถบเหลืองยังทำงานตอนกดดูรายละเอียด -->
         <a href="index.php?page=my_requests" class="sidebar-link mb-2 <?= ($currentPage === 'my_requests' || $currentPage === 'request_view') ? 'active' : '' ?>">
-            <i class="bi bi-box me-3"></i> ติดตามคำขอ
+            <div class="d-flex align-items-center w-100">
+                <i class="bi bi-box me-3"></i>
+                <span>ติดตามคำขอ</span>
+                <!-- 🟢 [เพิ่ม] ป้ายตัวเลขแจ้งเตือน สไตล์เดียวกับแอดมิน -->
+                <span id="sidebar-noti-badge" class="badge bg-danger rounded-pill ms-auto shadow-sm d-none" style="font-size: 0.7rem;">0</span>
+            </div>
         </a>
     </div>
 
