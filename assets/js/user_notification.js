@@ -10,6 +10,7 @@ function fetchUserNotifications() {
             // ดึง ID ของจุดต่างๆ บนหน้าจอ
             const navBadge = document.getElementById('nav-noti-badge');
             const cardBadge = document.getElementById('card-noti-badge');
+             const cardBadge_1 = document.getElementById('card-noti-badge-1');
             const notiList = document.getElementById('nav-noti-list');
             const sidebarBadge = document.getElementById('sidebar-noti-badge');
 

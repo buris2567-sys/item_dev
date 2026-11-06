@@ -17,24 +17,7 @@ $currentUser = $stmt->fetch();
     </div>
 
     <!-- 🟢 โค้ดกระดิ่งแจ้งเตือน เอามาวางตรงนี้ครับ -->
-    <div class="dropdown">
-        <button class="btn btn-white bg-white border-0 position-relative shadow-sm rounded-circle p-2" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="width: 45px; height: 45px;">
-            <i class="bi bi-bell-fill fs-5 text-secondary"></i>
-            <span id="nav-noti-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none" style="font-size: 0.65rem;">
-                0
-            </span>
-        </button>
-        <ul class="dropdown-menu dropdown-menu-end shadow border-0" id="nav-noti-list" style="width: 300px; border-radius: 12px;">
-            <li>
-                <h6 class="dropdown-header fw-bold text-dark">การแจ้งเตือนใหม่</h6>
-            </li>
-            <!-- รายการจะถูกแทรกตรงนี้ -->
-            <li>
-                <hr class="dropdown-divider">
-            </li>
-            <li><a class="dropdown-item text-center small fw-bold text-primary py-2" href="index.php?page=approve_requests">ดูคำขอทั้งหมด</a></li>
-        </ul>
-    </div>
+    
 </div>
 
 <!-- 🟢 [ปรับปรุง] Profile Card ปรับเป็นขอบมน (rounded-4) และซ่อนขอบดำ -->
@@ -133,7 +116,7 @@ $currentUser = $stmt->fetch();
             <a href="#" class="text-decoration-none">
                 <div class="card border border-light rounded-4 h-100 text-center p-4 hover-shadow transition-all bg-white shadow-sm">
                    <!-- ป้ายตัวเลขแจ้งเตือน -->
-                <span id="card-noti-badge-1" shadow-sm d-none class="badge bg-danger position-absolute top-0 end-0 mt-3 me-3 rounded-pill px-1     ">0</span>
+                <span id="card-noti-badge" shadow-sm d-none class="badge bg-danger position-absolute top-0 end-0 mt-3 me-3 rounded-pill px-1     ">0</span>
 
                     <div class="d-flex justify-content-center mb-3">
                         <div class="bg-primary bg-opacity-10 rounded-circle d-flex justify-content-center align-items-center" style="width: 70px; height: 70px;">
