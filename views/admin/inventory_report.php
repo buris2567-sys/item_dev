@@ -13,22 +13,22 @@ extract($reportData);
 
 
 <!-- ส่วนหัวเรื่องหน้า -->
-<div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4 pb-2" style="border-bottom: 2px solid #e9ecef;">
+<div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4 pb-2 " style="border-bottom: 2px solid #e9ecef; ">
     <div>
         <h3 class="fw-bolder mb-1 text-dark">
             <i class="bi bi-clipboard-data-fill text-warning me-2"></i>สรุปรายงานการเบิกจ่าย
         </h3>
         <p class="mb-0 text-muted small">ภาพรวมการเคลื่อนไหวและยอดคงเหลือของคลังพัสดุ</p>
     </div>
-    <div class="d-flex flex-column align-items-md-end gap-1">
+    <!-- <div class="d-flex flex-column align-items-md-end gap-1">
         <span class="badge text-bg-light border text-secondary rounded-pill px-3 py-2 shadow-sm">
             <i class="bi bi-calendar3 me-1"></i>ข้อมูล ณ <?= htmlspecialchars($periodLabel) ?>
         </span>
-    </div>
+    </div> -->
 </div>
 
 <!-- แถบเครื่องมือ: สลับโหมด, เลือกช่วงเวลา, ปุ่ม Export -->
-<div class="card border-0 rounded-4 shadow-sm mb-4 report-toolbar bg-white">
+<div class="card border-0 rounded-4 shadow-sm mb-4 bg-warning bg-opacity-10 report-toolbar ">
     <div class="card-body p-3 d-flex flex-wrap align-items-center gap-2">
         <!-- ปุ่มสลับโหมดรายเดือน / ปีงบประมาณ -->
         <div class="btn-group report-tabs shadow-sm">
@@ -84,7 +84,7 @@ extract($reportData);
 <!-- ส่วนที่ 1: การ์ดสรุปยอดรวม 4 กล่อง -->
 <div class="row g-3 mb-4">
     <div class="col-12 col-sm-6 col-xl-3">
-        <div class="card report-stat-card shadow-sm bg-white">
+        <div class="card report-stat-card shadow-sm bg-white border-warning border-top border-4"" >
             <div class="card-body p-4">
                 <div class="d-flex justify-content-between align-items-center">
                     <span class="stat-icon bg-primary bg-opacity-10 text-primary"><i class="bi bi-box-seam"></i></span>
@@ -96,7 +96,7 @@ extract($reportData);
         </div>
     </div>
     <div class="col-12 col-sm-6 col-xl-3">
-        <div class="card report-stat-card shadow-sm bg-white">
+        <div class="card report-stat-card shadow-sm bg-white border-warning border-top border-4"">
             <div class="card-body p-4">
                 <div class="d-flex justify-content-between align-items-center">
                     <span class="stat-icon bg-success bg-opacity-10 text-success"><i class="bi bi-box-arrow-in-down"></i></span>
@@ -108,7 +108,7 @@ extract($reportData);
         </div>
     </div>
     <div class="col-12 col-sm-6 col-xl-3">
-        <div class="card report-stat-card shadow-sm bg-white">
+        <div class="card report-stat-card shadow-sm bg-white border-warning border-top border-4"">
             <div class="card-body p-4">
                 <div class="d-flex justify-content-between align-items-center">
                     <span class="stat-icon bg-danger bg-opacity-10 text-danger"><i class="bi bi-box-arrow-up"></i></span>
@@ -120,7 +120,7 @@ extract($reportData);
         </div>
     </div>
     <div class="col-12 col-sm-6 col-xl-3">
-        <div class="card report-stat-card shadow-sm border border-warning border-2 bg-white">
+        <div class="card report-stat-card shadow-sm border-top border-warning border-2 bg-white">
             <div class="card-body p-4 bg-warning bg-opacity-10 rounded-4">
                 <div class="d-flex justify-content-between align-items-center">
                     <span class="stat-icon bg-warning text-dark"><i class="bi bi-box-seam"></i></span>
@@ -136,12 +136,12 @@ extract($reportData);
 <!-- ส่วนที่ 2: กราฟ Top 5 พัสดุที่มีการเบิกจ่ายสูงสุด และ ข้อมูลสำคัญของคลัง -->
 <div class="row g-4 mb-4">
     <div class="col-lg-7">
-        <div class="card report-chart-card shadow-sm h-100 bg-white">
+        <div class="card report-chart-card shadow-sm h-100 bg-white border-warning border-top border-4"">
             <div class="card-header bg-white border-0 pt-4 px-4 d-flex justify-content-between align-items-center">
                 <h6 class="fw-bold mb-0">
                     <i class="bi bi-bar-chart-fill text-danger me-2"></i>Top 5 พัสดุที่มีการเบิกจ่ายสูงสุด
                 </h6>
-                <span class="small text-muted"><?= htmlspecialchars($periodLabel) ?></span>
+                <span class="small text-muted"> <h4> <?= htmlspecialchars($periodLabel) ?></h4></span>
             </div>
             <div class="card-body px-4 pb-4">
                 <?php if ($topItems): ?>
@@ -169,7 +169,7 @@ extract($reportData);
     </div>
     
     <div class="col-lg-5">
-        <div class="card report-chart-card shadow-sm h-100 bg-white">
+        <div class="card report-chart-card shadow-sm h-100 bg-white border-warning border-top border-4"">
             <div class="card-header bg-white border-0 pt-4 px-4">
                 <h6 class="fw-bold mb-0">
                     <i class="bi bi-lightning-charge-fill text-warning me-2"></i>ข้อมูลสำคัญของคลัง

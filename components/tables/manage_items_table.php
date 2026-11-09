@@ -38,7 +38,7 @@
                         $images = json_decode($item['images'], true);
                         $imgSrc = !empty($images) ? 'assets/uploads/items/' . $images[0] : 'assets/images/placeholder.jpg';
                         ?>
-                        <img src="<?= $imgSrc ?>" class="rounded-3 shadow-sm object-fit-cover border border-light" style="width: 60px; height: 60px;">
+                        <img src="<?= $imgSrc ?>" class="rounded-3 shadow-sm object-fit-cover border border-light" style="width: 100px; height: 60px;">
                     </td>
 
                     <td class="border-light py-3">
