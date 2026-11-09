@@ -132,8 +132,8 @@ $currentUser = $stmt->fetch();
         <div class="col-sm-6 col-lg-4">
             <a href="#" class="text-decoration-none">
                 <div class="card border border-light rounded-4 h-100 text-center p-4 hover-shadow transition-all bg-white shadow-sm">
-                   <!-- ป้ายตัวเลขแจ้งเตือน -->
-                <span id="card-noti-badge-1" shadow-sm d-none class="badge bg-danger position-absolute top-0 end-0 mt-3 me-3 rounded-pill px-1     ">0</span>
+                    <!-- ป้ายตัวเลขแจ้งเตือน -->
+                    <span id="card-noti-badge-1" shadow-sm d-none class="badge bg-danger position-absolute top-0 end-0 mt-3 me-3 rounded-pill px-1     ">0</span>
 
                     <div class="d-flex justify-content-center mb-3">
                         <div class="bg-primary bg-opacity-10 rounded-circle d-flex justify-content-center align-items-center" style="width: 70px; height: 70px;">
@@ -181,24 +181,10 @@ $currentUser = $stmt->fetch();
             </a>
         </div>
 
-        <!-- เมนู 4 -->
-        <div class="col-sm-6 col-lg-4">
-            <a href="#" class="text-decoration-none">
-                <div class="card border border-light rounded-4 h-100 text-center p-4 hover-shadow transition-all bg-white shadow-sm">
-                    <div class="d-flex justify-content-center mb-3">
-                        <div class="bg-info bg-opacity-10 rounded-circle d-flex justify-content-center align-items-center" style="width: 70px; height: 70px;">
-                            <i class="bi bi-pencil-square fs-2 text-info"></i>
-                        </div>
-                    </div>
-                    <h6 class="fw-bolder text-dark mb-2">แก้ไขข้อมูลพัสดุ</h6>
-                    <p class="text-muted small mb-0" style="font-size: 0.85rem;">ปรับปรุงรายละเอียดสิ่งของ</p>
-                </div>
-            </a>
-        </div>
 
         <!-- เมนู 5 -->
         <div class="col-sm-6 col-lg-4">
-            <a href="#" class="text-decoration-none">
+            <a href="index.php?page=manage_categories" class="text-decoration-none">
                 <div class="card border border-light rounded-4 h-100 text-center p-4 hover-shadow transition-all bg-white shadow-sm">
                     <div class="d-flex justify-content-center mb-3">
                         <div class="bg-secondary bg-opacity-10 rounded-circle d-flex justify-content-center align-items-center" style="width: 70px; height: 70px;">
@@ -226,6 +212,20 @@ $currentUser = $stmt->fetch();
             </a>
         </div>
 
+        <!-- เมนู 4 -->
+        <div class="col-sm-6 col-lg-4">
+            <a href="#" class="text-decoration-none">
+                <div class="card border border-light rounded-4 h-100 text-center p-4 hover-shadow transition-all bg-white shadow-sm">
+                    <div class="d-flex justify-content-center mb-3">
+                        <div class="bg-info bg-opacity-10 rounded-circle d-flex justify-content-center align-items-center" style="width: 70px; height: 70px;">
+                            <i class="bi bi-pencil-square fs-2 text-info"></i>
+                        </div>
+                    </div>
+                    <h6 class="fw-bolder text-dark mb-2">coming soon</h6>
+                    <!-- <p class="text-muted small mb-0" style="font-size: 0.85rem;"></p> -->
+                </div>
+            </a>
+        </div>
     </div>
 </div>
 
