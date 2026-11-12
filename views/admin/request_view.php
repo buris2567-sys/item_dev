@@ -141,7 +141,7 @@ if ($statusText === 'รออนุมัติ' || $statusText === 'Pending') 
             $imgSrc = !empty($images) ? 'assets/uploads/items/' . $images[0] : 'assets/images/placeholder.jpg';
 
             $reqQty = (int)$item['requested_qty'];
-            $curStock = (int)($item['current_stock'] ?? 0);
+            $curStock = (int)($item['current_stock'] ?? 0);            
             $appQty = $isPending ? min($reqQty, $curStock) : (int)$item['approved_qty'];
         ?>
             <div class="card border-0 rounded-4 shadow-sm mb-3 bg-white">

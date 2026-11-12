@@ -11,7 +11,9 @@ $stmt = $pdo->prepare('
 ');
 $stmt->execute([$_SESSION['user_id']]);
 $user = $stmt->fetch();
-$employmentTypes = $pdo->query('SELECT employment_type_id, type_name FROM employment_types ORDER BY type_name')->fetchAll();
+
+
+
 $error = $_SESSION['profile_error'] ?? '';
 $old = $_SESSION['profile_old'] ?? [];
 unset($_SESSION['profile_error'], $_SESSION['profile_old']);
@@ -70,11 +72,7 @@ if (empty($_SESSION['profile_form_token'])) {
             <div class="row g-3">
                 <div class="col-md-6">
                     <label class="form-label" for="employment_type_id">ประเภทบุคลากร <span class="text-danger">*</span></label>
-                    <select class="form-select" id="employment_type_id" name="employment_type_id" required>
-                        <?php foreach ($employmentTypes as $type): ?>
-                            <option value="<?= (int) $type['employment_type_id'] ?>" <?= (($old['employment_type_id'] ?? $user['employment_type_id']) == $type['employment_type_id']) ? 'selected' : '' ?>><?= htmlspecialchars($type['type_name']) ?></option>
-                        <?php endforeach; ?>
-                    </select>
+                    <input class="form-control bg-light" id="department" value="<?= htmlspecialchars($user['type_name'] ?? '-') ?>" readonly>
                 </div>
                 <div class="col-md-6">
                     <label class="form-label" for="department">กอง</label>
