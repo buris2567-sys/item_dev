@@ -1,7 +1,8 @@
 <?php
-require 'includes/mailer.php';
+require_once 'includes/mailer.php';
 
-$to = 'buris007@hotmail.com';
+// 🔴 เปลี่ยนเป็นอีเมลส่วนตัวของคุณเอง เพื่อรอรับอีเมลทดสอบ
+$to = 'buris2567@gmail.com'; 
 $subject = 'ทดสอบระบบแจ้งเตือนจาก IT Helpdesk';
 $body = '
     <h3>สวัสดีครับ</h3>
@@ -10,8 +11,8 @@ $body = '
 ';
 
 if (sendEmailSystem($to, $subject, $body)) {
-    echo "ส่งอีเมลสำเร็จ!";
+    echo "ส่งอีเมลสำเร็จ! ตรวจสอบที่กล่องจดหมายของคุณได้เลย";
 } else {
-    echo "เกิดข้อผิดพลาดในการส่งอีเมล";
+    echo "เกิดข้อผิดพลาดในการส่งอีเมล (ลองเปิด echo ในไฟล์ mailer.php เพื่อดู Error เพิ่มเติม)";
 }
 ?>
