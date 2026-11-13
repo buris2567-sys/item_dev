@@ -20,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         $pdo->beginTransaction();
 
-        // 🟢 [แก้ไข] เปลี่ยน WHERE item_id เป็น id
+        // 🟢 เปลี่ยน WHERE item_id เป็น id
         $stmtOld = $pdo->prepare("SELECT * FROM items WHERE id = ?");
         $stmtOld->execute([$item_id]);
         $oldItem = $stmtOld->fetch();
@@ -32,7 +32,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $existing_images = json_decode($oldItem['images'] ?? '[]', true);
         if (!is_array($existing_images)) $existing_images = [];
 
-        $upload_dir = '../../assets/uploads/items/';
+        // 🟢 [แก้ไข 1] อัปเดต Path ให้เป็น Absolute Path ป้องกันการหลงทางบนเซิร์ฟเวอร์จริง
+        $upload_dir = __DIR__ . '/../../assets/uploads/items/';
         $final_images = $existing_images;
 
         if (isset($_FILES['item_images']['name']) && is_array($_FILES['item_images']['name'])) {
@@ -41,19 +42,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $tmpName = $_FILES['item_images']['tmp_name'][$slot];
                     $fileSize = $_FILES['item_images']['size'][$slot];
 
-                    if ($fileSize <= 5242880) {
+                    if ($fileSize > 0 && $fileSize <= 5242880) { // ขนาดไฟล์ไม่เกิน 5MB
+                        
+                        // 🟢 [แก้ไข 2] สแกนเนื้อหาไฟล์เพื่อหา MIME Type ที่แท้จริง
+                        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+                        $real_mime = finfo_file($finfo, $tmpName);
+                        finfo_close($finfo);
+
+                        // กำหนดประเภทไฟล์ที่อนุญาต
+                        $allowed_mimes = ['image/jpeg', 'image/png']; 
                         $ext = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
-                        if (in_array($ext, ['jpg', 'jpeg', 'png'])) {
+                        $allowed_exts = ['jpg', 'jpeg', 'png'];
+
+                        // เช็คความปลอดภัย 2 ชั้น (เนื้อหาเป็นรูปจริง + นามสกุลตรง)
+                        if (in_array($real_mime, $allowed_mimes) && in_array($ext, $allowed_exts)) {
                             
+                            // ถ้ามีรูปเดิมใน slot นี้อยู่แล้ว และมีไฟล์อยู่จริง ให้ลบทิ้งก่อน
                             if (!empty($final_images[$slot]) && file_exists($upload_dir . $final_images[$slot])) {
                                 @unlink($upload_dir . $final_images[$slot]);
                             }
 
-                            // ชื่อไฟล์ใหม่จะเป็นเลข id_edit_1_... ซึ่งสั้นและดูแลง่ายขึ้น
+                            // ตั้งชื่อไฟล์ใหม่
                             $new_filename = $item_id . '_edit_' . ($slot + 1) . '_' . uniqid() . '.' . $ext;
                             if (move_uploaded_file($tmpName, $upload_dir . $new_filename)) {
                                 $final_images[$slot] = $new_filename;
                             }
+                        } else {
+                            // หากสแกนแล้วไม่ใช่รูปภาพที่ปลอดภัย ให้หยุดทำงาน
+                            die("เกิดข้อผิดพลาด: ไฟล์ " . htmlspecialchars($fileName) . " ไม่ใช่รูปภาพที่ปลอดภัย หรือไม่อนุญาตให้อัปโหลด");
                         }
                     }
                 }
@@ -63,7 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $final_images = array_values(array_filter($final_images));
         $images_json = json_encode($final_images, JSON_UNESCAPED_UNICODE);
 
-        // 🟢 [แก้ไข] เปลี่ยน WHERE item_id เป็น id
+        // 🟢 เปลี่ยน WHERE item_id เป็น id
         $stmtUpdate = $pdo->prepare("
             UPDATE items 
             SET category_id = ?, name = ?, description = ?, images = ? 
@@ -89,3 +105,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         die("<div style='color:red; padding: 20px; font-size: 20px;'><b>Database Error:</b> " . $e->getMessage() . "<br><br><a href='../../index.php?page=manage_items'>กลับไปหน้าจัดการสิ่งของ</a></div>");
     }
 }
+?>

@@ -22,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $item_code = 'ITM' . time() . rand(100, 999);
 
     $uploaded_images = [];
-    $upload_dir = '../../assets/uploads/items/';
+    $upload_dir = __DIR__ . '/../../assets/uploads/items/';
 
     if (!is_dir($upload_dir)) {
         mkdir($upload_dir, 0777, true);
@@ -37,16 +37,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error = $_FILES['item_images']['error'][$i] ?? UPLOAD_ERR_NO_FILE;
 
             if ($error === UPLOAD_ERR_OK && $file_size > 0 && $file_size <= 5242880) {
-                $ext = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
-                if (in_array($ext, ['jpg', 'jpeg', 'png'])) {
-                    // ตั้งชื่อไฟล์รูปภาพใหม่โดยใช้ item_code เพื่อให้เชื่อมโยงได้
-                    $new_filename = $item_code . '_' . (count($uploaded_images) + 1) . '_' . uniqid() . '.' . $ext;
-                    $destination = $upload_dir . $new_filename;
-                    if (move_uploaded_file($tmp_name, $destination)) {
-                        $uploaded_images[] = $new_filename;
-                    }
+            
+            // 1. สแกนเนื้อหาไฟล์เพื่อหา MIME Type ที่แท้จริง
+            $finfo = finfo_open(FILEINFO_MIME_TYPE);
+            $real_mime = finfo_file($finfo, $tmp_name);
+            finfo_close($finfo);
+
+            // 2. กำหนดประเภทไฟล์ที่อนุญาต (Whitelist)
+            $allowed_mimes = ['image/jpeg', 'image/png']; 
+            
+            $ext = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
+            $allowed_exts = ['jpg', 'jpeg', 'png'];
+
+            // 3. เช็คเงื่อนไขว่านามสกุลไฟล์ และเนื้อหาไฟล์ ต้องเป็นรูปภาพที่ปลอดภัยทั้งคู่
+            if (in_array($real_mime, $allowed_mimes) && in_array($ext, $allowed_exts)) {
+                // ตั้งชื่อไฟล์รูปภาพใหม่โดยใช้ item_code
+                $new_filename = $item_code . '_' . (count($uploaded_images) + 1) . '_' . uniqid() . '.' . $ext;
+                $destination = $upload_dir . $new_filename;
+                
+                if (move_uploaded_file($tmp_name, $destination)) {
+                    $uploaded_images[] = $new_filename;
                 }
+            } else {
+                // หากไฟล์ปลอมตัวมา จะถูกปฏิเสธทันที
+                die("เกิดข้อผิดพลาด: ไฟล์ " . htmlspecialchars($file_name) . " ไม่ใช่รูปภาพที่ปลอดภัย");
             }
+        }
         }
     }
 
