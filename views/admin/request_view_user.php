@@ -123,13 +123,13 @@ if (!$user) {
         <a href="index.php?page=request_register" class="btn btn-light border px-4 py-2 fw-bold shadow-sm">ย้อนกลับ</a>
         
         <?php if ($statusVal === 0): // โชว์ปุ่มเฉพาะคนที่ยังรอพิจารณา ?>
-            <form action="actions/admin/request_register_backend.php" method="POST" class="d-inline" onsubmit="return confirm('ยืนยันการไม่อนุมัติ?');">
+            <form action="actions/admin/user_approve.php" method="POST" class="d-inline" onsubmit="return confirm('ยืนยันการไม่อนุมัติ?');">
                 <input type="hidden" name="user_id" value="<?= htmlspecialchars($user['user_id']) ?>">
                 <input type="hidden" name="action" value="reject">
                 <button type="submit" class="btn btn-danger px-4 py-2 fw-bold shadow-sm"><i class="bi bi-x-lg me-1"></i> ไม่อนุมัติ</button>
             </form>
             
-            <form action="actions/admin/request_register_backend.php" method="POST" class="d-inline" onsubmit="return confirm('ยืนยันการอนุมัติ?');">
+            <form action="actions/admin/user_approve.php" method="POST" class="d-inline" onsubmit="return confirm('ยืนยันการอนุมัติ?');">
                 <input type="hidden" name="user_id" value="<?= htmlspecialchars($user['user_id']) ?>">
                 <input type="hidden" name="action" value="approve">
                 <button type="submit" class="btn btn-success px-4 py-2 fw-bold shadow-sm"><i class="bi bi-check-lg me-1"></i> อนุมัติ</button>

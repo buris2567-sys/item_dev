@@ -135,14 +135,14 @@ include 'components/ui/page_header.php';
                                     </div>
                                     <?php if ($statusVal === 0): ?>
                                         <div class="col-4">
-                                            <form action="actions/admin/request_register_backend.php" method="POST" class="d-inline" onsubmit="return confirm('ยืนยันการอนุมัติผู้ใช้งานนี้?');">
+                                            <form action="actions/admin/user_approve.php" method="POST" class="d-inline" onsubmit="return confirm('ยืนยันการอนุมัติผู้ใช้งานนี้?');">
                                                 <input type="hidden" name="user_id" value="<?= htmlspecialchars($user['user_id']) ?>">
                                                 <input type="hidden" name="action" value="approve">
                                                 <button type="submit" class="btn btn-sm bg-success bg-opacity-25 fw-bold w-100 shadow-sm"> <i class="bi bi-check2"></i>  อนุมัติ</button>
                                             </form>
                                         </div>
                                         <div class="col-5">
-                                            <form action="actions/admin/request_register_backend.php" method="POST" class="d-inline" onsubmit="return confirm('ยืนยันการไม่อนุมัติผู้ใช้งานนี้?');">
+                                            <form action="actions/admin/user_approve.php" method="POST" class="d-inline" onsubmit="return confirm('ยืนยันการไม่อนุมัติผู้ใช้งานนี้?');">
                                                 <input type="hidden" name="user_id" value="<?= htmlspecialchars($user['user_id']) ?>">
                                                 <input type="hidden" name="action" value="reject">
                                                 <button type="submit" class="btn btn-sm bg-danger bg-opacity-25  fw-bold w-100 shadow-sm"> <i class="bi bi-x"></i>  ไม่อนุมัติ</button>
