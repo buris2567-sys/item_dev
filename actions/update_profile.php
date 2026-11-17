@@ -6,7 +6,8 @@ if (!isset($_SESSION['user_id']) || $_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-function backWithProfileError(string $message): void {
+function backWithProfileError(string $message): void
+{
     $_SESSION['profile_error'] = $message;
     header('Location: ../index.php?page=profile');
     exit;
@@ -19,12 +20,12 @@ if (!hash_equals($_SESSION['profile_form_token'] ?? '', $_POST['form_token'] ?? 
 $fullName = trim((string) ($_POST['full_name'] ?? ''));
 $email = trim((string) ($_POST['email'] ?? ''));
 $phoneNumber = trim((string) ($_POST['phone_number'] ?? ''));
-$employmentTypeId = trim((string) ($_POST['employment_type_id'] ?? ''));
+
 $newPassword = $_POST['new_password'] ?? '';
 $confirmPassword = $_POST['confirm_password'] ?? '';
 $_SESSION['profile_old'] = ['full_name' => $fullName, 'email' => $email, 'phone_number' => $phoneNumber, 'employment_type_id' => $employmentTypeId];
 
-if ($fullName === '' || $email === '' || $phoneNumber === '' || !ctype_digit($employmentTypeId)) {
+if ($fullName === '' || $email === '' || $phoneNumber === '') {
     backWithProfileError('กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน');
 }
 if (mb_strlen($fullName) > 100 || mb_strlen($email) > 150 || mb_strlen($phoneNumber) > 20 || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -35,11 +36,7 @@ if (($newPassword !== '' || $confirmPassword !== '') && (strlen($newPassword) < 
 }
 
 try {
-    $stmt = $pdo->prepare('SELECT employment_type_id FROM employment_types WHERE employment_type_id = ?');
-    $stmt->execute([(int) $employmentTypeId]);
-    if (!$stmt->fetch()) {
-        backWithProfileError('ประเภทบุคลากรไม่ถูกต้อง');
-    }
+
     $stmt = $pdo->prepare('SELECT user_id FROM users WHERE email = ? AND user_id <> ? LIMIT 1');
     $stmt->execute([$email, $_SESSION['user_id']]);
     if ($stmt->fetch()) {
@@ -47,11 +44,11 @@ try {
     }
 
     if ($newPassword !== '') {
-        $stmt = $pdo->prepare('UPDATE users SET full_name = ?, email = ?, phone_number = ?, employment_type_id = ?, password = ? WHERE user_id = ?');
-        $stmt->execute([$fullName, $email, $phoneNumber, (int) $employmentTypeId, password_hash($newPassword, PASSWORD_DEFAULT), $_SESSION['user_id']]);
+        $stmt = $pdo->prepare('UPDATE users SET full_name = ?, email = ?, phone_number = ?, password = ? WHERE user_id = ?');
+        $stmt->execute([$fullName, $email, $phoneNumber, password_hash($newPassword, PASSWORD_DEFAULT), $_SESSION['user_id']]);
     } else {
-        $stmt = $pdo->prepare('UPDATE users SET full_name = ?, email = ?, phone_number = ?, employment_type_id = ? WHERE user_id = ?');
-        $stmt->execute([$fullName, $email, $phoneNumber, (int) $employmentTypeId, $_SESSION['user_id']]);
+        $stmt = $pdo->prepare('UPDATE users SET full_name = ?, email = ?, phone_number = ? WHERE user_id = ?');
+        $stmt->execute([$fullName, $email, $phoneNumber,  $_SESSION['user_id']]);
     }
     $_SESSION['full_name'] = $fullName;
     unset($_SESSION['profile_old'], $_SESSION['profile_form_token']);

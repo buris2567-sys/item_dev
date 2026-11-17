@@ -30,7 +30,9 @@ include 'includes/header.php';
             </div>
             <!-- 2. ป้ายชื่อระบบย่อย (ขึ้นบรรทัดเดี่ยว) -->
             <div class="mb-1">
-                <span class="auth-kicker"> <h6>ระบบเบิกสิ่งพิมพ์และของที่ระลึก</h6></span>
+                <span class="auth-kicker">
+                    <h6>ระบบเบิกสิ่งพิมพ์และของที่ระลึก</h6>
+                </span>
             </div>
 
         </div>
@@ -50,13 +52,20 @@ include 'includes/header.php';
                     <input id="username" type="text" name="username" class="form-control" placeholder="กรอกชื่อผู้ใช้งาน" required autofocus>
                 </div>
             </div>
-            <div class="mb-4">
+
+            <div class="mb-2"> <!-- 🟢 เปลี่ยนจาก mb-4 เป็น mb-2 เพื่อให้ชิดกับลืมรหัสผ่านมากขึ้น -->
                 <label class="form-label small fw-bold text-dark" for="password">รหัสผ่าน</label>
                 <div class="input-group input-group-auth shadow-none">
                     <span class="input-group-text"><i class="bi bi-lock"></i></span>
                     <input id="password" type="password" name="password" class="form-control" placeholder="กรอกรหัสผ่าน" required>
                 </div>
             </div>
+
+            <!-- 🟢 ย้ายลิงก์ลืมรหัสผ่านเข้ามาอยู่ใน form ตรงนี้ -->
+            <div class="text-end mb-4">
+                <a href="forgot_password.php" class="text-decoration-none" style="font-size: 13px; color: #b45309; font-weight: 500;">ลืมรหัสผ่าน?</a>
+            </div>
+
             <button type="submit" class="btn btn-warning rounded-pill w-100 py-2 fw-bold shadow-sm d-flex align-items-center justify-content-center gap-2">
                 <span>เข้าสู่ระบบ</span> <i class="bi bi-arrow-right"></i>
             </button>
