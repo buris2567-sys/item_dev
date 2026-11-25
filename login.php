@@ -58,6 +58,9 @@ include 'includes/header.php';
                 <div class="input-group input-group-auth shadow-none">
                     <span class="input-group-text"><i class="bi bi-lock"></i></span>
                     <input id="password" type="password" name="password" class="form-control" placeholder="กรอกรหัสผ่าน" required>
+                    <button class="btn btn-light border border-start-0 text-muted" type="button" onclick="togglePassword('password', this)">
+                      <i class="bi bi-eye"></i>
+                    </button>
                 </div>
             </div>
 
@@ -141,3 +144,20 @@ include 'includes/header.php';
         box-shadow: 0 4px 10px rgba(217, 119, 6, 0.1);
     }
 </style>
+
+<script>
+function togglePassword(inputId, btn) {
+    const input = document.getElementById(inputId);
+    const icon = btn.querySelector('i');
+    
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('bi-eye');
+        icon.classList.add('bi-eye-slash');
+    } else {
+        input.type = 'password';
+        icon.classList.remove('bi-eye-slash');
+        icon.classList.add('bi-eye');
+    }
+}
+</script>

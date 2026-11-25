@@ -159,29 +159,44 @@ if (empty($_SESSION['profile_form_token'])) {
             <div class="modal-body p-4">
                 <!-- 🟢 ฟอร์มนี้แหละครับที่ใช้ส่งข้อมูลไปหาไฟล์เปลี่ยนรหัสผ่าน -->
                 <form id="changePasswordForm" action="actions/change_password.php" method="POST">
-                    
-                    <div class="mb-3">
-                        <label class="form-label text-muted small fw-bold">รหัสผ่านเดิม</label>
-                        <input type="password" name="old_password" class="form-control bg-light" required autocomplete="current-password">
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label class="form-label text-muted small fw-bold">รหัสผ่านใหม่</label>
-                        <input type="password" name="new_password" class="form-control bg-light" required minlength="8" autocomplete="new-password">
-                        <div class="form-text" style="font-size: 0.8rem;">รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร</div>
-                    </div>
-                    
-                    <div class="mb-4">
-                        <label class="form-label text-muted small fw-bold">ยืนยันรหัสผ่านใหม่</label>
-                        <input type="password" name="confirm_password" class="form-control bg-light" required minlength="8" autocomplete="new-password">
-                    </div>
-                    
-                    <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-dark py-2" style="border-radius: 8px;">อัปเดตรหัสผ่าน</button>
-                        <button type="button" class="btn btn-light border py-2" data-bs-dismiss="modal" style="border-radius: 8px;">ยกเลิก</button>
-                    </div>
-                    
-                </form>
+    
+    <div class="mb-3">
+        <label class="form-label text-muted small fw-bold">รหัสผ่านเดิม</label>
+        <div class="input-group">
+            <input type="password" id="old_password" name="old_password" class="form-control bg-light border-end-0" required autocomplete="current-password">
+            <button class="btn btn-light border border-start-0 text-muted" type="button" onclick="togglePassword('old_password', this)">
+                <i class="bi bi-eye"></i>
+            </button>
+        </div>
+    </div>
+    
+    <div class="mb-3">
+        <label class="form-label text-muted small fw-bold">รหัสผ่านใหม่</label>
+        <div class="input-group">
+            <input type="password" id="new_password" name="new_password" class="form-control bg-light border-end-0" required minlength="8" autocomplete="new-password">
+            <button class="btn btn-light border border-start-0 text-muted" type="button" onclick="togglePassword('new_password', this)">
+                <i class="bi bi-eye"></i>
+            </button>
+        </div>
+        <div class="form-text" style="font-size: 0.8rem;">รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร</div>
+    </div>
+    
+    <div class="mb-4">
+        <label class="form-label text-muted small fw-bold">ยืนยันรหัสผ่านใหม่</label>
+        <div class="input-group">
+            <input type="password" id="confirm_password" name="confirm_password" class="form-control bg-light border-end-0" required minlength="8" autocomplete="new-password">
+            <button class="btn btn-light border border-start-0 text-muted" type="button" onclick="togglePassword('confirm_password', this)">
+                <i class="bi bi-eye"></i>
+            </button>
+        </div>
+    </div>
+    
+    <div class="d-grid gap-2">
+        <button type="submit" class="btn btn-dark py-2" style="border-radius: 8px;">อัปเดตรหัสผ่าน</button>
+        <button type="button" class="btn btn-light border py-2" data-bs-dismiss="modal" style="border-radius: 8px;">ยกเลิก</button>
+    </div>
+    
+</form>
             </div>
 
         </div>
@@ -189,3 +204,20 @@ if (empty($_SESSION['profile_form_token'])) {
 </div>
 <!-- ================= จบ Modal ================= -->
 <!-- ================= จบ Modal ================= -->
+
+<script>
+function togglePassword(inputId, btn) {
+    const input = document.getElementById(inputId);
+    const icon = btn.querySelector('i');
+    
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('bi-eye');
+        icon.classList.add('bi-eye-slash');
+    } else {
+        input.type = 'password';
+        icon.classList.remove('bi-eye-slash');
+        icon.classList.add('bi-eye');
+    }
+}
+</script>
