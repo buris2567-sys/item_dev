@@ -28,7 +28,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $body = "
                 <div style='font-family: Arial, sans-serif; color: #333; line-height: 1.6;'>
                     <p>ใช้รหัสผ่านต่อไปนี้ในการล็อกอิน: <b style='color: #b45309; font-size: 18px;'>{$new_password}</b></p>
-                    <p>เมื่อล็อกอินแล้ว กรุณาเปลี่ยนเป็นรหัสผ่านที่คุณต้องการ ได้จากเมนู <b>เปลี่ยนรหัสผ่าน</b></p>
+                    <p>เข้าสู่ระบบได้ที่: <a href='https://newitem.oap.go.th' target='_blank'>newitem.oap.go.th</a></p>
+                    <p>เมื่อล็อกอินแล้ว กรุณาเปลี่ยนเป็นรหัสผ่านที่คุณต้องการ ได้จากหน้าเมนูโปรไฟล์ส่วนตัว  </p>
                 </div>
             ";
 

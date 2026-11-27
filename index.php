@@ -3,6 +3,8 @@ session_start();
 require_once 'config/db.php';
 
 // 1. เช็คก่อนว่ามีสิทธิ์เข้าใช้งานไหม (ล็อกอินหรือยัง)
+// 4. สร้างตัวแปรป้องกันการเข้าไฟล์ตรงๆ  ประกาศ APP_RUNNING: ป้องกันไม่ให้คนพิมพ์ URL เข้าไฟล์ย่อยในโฟลเดอร์ views/ โดยตรง
+
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit;
@@ -29,20 +31,14 @@ if (isset($_SESSION['last_activity'])) {
 // 3. ถ้ายังไม่หมดเวลา ให้อัปเดตเวลาล่าสุดทุกครั้งที่มีการโหลดหน้าเว็บ
 $_SESSION['last_activity'] = time();
 
-// 4. สร้างตัวแปรป้องกันการเข้าไฟล์ตรงๆ
-define('APP_RUNNING', true);
-require_once 'config/db.php';
 
-if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
-    exit;
-    
-}
+
 
 // ถ้าไม่มี  $_GET['page']   มีแต่หน้านี้หน้าเดียสเท่านั้นที่เป็นรูปแบบนี้
 $page = $_GET['page'] ?? 'home';
 $role = $_SESSION['role'] ?? 'User';
 
+// แยก Route ตามสิทธิ์ชัดเจน:
 // ตารางแจกจ่ายเส้นทาง (Front Controller Pattern)
 $routes = [];
 if ($role === 'Admin') {
@@ -67,7 +63,7 @@ if ($role === 'Admin') {
     ];
 }
 
-// ตรวจสอบว่ามีหน้าที่ระบุในระบบหรือไม่
+// ตรวจสอบว่ามีหน้าที่ระบุในระบบหรือไม่ ใช้ Whitelist (array_key_exists): ป้องกันการใส่พาธหลอกอย่าง
 if (array_key_exists($page, $routes)) {
     $current_file = $routes[$page]['file'];
     $pageTitle = $routes[$page]['title'];
